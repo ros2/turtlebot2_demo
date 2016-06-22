@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>joy</name>
+  <version>0.0.0</version>
+  <description>everything is awesome</description>
+  <maintainer email="morgan@osrfoundation.org"></maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>sensor_msgs</depend>
+  <depend>rclcpp</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
