@@ -63,7 +63,6 @@ int main(int argc, char * argv[])
       g_kobuki->updateOdometry(pose_update, pose_update_rates);
       auto now = std::chrono::system_clock::now(); 
       if ((now - g_last_cmd_vel_time) > std::chrono::milliseconds(200)) {
-        std::cout << "Watchdog triggered" << std::endl;
         g_kobuki->setBaseControl(0.0, 0.0);
         g_last_cmd_vel_time = now;
       }

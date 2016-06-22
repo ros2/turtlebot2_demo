@@ -26,7 +26,9 @@ int main(int argc, char * argv[])
 
   auto cmd_vel_pub = node->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", rmw_qos_profile_default);
 
-  rclcpp::WallRate loop_rate(0.25);
+  rclcpp::WallRate loop_rate(20);
+  int count = 0;
+  const int switch_count = 80;
 
   auto msg = std::make_shared<geometry_msgs::msg::Twist>();
   msg->linear.x = 0.0;
@@ -35,7 +37,10 @@ int main(int argc, char * argv[])
   while (rclcpp::ok()) {
     std::cout << "Publishing: (" << msg->linear.x << ", " << msg->angular.z << ")" << std::endl;
     cmd_vel_pub->publish(msg);
-    msg->angular.z *= -1.0;
+    if (++count >= switch_count) {
+      msg->angular.z *= -1.0;
+      count = 0;
+    }
     rclcpp::spin_some(node);
     loop_rate.sleep();
   }
