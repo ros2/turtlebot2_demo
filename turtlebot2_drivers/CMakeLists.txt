@@ -7,12 +7,18 @@ if(NOT WIN32)
 endif()
 
 find_package(kobuki_driver REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
 
-include_directories(${kobuki_driver_INCLUDE_DIRS} ${rclcpp_INCLUDE_DIRS} ${std_msgs_INCLUDE_DIRS})
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+
+include_directories(${kobuki_driver_INCLUDE_DIRS} ${rclcpp_INCLUDE_DIRS} ${nav_msgs_INCLUDE_DIRS} ${geometry_msgs_INCLUDE_DIRS})
+link_directories(${kobuki_driver_LIBRARY_DIRS} ${rclcpp_LIBRARY_DIRS} ${nav_msgs_LIBRARY_DIRS} ${geometry_msgs_LIBRARY_DIRS})
+
 add_executable(kobuki_node src/kobuki_node.cpp)
-link_directories(${kobuki_driver_LIBRARY_DIRS} ${rclcpp_LIBRARY_DIRS} ${std_msgs_LIBRARY_DIRS})
-target_link_libraries(kobuki_node ${kobuki_driver_LIBRARIES} ${rclcpp_LIBRARIES} ${std_msgs_LIBRARIES})
-install(TARGETS kobuki_node
+target_link_libraries(kobuki_node ${kobuki_driver_LIBRARIES} ${rclcpp_LIBRARIES} ${nav_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES})
+add_executable(dumb_teleop src/dumb_teleop.cpp)
+target_link_libraries(dumb_teleop ${kobuki_driver_LIBRARIES} ${rclcpp_LIBRARIES} ${nav_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES})
+
+install(TARGETS kobuki_node dumb_teleop
         DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
