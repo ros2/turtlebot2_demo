@@ -72,6 +72,12 @@ cd ~/ros2_ws/src
 git clone git@github.com:ros2/turtlebot2_demo.git
 ```
 
+Also:
+```
+cd ~/ros2_ws/src/ros2/common_interfaces
+git checkout enable_msgs
+```
+
 ## Build the ROS 2 code, including the new nodes
 ```
 . ~/catkin_ws/install/setup.bash
