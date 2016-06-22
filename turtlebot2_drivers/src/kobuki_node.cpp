@@ -22,13 +22,15 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 
-kobuki::Kobuki g_kobuki;
-std::mutex kobuki_mutex;
+kobuki::Kobuki* g_kobuki;
+std::mutex g_kobuki_mutex;
+std::chrono::system_clock::time_point g_last_cmd_vel_time;
 
 void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
-  std::lock_guard<std::mutex> kobuki_guard(kobuki_mutex);
-  g_kobuki.setBaseControl(msg->linear.x, msg->angular.z);
+  std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
+  g_kobuki->setBaseControl(msg->linear.x, msg->angular.z);
+  g_last_cmd_vel_time = std::chrono::system_clock::now();
 }
 
 int main(int argc, char * argv[])
@@ -37,8 +39,9 @@ int main(int argc, char * argv[])
   parameters.sigslots_namespace = "/kobuki";
   parameters.device_port = "/dev/kobuki";
   parameters.enable_acceleration_limiter = true;
-  g_kobuki.init(parameters);
-  g_kobuki.enable();
+  g_kobuki = new kobuki::Kobuki();
+  g_kobuki->init(parameters);
+  g_kobuki->enable();
 
   rclcpp::init(argc, argv);
 
@@ -47,7 +50,7 @@ int main(int argc, char * argv[])
     "cmd_vel", cmdVelCallback, rmw_qos_profile_default);
   auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", rmw_qos_profile_default);
 
-  rclcpp::WallRate loop_rate(10);
+  rclcpp::WallRate loop_rate(20);
 
   auto odom_msg = std::make_shared<nav_msgs::msg::Odometry>();
   ecl::Pose2D<double> pose;
@@ -56,8 +59,14 @@ int main(int argc, char * argv[])
     ecl::Pose2D<double> pose_update;
     ecl::linear_algebra::Vector3d pose_update_rates;
     {
-      std::lock_guard<std::mutex> kobuki_guard(kobuki_mutex);
-      g_kobuki.updateOdometry(pose_update, pose_update_rates);
+      std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
+      g_kobuki->updateOdometry(pose_update, pose_update_rates);
+      auto now = std::chrono::system_clock::now(); 
+      if ((now - g_last_cmd_vel_time) > std::chrono::milliseconds(200)) {
+        std::cout << "Watchdog triggered" << std::endl;
+        g_kobuki->setBaseControl(0.0, 0.0);
+        g_last_cmd_vel_time = now;
+      }
     }
     pose *= pose_update;
 
@@ -80,8 +89,9 @@ int main(int argc, char * argv[])
     loop_rate.sleep();
   }
 
-  g_kobuki.setBaseControl(0.0, 0.0);
-  g_kobuki.disable();
+  g_kobuki->setBaseControl(0.0, 0.0);
+  g_kobuki->disable();
+  delete g_kobuki;
 
   return 0;
 }
