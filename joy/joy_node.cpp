@@ -16,6 +16,7 @@
 #include <cstdio>
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joy.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 
 // this will only work on POSIX
 #include <sys/types.h>
@@ -45,6 +46,10 @@ int main(int argc, char * argv[])
   auto node = rclcpp::node::Node::make_shared("joy_node");
   auto joy_pub = node->create_publisher<sensor_msgs::msg::Joy>(
                      "joy", rmw_qos_profile_sensor_data);
+  auto cmd_vel_pub = node->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", rmw_qos_profile_default);
+  auto cmd_vel_msg = std::make_shared<geometry_msgs::msg::Twist>();
+  cmd_vel_msg->linear.x = 0.0;
+  cmd_vel_msg->angular.z = 0.0;
 
   auto msg = std::make_shared<sensor_msgs::msg::Joy>();
   msg->header.stamp.sec = 0;
@@ -84,12 +89,12 @@ int main(int argc, char * argv[])
         //       e.type, e.number, e.value);
         switch (e.type & 0x7f) {
           case JS_EVENT_BUTTON:
-            if (e.number > msg->buttons.size())
+            if (e.number >= msg->buttons.size())
               msg->buttons.resize(e.number+1);
             msg->buttons[e.number] = e.value;
             break;
           case JS_EVENT_AXIS:
-            if (e.number > msg->axes.size())
+            if (e.number >= msg->axes.size())
               msg->axes.resize(e.number+1);
             msg->axes[e.number] = e.value / 32767.0;
             break;
@@ -100,6 +105,10 @@ int main(int argc, char * argv[])
       else
         break; // if we timed out, let ROS spin to do its stuff
     }
+    bool deadman = msg->buttons[0] != 0;
+    cmd_vel_msg->linear.x = deadman ? 0 : -msg->axes[1] * 0.5;
+    cmd_vel_msg->angular.z = deadman ? 0 : -msg->axes[0] * 2.0;
+    cmd_vel_pub->publish(cmd_vel_msg);
 
     printf("publishing: (%6.3f, %6.3f)\n", msg->axes[0], msg->axes[1]);
     joy_pub->publish(msg);
