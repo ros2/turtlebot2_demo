@@ -4,7 +4,7 @@ This repository will contain the code and supporting files to run TurtleBot 2 de
 
 ## Install some dependencies
 ```
-sudo apt-get install ros-kinetic-kobuki-driver ros-kinetic-common-msgs
+sudo apt-get install ros-kinetic-kobuki-driver ros-kinetic-common-msgs ros-kinetic-astra-camera
 ```
 
 ## Get the ROS 2 code
