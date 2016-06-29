@@ -50,7 +50,6 @@ astra_camera_noda
 ```
 
 ## Follower
-## Astra camera
 ```
 . ~/ros2_ws/install/setup.bash
 follower
