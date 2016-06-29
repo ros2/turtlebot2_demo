@@ -15,12 +15,6 @@ git clone git@github.com:ros2/turtlebot2_demo.git
 git clone git@github.com:ros2/ros_astra_camera.git
 ```
 
-Also, get on certain branches:
-```
-cd ~/ros2_ws/src/ros2/common_interfaces
-git checkout enable_msgs
-```
-
 ## Build the ROS 2 code, including the new nodes
 ```
 # We'll eventually want to use the ROS 1 bridge, too
