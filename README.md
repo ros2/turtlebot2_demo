@@ -34,7 +34,10 @@ We're going to install them into their own tree, source the setup file from that
 
 ## Install some dependencies
 ```
+# For kobuki_driver:
 sudo apt-get install ros-kinetic-catkin ros-kinetic-cmake-modules libftdi-dev ros-kinetic-sophus
+# For astra_camera:
+sudo apt-get install libudev-dev
 . /opt/ros/kinetic/setup.bash
 ```
 

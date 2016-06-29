@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>turtlebot2_drivers</name>
+  <name>turtlebot2_follower</name>
   <version>0.0.0</version>
   <description>Description!</description>
   <maintainer email="gerkey@osrfoundation.org"></maintainer>
@@ -8,7 +8,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>rclcpp</depend>
 

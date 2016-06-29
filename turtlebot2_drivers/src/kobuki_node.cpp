@@ -29,6 +29,7 @@ std::chrono::system_clock::time_point g_last_cmd_vel_time;
 void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
   std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
+  std::cout << "Received: (" << msg->linear.x << "," << msg->angular.z << ")" << std::endl;
   g_kobuki->setBaseControl(msg->linear.x, msg->angular.z);
   g_last_cmd_vel_time = std::chrono::system_clock::now();
 }
