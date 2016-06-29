@@ -22,6 +22,16 @@ git clone git@github.com:ros2/ros_astra_camera.git
 cd ~/ros2_ws
 ./src/ament/ament_tools/scripts/ament.py build
 ```
+## Configure a couple of things
+```
+# Astra device rule
+cd ~/ros2_ws/src/ros_astra_camera
+sudo cp 56-orbbec-usb.rules /etc/udev/rules.d
+sudo service udev reload
+sudo service udev restart
+# Kobuki-specific device link (needed until we parameterize the driver)
+sudo ln -s /dev/ttyUSB0 /dev/kobuki
+```
 
 # Run the new nodes
 
@@ -34,13 +44,13 @@ kobuki_node
 ## Joystick control
 ```
 . ~/ros2_ws/install/setup.bash
-joy
+joy_node
 ```
 
 ## Astra camera
 ```
 . ~/ros2_ws/install/setup.bash
-astra_camera_noda
+astra_camera_node
 ```
 
 ## Follower
@@ -48,6 +58,3 @@ astra_camera_noda
 . ~/ros2_ws/install/setup.bash
 follower
 ```
-
-
-
