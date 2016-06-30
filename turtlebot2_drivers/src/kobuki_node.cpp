@@ -36,7 +36,19 @@ void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 
 int main(int argc, char * argv[])
 {
+  rclcpp::init(argc, argv);
+
+  auto node = rclcpp::node::Node::make_shared("kobuki_node");
+  auto parameter_service = std::make_shared<rclcpp::parameter_service::ParameterService>(node);
+  auto parameters_client = std::make_shared<rclcpp::parameter_client::SyncParametersClient>(node);
+
   kobuki::Parameters parameters;
+  parameters.device_port = "/dev/kobuki";
+  for (auto & parameter : parameters_client->get_parameters({"device_port"})) {
+    parameters.device_port = parameter.value_to_string();
+  }
+  printf("device_port: %s\n", parameters.device_port.c_str());
+
   parameters.sigslots_namespace = "/kobuki";
   parameters.device_port = "/dev/kobuki";
   parameters.enable_acceleration_limiter = true;
@@ -44,9 +56,6 @@ int main(int argc, char * argv[])
   g_kobuki->init(parameters);
   g_kobuki->enable();
 
-  rclcpp::init(argc, argv);
-
-  auto node = rclcpp::node::Node::make_shared("kobuki_node");
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", cmdVelCallback, rmw_qos_profile_default);
   auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", rmw_qos_profile_default);
