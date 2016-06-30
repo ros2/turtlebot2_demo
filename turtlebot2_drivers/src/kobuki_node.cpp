@@ -89,10 +89,10 @@ int main(int argc, char * argv[])
     odom_msg->pose.pose.orientation.z = 0.0;
     odom_msg->pose.pose.orientation.w = pose.heading();
 
-    std::cout << "Publishing: (" <<
-      odom_msg->pose.pose.position.x << ", " <<
-      odom_msg->pose.pose.position.y << ", " <<
-      odom_msg->pose.pose.orientation.w << ")" << std::endl;
+    //std::cout << "Publishing: (" <<
+      //odom_msg->pose.pose.position.x << ", " <<
+      //odom_msg->pose.pose.position.y << ", " <<
+      //odom_msg->pose.pose.orientation.w << ")" << std::endl;
     odom_pub->publish(odom_msg);
     rclcpp::spin_some(node);
     loop_rate.sleep();
