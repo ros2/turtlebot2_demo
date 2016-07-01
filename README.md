@@ -6,6 +6,11 @@ This repository contains the code and supporting files to run TurtleBot 2 demos 
 ```
 sudo apt-get install ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi ros-kinetic-common-msgs ros-kinetic-astra-camera
 ```
+Reason for each dependency:
+* `ros-kinetic-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
+* `ros-kinetic-kobuki-ftdi` : we use a helper script from this package to install a `udev` rule
+* `ros-kinetic-common-msgs` : to support use of the `ros1_bridge`, we need the ROS 1 messages available
+* `ros-kinetic-astra-camera` : we're compiling our own ROS 2 fork of this package, so we don't actually need the ROS 1 version; we're installing it as a convenient way to ensure that all of its dependencies are installed
 
 ## Get the ROS 2 code
 Follow the [usual instructions](https://github.com/ros2/ros2/wiki/Linux-Development-Setup#get-ros-20-code) for getting ROS 2 code, then add a couple of repositories:
