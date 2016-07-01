@@ -40,6 +40,7 @@ void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 
 void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
 {
+  // TODO: handle dynamic params
   std::cout << "Parameter event:" << std::endl << " new parameters:" << std::endl;
   for (auto & new_parameter : event->new_parameters) {
     std::cout << "  " << new_parameter.name << std::endl;
@@ -67,6 +68,7 @@ int main(int argc, char * argv[])
   parameters.device_port = "/dev/kobuki";
   g_max_vx = 0.5;
   g_max_vyaw = 1.0;
+  // TODO use to-be-written params API to get a single value, with a default
   for (auto & parameter : parameters_client->get_parameters({"device_port"})) {
     parameters.device_port = parameter.as_string();
   }
