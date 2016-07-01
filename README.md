@@ -1,4 +1,4 @@
-This repository will contain the code and supporting files to run TurtleBot 2 demos using ROS 2.
+This repository contains the code and supporting files to run TurtleBot 2 demos using ROS 2. Due to reliance on existing Linux-only code and dependencies, these demos are intended for use only on Linux (that could change in the future).
 
 # Installation
 
@@ -8,7 +8,7 @@ sudo apt-get install ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi ros-kinet
 ```
 
 ## Get the ROS 2 code
-Follow the usual instructions for getting ROS 2 code, then add a couple of repositories:
+Follow the [usual instructions](https://github.com/ros2/ros2/wiki/Linux-Development-Setup#get-ros-20-code) for getting ROS 2 code, then add a couple of repositories:
 ```
 cd ~/ros2_ws/src
 git clone git@github.com:ros2/turtlebot2_demo.git
