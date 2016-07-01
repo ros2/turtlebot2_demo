@@ -25,13 +25,33 @@
 kobuki::Kobuki* g_kobuki;
 std::mutex g_kobuki_mutex;
 std::chrono::system_clock::time_point g_last_cmd_vel_time;
+double g_max_vx;
+double g_max_vyaw;
 
 void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
   std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
   std::cout << "Received: (" << msg->linear.x << "," << msg->angular.z << ")" << std::endl;
-  g_kobuki->setBaseControl(msg->linear.x, msg->angular.z);
+  double vx = std::min(std::max(msg->linear.x, -g_max_vx), g_max_vx);
+  double vyaw = std::min(std::max(msg->angular.z, -g_max_vyaw), g_max_vyaw);
+  g_kobuki->setBaseControl(vx, vyaw);
   g_last_cmd_vel_time = std::chrono::system_clock::now();
+}
+
+void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
+{
+  std::cout << "Parameter event:" << std::endl << " new parameters:" << std::endl;
+  for (auto & new_parameter : event->new_parameters) {
+    std::cout << "  " << new_parameter.name << std::endl;
+  }
+  std::cout << " changed parameters:" << std::endl;
+  for (auto & changed_parameter : event->changed_parameters) {
+    std::cout << "  " << changed_parameter.name << std::endl;
+  }
+  std::cout << " deleted parameters:" << std::endl;
+  for (auto & deleted_parameter : event->deleted_parameters) {
+    std::cout << "  " << deleted_parameter.name << std::endl;
+  }
 }
 
 int main(int argc, char * argv[])
@@ -41,13 +61,24 @@ int main(int argc, char * argv[])
   auto node = rclcpp::node::Node::make_shared("kobuki_node");
   auto parameter_service = std::make_shared<rclcpp::parameter_service::ParameterService>(node);
   auto parameters_client = std::make_shared<rclcpp::parameter_client::SyncParametersClient>(node);
+  auto sub = parameters_client->on_parameter_event(on_parameter_event);
 
   kobuki::Parameters parameters;
   parameters.device_port = "/dev/kobuki";
+  g_max_vx = 0.5;
+  g_max_vyaw = 1.0;
   for (auto & parameter : parameters_client->get_parameters({"device_port"})) {
-    parameters.device_port = parameter.value_to_string();
+    parameters.device_port = parameter.as_string();
+  }
+  for (auto & parameter : parameters_client->get_parameters({"max_vx"})) {
+    g_max_vx = parameter.as_double();
+  }
+  for (auto & parameter : parameters_client->get_parameters({"max_vyaw"})) {
+    g_max_vyaw = parameter.as_double();
   }
   printf("device_port: %s\n", parameters.device_port.c_str());
+  printf("max_vx: %f\n", g_max_vx);
+  printf("max_vyaw: %f\n", g_max_vyaw);
 
   parameters.sigslots_namespace = "/kobuki";
   parameters.device_port = "/dev/kobuki";
