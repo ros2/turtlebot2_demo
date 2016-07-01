@@ -27,10 +27,10 @@ cd ~/ros2_ws
 # Astra device rule
 cd ~/ros2_ws/src/ros_astra_camera
 sudo cp 56-orbbec-usb.rules /etc/udev/rules.d
+# copy across the udev rules for kobuki
+rosrun kobuki_ftdi create_udev_rules
 sudo service udev reload
 sudo service udev restart
-# Kobuki-specific device link (needed until we parameterize the driver)
-sudo ln -s /dev/ttyUSB0 /dev/kobuki
 ```
 
 # Run the new nodes
