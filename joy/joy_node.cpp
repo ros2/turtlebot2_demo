@@ -30,6 +30,37 @@
 // the equivalent for OS X seems to be IOKit/hid/IOHIDLib.h
 // but it's completely different in basically every way possible
 
+double g_scale_linear;
+double g_scale_angular;
+
+void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
+{
+/*
+  for (auto & new_parameter : event->new_parameters) {
+    std::cout << "  " << new_parameter.name << std::endl;
+  }
+*/
+  for (auto & changed_parameter : event->changed_parameters) {
+    if ((changed_parameter.name == "scale_linear") &&
+      (changed_parameter.value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE)) {
+      g_scale_linear = changed_parameter.value.double_value;
+      std::cout << "Changed scale_linear to " << g_scale_linear;
+    } else if ((changed_parameter.name == "scale_angular") &&
+      (changed_parameter.value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE)) {
+      g_scale_angular = changed_parameter.value.double_value;
+      std::cout << "Changed scale_angular to " << g_scale_angular;
+    } else {
+      printf("Warning: ignoring attempt to set parameter %s with type %d\n",
+        changed_parameter.name.c_str(), changed_parameter.value.type);
+    }
+  }
+/*
+  for (auto & deleted_parameter : event->deleted_parameters) {
+    std::cout << "  " << deleted_parameter.name << std::endl;
+  }
+*/
+}
+
 int main(int argc, char * argv[])
 {
   const char *joy_path = "/dev/input/js0"; // parameterize someday
@@ -50,6 +81,20 @@ int main(int argc, char * argv[])
   auto cmd_vel_msg = std::make_shared<geometry_msgs::msg::Twist>();
   cmd_vel_msg->linear.x = 0.0;
   cmd_vel_msg->angular.z = 0.0;
+
+  auto parameter_service = std::make_shared<rclcpp::parameter_service::ParameterService>(node);
+  auto parameters_client = std::make_shared<rclcpp::parameter_client::SyncParametersClient>(node);
+  g_scale_linear = 0.5;
+  g_scale_angular = 2.0;
+  auto set_parameters_results = parameters_client->set_parameters({
+    rclcpp::parameter::ParameterVariant("scale_linear", g_scale_linear),
+    rclcpp::parameter::ParameterVariant("scale_angular", g_scale_angular)});
+  auto sub = parameters_client->on_parameter_event(on_parameter_event);
+  for (auto & result : set_parameters_results) {
+    if (!result.successful) {
+      std::cerr << "Failed to set parameter: " << result.reason << std::endl;
+    }
+  }
 
   auto msg = std::make_shared<sensor_msgs::msg::Joy>();
   msg->header.stamp.sec = 0;
@@ -106,14 +151,13 @@ int main(int argc, char * argv[])
         break; // if we timed out, let ROS spin to do its stuff
     }
     bool deadman = msg->buttons[0] != 0;
-    cmd_vel_msg->linear.x = deadman ? 0 : -msg->axes[1] * 0.5;
-    cmd_vel_msg->angular.z = deadman ? 0 : -msg->axes[0] * 2.0;
+    cmd_vel_msg->linear.x = deadman ? -msg->axes[1] * g_scale_linear : 0;
+    cmd_vel_msg->angular.z = deadman ? -msg->axes[0] * g_scale_angular : 0;
     cmd_vel_pub->publish(cmd_vel_msg);
 
-    printf("publishing: (%6.3f, %6.3f)\n", msg->axes[0], msg->axes[1]);
+    printf("publishing: (%6.3f, %6.3f)\n", cmd_vel_msg->linear.x, cmd_vel_msg->angular.z);
     joy_pub->publish(msg);
     //loop_rate.sleep();
   }
   return 0;
 }
-
