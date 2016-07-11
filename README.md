@@ -31,7 +31,7 @@ git clone https://github.com/ros2/ros_astra_camera.git
 # We'll eventually want to use the ROS 1 bridge, too
 . /opt/ros/kinetic/setup.bash
 cd ~/ros2_ws
-./src/ament/ament_tools/scripts/ament.py build
+./src/ament/ament_tools/scripts/ament.py build -s
 ```
 ## Configure a couple of things
 ```
