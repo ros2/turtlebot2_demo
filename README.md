@@ -15,7 +15,7 @@ sudo apt-get install ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi ros-kinet
 Reason for each dependency:
 * `ros-kinetic-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
 * `ros-kinetic-kobuki-ftdi` : we use a helper script from this package to install a `udev` rule
-* `ros-kinetic-common-msgs` : to support use of the `ros1_bridge`, we need the ROS 1 messages available
+* `ros-kinetic-common-msgs` : to support use of the `ros1_bridge`, we need the ROS 1 messages available (TODO: document use of the bridge to view depth images and other stuff)
 * `ros-kinetic-astra-camera` : we're compiling our own ROS 2 fork of this package, so we don't actually need the ROS 1 version; we're installing it as a convenient way to ensure that all of its dependencies are installed
 
 ## Get the ROS 2 code
