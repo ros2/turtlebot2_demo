@@ -4,7 +4,7 @@ This repository contains the code and supporting files to run TurtleBot 2 demos 
 
 ## Install some dependencies
 ```
-sudo apt-get install ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi ros-kinetic-common-msgs ros-kinetic-astra-camera
+sudo apt-get install ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi ros-kinetic-common-msgs ros-kinetic-astra-camera libusb-1.0.0-dev libudev-dev
 ```
 Reason for each dependency:
 * `ros-kinetic-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
