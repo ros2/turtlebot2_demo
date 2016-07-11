@@ -1,5 +1,9 @@
 This repository contains the code and supporting files to run TurtleBot 2 demos using ROS 2. Due to reliance on existing Linux-only code and dependencies, these demos are intended for use only on Linux (that could change in the future).
 
+Here's a video of the very first successful run of ROS 2 follower: https://www.youtube.com/watch?v=YTlls9yHZog. 
+
+This is very much a work in progress and there's plenty of functionality present in the ROS 1 equivalent system that's currently missing or disabled, but it's an important step.
+
 We're assuming here that you have an Orbbec Astra depth camera. Extra work would be required to use the Kinect or Asus Xtion Pro. Without an Astra, you can still do joystick teleop.
 
 # Installation
@@ -79,3 +83,14 @@ astra_camera_node__rmw_opensplice_cpp
 . ~/ros2_ws/install/setup.bash
 follower__rmw_opensplice_cpp
 ```
+
+# Discussion
+What's happening here compared to the ROS 1 versions of these demos? Well, it's 100% ROS 2, with no bridge or shim. We took 4 different
+approaches in building the different pieces:
+
+1. Kobuki driver: we wrote a new, very small rclcpp node that calls into the existing kobuki driver packages, which are organized to be roscpp-independent. In this case, we're building on top of ROS 1 packages, but they don't use `roscpp` or other parts of the ROS 1 middleware, so we're just using them as supporting libraries.
+2. Astra driver: we forked and ported the existing ROS 1 package (there's no roscpp-independent package separation).
+3. Joystick driver: we wrote a simple rclcpp node from scratch (Linux-only for now).
+4. Follower node: we created a new package into which we copied and then ported the ROS 1 follower nodelet.
+
+As we start migrating more code to ROS 2, we'll discover more about these kinds of techniques and arrive at some best practices that we can recommend for similar projects.
