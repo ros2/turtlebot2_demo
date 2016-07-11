@@ -25,7 +25,7 @@ macro(targets)
     "rclcpp${target_suffix}"
     "nav_msgs"
     "geometry_msgs")
-  target_link_libraries(kobuki_node ${kobuki_driver_LIBRARIES})
+  target_link_libraries(kobuki_node${target_suffix} ${kobuki_driver_LIBRARIES})
   add_executable(dumb_teleop${target_suffix} src/dumb_teleop.cpp)
   ament_target_dependencies(dumb_teleop${target_suffix}
     "rclcpp${target_suffix}"
