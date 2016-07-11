@@ -40,25 +40,37 @@ sudo service udev restart
 
 # Run the new nodes
 
-## Kobuki
+## Try out launch files
+To get joystick control:
+```
+. ~/ros2_ws/install/setup.bash
+launch ~/ros2_ws/src/turtlebot2_demo/turtlebot2_drivers/launch/turtlebot_joy.py
+```
+Or, to get follower:
+```
+. ~/ros2_ws/install/setup.bash
+launch ~/ros2_ws/src/turtlebot2_demo/turtlebot2_drivers/launch/turtlebot_follow.py
+```
+## Run individual nodes
+### Kobuki
 ```
 . ~/ros2_ws/install/setup.bash
 kobuki_node
 ```
 
-## Joystick control
+### Joystick control
 ```
 . ~/ros2_ws/install/setup.bash
 joy_node
 ```
 
-## Astra camera
+### Astra camera
 ```
 . ~/ros2_ws/install/setup.bash
 astra_camera_node
 ```
 
-## Follower
+### Follower
 ```
 . ~/ros2_ws/install/setup.bash
 follower
