@@ -17,17 +17,17 @@ from launch.exit_handler import restart_exit_handler
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
     ld.add_process(
-        cmd=['kobuki_node'],
+        cmd=['kobuki_node__rmw_opensplice_cpp'],
         name='kobuki_node',
         exit_handler=restart_exit_handler,
     )
     ld.add_process(
-        cmd=['astra_camera_node'],
+        cmd=['astra_camera_node__rmw_opensplice_cpp'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
     ld.add_process(
-        cmd=['follower'],
+        cmd=['follower__rmw_opensplice_cpp'],
         name='follower',
         exit_handler=restart_exit_handler,
     )

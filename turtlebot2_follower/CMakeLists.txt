@@ -6,15 +6,27 @@ if(NOT WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
 endif()
 
+find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rmw_implementation_cmake REQUIRED)
 
-include_directories(include ${rclcpp_INCLUDE_DIRS} ${nav_msgs_INCLUDE_DIRS} ${sensor_msgs_INCLUDE_DIRS})
-link_directories(${rclcpp_LIBRARY_DIRS} ${nav_msgs_LIBRARY_DIRS} ${sensor_msgs_LIBRARY_DIRS})
+include_directories(include)
 
-add_executable(follower src/follower.cpp)
-target_link_libraries(follower ${rclcpp_LIBRARIES} ${nav_msgs_LIBRARIES} ${sensor_msgs_LIBRARIES})
+macro(targets)
+  if(NOT target_suffix STREQUAL "")
+    get_rclcpp_information("${rmw_implementation}" "rclcpp${target_suffix}")
+  endif()
 
-install(TARGETS follower
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+  add_executable(follower${target_suffix} src/follower.cpp)
+  ament_target_dependencies(follower${target_suffix}
+    "rclcpp${target_suffix}"
+    "nav_msgs"
+    "sensor_msgs")
+
+  install(TARGETS follower${target_suffix}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+endmacro()
+
+call_for_each_rmw_implementation(targets GENERATE_DEFAULT)

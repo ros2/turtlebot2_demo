@@ -64,7 +64,7 @@ public:
   TurtlebotFollower(rclcpp::node::Node::SharedPtr n) : min_y_(0.1), max_y_(0.5),
                         min_x_(-0.3), max_x_(0.3),
                         max_z_(1.5), goal_z_(0.6),
-                        z_scale_(1.0), x_scale_(5.0), n_(n)
+                        z_scale_(1.0), x_scale_(5.0), enabled_(true), n_(n)
   {
 
   }
@@ -115,7 +115,7 @@ private:
     cmdpub_ = n_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", rmw_qos_profile_default);
     //markerpub_ = private_nh.advertise<visualization_msgs::Marker>("marker",1);
     //bboxpub_ = private_nh.advertise<visualization_msgs::Marker>("bbox",1);
-    sub_= n_->create_subscription<sensor_msgs::msg::Image>("image", std::bind(&TurtlebotFollower::imagecb, this, std::placeholders::_1), rmw_qos_profile_default);
+    sub_= n_->create_subscription<sensor_msgs::msg::Image>("image", std::bind(&TurtlebotFollower::imagecb, this, std::placeholders::_1), rmw_qos_profile_sensor_data);
 
     //switch_srv_ = private_nh.advertiseService("change_state", &TurtlebotFollower::changeModeSrvCb, this);
 
