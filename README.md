@@ -1,5 +1,7 @@
 This repository contains the code and supporting files to run TurtleBot 2 demos using ROS 2. Due to reliance on existing Linux-only code and dependencies, these demos are intended for use only on Linux (that could change in the future).
 
+We're assuming here that you have an Orbbec Astra depth camera. Extra work would be required to use the Kinect or Asus Xtion Pro. Without an Astra, you can still do joystick teleop.
+
 # Installation
 
 ## Install some dependencies
@@ -40,38 +42,40 @@ sudo service udev restart
 
 # Run the new nodes
 
-## Try out launch files
-To get joystick control:
+## Joystick teleop
+Try the launch file:
 ```
 . ~/ros2_ws/install/setup.bash
 launch ~/ros2_ws/src/turtlebot2_demo/turtlebot2_drivers/launch/turtlebot_joy.py
 ```
-Or, to get follower:
-```
-. ~/ros2_ws/install/setup.bash
-launch ~/ros2_ws/src/turtlebot2_demo/turtlebot2_drivers/launch/turtlebot_follow.py
-```
-## Run individual nodes
-### Kobuki
+
+Or, run the nodes separately:
 ```
 . ~/ros2_ws/install/setup.bash
 kobuki_node
 ```
-
-### Joystick control
 ```
 . ~/ros2_ws/install/setup.bash
 joy_node
 ```
 
-### Astra camera
+## Follower
+Try the launch file:
 ```
 . ~/ros2_ws/install/setup.bash
-astra_camera_node
+launch ~/ros2_ws/src/turtlebot2_demo/turtlebot2_drivers/launch/turtlebot_follow.py
 ```
 
-### Follower
+Or, run the nodes separately. Note that here we're specifically requesting the OpenSplice variants of the nodes; this is to ensure that we use an RMW implementation that supports large message transfer, which is required for the depth image produced by the Astra camera. This constraint will be relaxed in the future.
 ```
 . ~/ros2_ws/install/setup.bash
-follower
+kobuki_node__rmw_opensplice_cpp
+```
+```
+. ~/ros2_ws/install/setup.bash
+astra_camera_node__rmw_opensplice_cpp
+```
+```
+. ~/ros2_ws/install/setup.bash
+follower__rmw_opensplice_cpp
 ```
