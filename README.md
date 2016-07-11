@@ -16,8 +16,8 @@ Reason for each dependency:
 Follow the [usual instructions](https://github.com/ros2/ros2/wiki/Linux-Development-Setup#get-ros-20-code) for getting ROS 2 code, then add a couple of repositories:
 ```
 cd ~/ros2_ws/src
-git clone git@github.com:ros2/turtlebot2_demo.git
-git clone git@github.com:ros2/ros_astra_camera.git
+git clone https://github.com/ros2/turtlebot2_demo.git
+git clone https://github.com/ros2/ros_astra_camera.git
 ```
 
 ## Build the ROS 2 code, including the new nodes
