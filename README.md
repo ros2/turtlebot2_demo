@@ -19,7 +19,7 @@ Reason for each dependency:
 * `ros-kinetic-astra-camera` : we're compiling our own ROS 2 fork of this package, so we don't actually need the ROS 1 version; we're installing it as a convenient way to ensure that all of its dependencies are installed
 
 ## Get the ROS 2 code
-Follow the [usual instructions](https://github.com/ros2/ros2/wiki/Linux-Development-Setup#get-ros-20-code) for getting ROS 2 code, then add a couple of repositories:
+Follow the [usual instructions](https://github.com/ros2/ros2/wiki/Linux-Development-Setup#get-ros-20-code) for getting ROS 2 code. Be sure to install OpenSplice as one of the DDS implementations if you want to run the follower demo. Next, add a couple of repositories:
 ```
 cd ~/ros2_ws/src
 git clone https://github.com/ros2/turtlebot2_demo.git
