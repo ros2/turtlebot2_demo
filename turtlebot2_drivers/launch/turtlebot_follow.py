@@ -31,3 +31,8 @@ def launch(launch_descriptor, argv):
         name='follower',
         exit_handler=restart_exit_handler,
     )
+    ld.add_process(
+        cmd=['joy_node'],
+        name='joy',
+        exit_handler=restart_exit_handler,
+    )
