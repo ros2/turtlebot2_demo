@@ -151,9 +151,19 @@ int main(int argc, char * argv[])
         break; // if we timed out, let ROS spin to do its stuff
     }
     bool deadman = msg->buttons[0] != 0;
-    cmd_vel_msg->linear.x = deadman ? -msg->axes[1] * g_scale_linear : 0;
-    cmd_vel_msg->angular.z = deadman ? -msg->axes[0] * g_scale_angular : 0;
-    cmd_vel_pub->publish(cmd_vel_msg);
+    bool sent_zero = false;
+    if (deadman) {
+        cmd_vel_msg->linear.x = deadman ? -msg->axes[1] * g_scale_linear : 0;
+        cmd_vel_msg->angular.z = deadman ? -msg->axes[0] * g_scale_angular : 0;
+        cmd_vel_pub->publish(cmd_vel_msg);
+        sent_zero = false;
+    }
+    else if (sent_zero) {
+        cmd_vel_msg->linear.x = 0;
+        cmd_vel_msg->angular.z = 0;
+        cmd_vel_pub->publish(cmd_vel_msg);
+        sent_zero = true;
+    }
 
     printf("publishing: (%6.3f, %6.3f)\n", cmd_vel_msg->linear.x, cmd_vel_msg->angular.z);
     joy_pub->publish(msg);
