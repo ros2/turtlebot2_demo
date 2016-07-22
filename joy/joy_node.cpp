@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
       else
         break; // if we timed out, let ROS spin to do its stuff
     }
-    bool deadman = msg->buttons[0] != 0;
+    bool deadman = msg->buttons[4] != 0;
     bool sent_zero = false;
     if (deadman) {
         cmd_vel_msg->linear.x = deadman ? -msg->axes[1] * g_scale_linear : 0;
