@@ -153,8 +153,8 @@ int main(int argc, char * argv[])
     bool deadman = msg->buttons[4] != 0;
     bool sent_zero = false;
     if (deadman) {
-        cmd_vel_msg->linear.x = deadman ? -msg->axes[1] * g_scale_linear : 0;
-        cmd_vel_msg->angular.z = deadman ? -msg->axes[0] * g_scale_angular : 0;
+        cmd_vel_msg->linear.x = -msg->axes[1] * g_scale_linear;
+        cmd_vel_msg->angular.z = -msg->axes[0] * g_scale_angular;
         cmd_vel_pub->publish(cmd_vel_msg);
         sent_zero = false;
     }
