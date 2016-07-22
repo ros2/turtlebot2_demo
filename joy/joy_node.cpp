@@ -110,6 +110,9 @@ int main(int argc, char * argv[])
   fd_set read_fds;
   struct timeval tv;
 
+  // Used so that we only send zero once after deadman is released
+  bool sent_zero = false;
+
   while (rclcpp::ok()) {
     rclcpp::spin_some(node);
     while (true)  { // all good programs have this
@@ -151,14 +154,13 @@ int main(int argc, char * argv[])
         break; // if we timed out, let ROS spin to do its stuff
     }
     bool deadman = msg->buttons[4] != 0;
-    bool sent_zero = false;
     if (deadman) {
         cmd_vel_msg->linear.x = -msg->axes[1] * g_scale_linear;
         cmd_vel_msg->angular.z = -msg->axes[0] * g_scale_angular;
         cmd_vel_pub->publish(cmd_vel_msg);
         sent_zero = false;
     }
-    else if (sent_zero) {
+    else if (!sent_zero) {
         cmd_vel_msg->linear.x = 0;
         cmd_vel_msg->angular.z = 0;
         cmd_vel_pub->publish(cmd_vel_msg);
