@@ -50,8 +50,8 @@ void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr eve
       g_scale_angular = changed_parameter.value.double_value;
       std::cout << "Changed scale_angular to " << g_scale_angular;
     } else {
-      printf("Warning: ignoring attempt to set parameter %s with type %d\n",
-        changed_parameter.name.c_str(), changed_parameter.value.type);
+      // printf("Warning: ignoring attempt to set parameter %s with type %d\n",
+      //   changed_parameter.name.c_str(), changed_parameter.value.type);
     }
   }
 /*
