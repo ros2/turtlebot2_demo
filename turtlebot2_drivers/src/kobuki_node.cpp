@@ -31,7 +31,7 @@ double g_max_vyaw;
 void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
   std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
-  std::cout << "Received: (" << msg->linear.x << "," << msg->angular.z << ")" << std::endl;
+  printf("Received: (%6.3f, %6.3f)\n", msg->linear.x, msg->angular.z);
   double vx = std::min(std::max(msg->linear.x, -g_max_vx), g_max_vx);
   double vyaw = std::min(std::max(msg->angular.z, -g_max_vyaw), g_max_vyaw);
   g_kobuki->setBaseControl(vx, vyaw);
@@ -41,17 +41,17 @@ void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
 {
   // TODO: handle dynamic params
-  std::cout << "Parameter event:" << std::endl << " new parameters:" << std::endl;
+  printf("Parameter event:\n  new parameters:\n");
   for (auto & new_parameter : event->new_parameters) {
-    std::cout << "  " << new_parameter.name << std::endl;
+    printf("  %s\n", new_parameter.name.c_str());
   }
-  std::cout << " changed parameters:" << std::endl;
+  printf(" changed parameters:\n");
   for (auto & changed_parameter : event->changed_parameters) {
-    std::cout << "  " << changed_parameter.name << std::endl;
+    printf("  %s\n", changed_parameter.name.c_str());
   }
-  std::cout << " deleted parameters:" << std::endl;
+  printf(" deleted parameters:\n");
   for (auto & deleted_parameter : event->deleted_parameters) {
-    std::cout << "  " << deleted_parameter.name << std::endl;
+    printf("  %s\n", deleted_parameter.name.c_str());
   }
 }
 
