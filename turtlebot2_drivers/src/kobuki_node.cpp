@@ -48,6 +48,16 @@ void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr eve
   printf(" changed parameters:\n");
   for (auto & changed_parameter : event->changed_parameters) {
     printf("  %s\n", changed_parameter.name.c_str());
+
+    if ("device_port" == changed_parameter.name) {
+      fprintf(stderr, "Dynamically changing device_port is not supported, using old value\n");
+    }
+    if ("max_vx" == changed_parameter.name) {
+      g_max_vx = changed_parameter.value.double_value;
+    }
+    if ("max_vyaw" == changed_parameter.name) {
+      g_max_vyaw = changed_parameter.value.double_value;
+    }
   }
   printf(" deleted parameters:\n");
   for (auto & deleted_parameter : event->deleted_parameters) {
