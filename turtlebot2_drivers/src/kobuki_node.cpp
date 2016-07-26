@@ -78,6 +78,17 @@ int main(int argc, char * argv[])
   for (auto & parameter : parameters_client->get_parameters({"max_vyaw"})) {
     g_max_vyaw = parameter.as_double();
   }
+
+  auto set_parameters_results = parameters_client->set_parameters({
+    rclcpp::parameter::ParameterVariant("device_port", parameters.device_port),
+    rclcpp::parameter::ParameterVariant("max_vx", g_max_vx),
+    rclcpp::parameter::ParameterVariant("max_vyaw", g_max_vyaw)});
+  for (auto & result : set_parameters_results) {
+    if (!result.successful) {
+      fprintf(stderr, "Failed to set parameter: %s\n", result.reason.c_str());
+    }
+  }
+
   printf("device_port: %s\n", parameters.device_port.c_str());
   printf("max_vx: %f\n", g_max_vx);
   printf("max_vyaw: %f\n", g_max_vyaw);
