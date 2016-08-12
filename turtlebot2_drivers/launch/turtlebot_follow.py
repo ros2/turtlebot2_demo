@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch.exit_handler import restart_exit_handler
+from launch.exit_handler import restart_exit_handler, ignore_exit_handler
 
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
@@ -30,4 +30,10 @@ def launch(launch_descriptor, argv):
         cmd=['follower__rmw_opensplice_cpp'],
         name='follower',
         exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        cmd=['joy_node'],
+        name='joy',
+        # The joy node is optional, we don't care if it actually launches
+        exit_handler=ignore_exit_handler,
     )

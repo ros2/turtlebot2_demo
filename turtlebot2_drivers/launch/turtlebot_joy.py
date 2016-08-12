@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch.exit_handler import restart_exit_handler
+from launch.exit_handler import restart_exit_handler, default_exit_handler
 
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
@@ -24,5 +24,6 @@ def launch(launch_descriptor, argv):
     ld.add_process(
         cmd=['joy_node'],
         name='joy_node',
-        exit_handler=restart_exit_handler,
+        # The joy node is required, die if it dies
+        exit_handler=default_exit_handler,
     )
