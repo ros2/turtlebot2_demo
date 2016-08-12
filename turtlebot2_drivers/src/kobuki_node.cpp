@@ -49,41 +49,37 @@ rcl_interfaces::msg::SetParametersResult on_param_change(
   std::string port = k_parameters.device_port;
 
   for (auto param : parameters) {
-    if ("device_port" == param.get_name() &&
-        param.get_type() ==
-            rcl_interfaces::msg::ParameterType::PARAMETER_STRING) {
-      if (nullptr == g_kobuki) {
-        port = param.get_value<std::string>();
+    if ("device_port" == param.get_name()) {
+      if (param.get_type() == rcl_interfaces::msg::ParameterType::PARAMETER_STRING) {
+        if (nullptr == g_kobuki) {
+          port = param.get_value<std::string>();
+        } else {
+          result.successful = false;
+          result.reason = "Dynamically changing device_port is not supported, "
+                          "using old value";
+        }
       } else {
         result.successful = false;
-        result.reason = "Dynamically changing device_port is not supported, "
-                        "using old value";
+        result.reason = "device_port has to be a string";
       }
-    } else if ("device_port" == param.get_name() &&
-               param.get_type() !=
-                   rcl_interfaces::msg::ParameterType::PARAMETER_STRING) {
-      result.successful = false;
-      result.reason = "device_port has to be a string";
     }
-    if ("max_vx" == param.get_name() &&
-        param.get_type() ==
-            rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
-      max_vx = param.get_value<double>();
-    } else if ("max_vx" == param.get_name() &&
-               param.get_type() !=
-                   rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
-      result.successful = false;
-      result.reason = "max_vx has to be a double";
+
+    if ("max_vx" == param.get_name()) {
+      if (param.get_type() == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
+        max_vx = param.get_value<double>();
+      } else {
+        result.successful = false;
+        result.reason = "max_vx has to be a double";
+      }
     }
-    if ("max_vyaw" == param.get_name() &&
-        param.get_type() ==
-            rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
-      max_vyaw = param.get_value<double>();
-    } else if ("max_vyaw" == param.get_name() &&
-               param.get_type() !=
-                   rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
-      result.successful = false;
-      result.reason = "max_vyaw has to be a double";
+
+    if ("max_vyaw" == param.get_name()){
+      if (param.get_type() == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
+        max_vyaw = param.get_value<double>();
+      } else {
+        result.successful = false;
+        result.reason = "max_vyaw has to be a double";
+      }
     }
   }
 
