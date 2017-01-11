@@ -96,10 +96,10 @@ int main(int argc, char * argv[])
   rclcpp::WallRate loop_rate(20);
 
   auto odom_msg = std::make_shared<nav_msgs::msg::Odometry>();
-  ecl::Pose2D<double> pose;
+  ecl::LegacyPose2D<double> pose;
 
   while (rclcpp::ok()) {
-    ecl::Pose2D<double> pose_update;
+    ecl::LegacyPose2D<double> pose_update;
     ecl::linear_algebra::Vector3d pose_update_rates;
     {
       std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
