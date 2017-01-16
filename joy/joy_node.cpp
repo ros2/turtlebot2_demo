@@ -35,11 +35,6 @@ double g_scale_angular;
 
 void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
 {
-/*
-  for (auto & new_parameter : event->new_parameters) {
-    std::cout << "  " << new_parameter.name << std::endl;
-  }
-*/
   for (auto & changed_parameter : event->changed_parameters) {
     if ((changed_parameter.name == "scale_linear") &&
       (changed_parameter.value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE)) {
@@ -49,16 +44,8 @@ void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr eve
       (changed_parameter.value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE)) {
       g_scale_angular = changed_parameter.value.double_value;
       std::cout << "Changed scale_angular to " << g_scale_angular;
-    } else {
-      printf("Warning: ignoring attempt to set parameter %s with type %d\n",
-        changed_parameter.name.c_str(), changed_parameter.value.type);
     }
   }
-/*
-  for (auto & deleted_parameter : event->deleted_parameters) {
-    std::cout << "  " << deleted_parameter.name << std::endl;
-  }
-*/
 }
 
 int main(int argc, char * argv[])

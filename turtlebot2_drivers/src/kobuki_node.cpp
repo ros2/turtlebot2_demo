@@ -22,76 +22,124 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 
-kobuki::Kobuki* g_kobuki;
+kobuki::Kobuki *g_kobuki = nullptr;
 std::mutex g_kobuki_mutex;
 std::chrono::system_clock::time_point g_last_cmd_vel_time;
 double g_max_vx;
 double g_max_vyaw;
 
-void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
-{
+static kobuki::Parameters k_parameters;
+
+void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
   std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
-  std::cout << "Received: (" << msg->linear.x << "," << msg->angular.z << ")" << std::endl;
+  printf("Received: (%6.3f, %6.3f)\n", msg->linear.x, msg->angular.z);
   double vx = std::min(std::max(msg->linear.x, -g_max_vx), g_max_vx);
   double vyaw = std::min(std::max(msg->angular.z, -g_max_vyaw), g_max_vyaw);
   g_kobuki->setBaseControl(vx, vyaw);
   g_last_cmd_vel_time = std::chrono::system_clock::now();
 }
 
-void on_parameter_event(const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
-{
-  // TODO: handle dynamic params
-  std::cout << "Parameter event:" << std::endl << " new parameters:" << std::endl;
-  for (auto & new_parameter : event->new_parameters) {
-    std::cout << "  " << new_parameter.name << std::endl;
+rcl_interfaces::msg::SetParametersResult on_param_change(
+    const std::vector<rclcpp::parameter::ParameterVariant> parameters) {
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+
+  double max_vx = g_max_vx;
+  double max_vyaw = g_max_vyaw;
+  std::string port = k_parameters.device_port;
+
+  for (auto param : parameters) {
+    if ("device_port" == param.get_name()) {
+      if (param.get_type() == rcl_interfaces::msg::ParameterType::PARAMETER_STRING) {
+        if (nullptr == g_kobuki) {
+          port = param.get_value<std::string>();
+        } else {
+          result.successful = false;
+          result.reason = "Dynamically changing device_port is not supported, "
+                          "using old value";
+        }
+      } else {
+        result.successful = false;
+        result.reason = "device_port has to be a string";
+      }
+    }
+
+    if ("max_vx" == param.get_name()) {
+      if (param.get_type() == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
+        max_vx = param.get_value<double>();
+      } else {
+        result.successful = false;
+        result.reason = "max_vx has to be a double";
+      }
+    }
+
+    if ("max_vyaw" == param.get_name()){
+      if (param.get_type() == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE) {
+        max_vyaw = param.get_value<double>();
+      } else {
+        result.successful = false;
+        result.reason = "max_vyaw has to be a double";
+      }
+    }
   }
-  std::cout << " changed parameters:" << std::endl;
-  for (auto & changed_parameter : event->changed_parameters) {
-    std::cout << "  " << changed_parameter.name << std::endl;
+
+  if (result.successful) {
+    g_max_vx = max_vx;
+    g_max_vyaw = max_vyaw;
+    k_parameters.device_port = port;
   }
-  std::cout << " deleted parameters:" << std::endl;
-  for (auto & deleted_parameter : event->deleted_parameters) {
-    std::cout << "  " << deleted_parameter.name << std::endl;
-  }
+
+  return result;
 }
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
 
   auto node = rclcpp::node::Node::make_shared("kobuki_node");
-  auto parameter_service = std::make_shared<rclcpp::parameter_service::ParameterService>(node);
-  auto parameters_client = std::make_shared<rclcpp::parameter_client::SyncParametersClient>(node);
-  auto sub = parameters_client->on_parameter_event(on_parameter_event);
+  node->register_param_change_callback(on_param_change);
 
-  kobuki::Parameters parameters;
-  parameters.device_port = "/dev/kobuki";
+  k_parameters.device_port = "/dev/kobuki";
+  auto parameter_service =
+      std::make_shared<rclcpp::parameter_service::ParameterService>(node);
+
   g_max_vx = 0.5;
   g_max_vyaw = 1.0;
-  // TODO use to-be-written params API to get a single value, with a default
-  for (auto & parameter : parameters_client->get_parameters({"device_port"})) {
-    parameters.device_port = parameter.as_string();
+
+  auto set_parameters_results = node->set_parameters_atomically(
+      {rclcpp::parameter::ParameterVariant("device_port",
+                                           k_parameters.device_port.c_str()),
+       rclcpp::parameter::ParameterVariant("max_vx", g_max_vx),
+       rclcpp::parameter::ParameterVariant("max_vyaw", g_max_vyaw)});
+  if (!set_parameters_results.successful) {
+    fprintf(stderr, "Failed to set parameter: %s\n",
+            set_parameters_results.reason.c_str());
   }
-  for (auto & parameter : parameters_client->get_parameters({"max_vx"})) {
+
+  // TODO use to-be-written params API to get a single value, with a default
+  for (auto &parameter : node->get_parameters({"device_port"})) {
+    k_parameters.device_port = parameter.as_string();
+  }
+  for (auto &parameter : node->get_parameters({"max_vx"})) {
     g_max_vx = parameter.as_double();
   }
-  for (auto & parameter : parameters_client->get_parameters({"max_vyaw"})) {
+  for (auto &parameter : node->get_parameters({"max_vyaw"})) {
     g_max_vyaw = parameter.as_double();
   }
-  printf("device_port: %s\n", parameters.device_port.c_str());
+
+  printf("device_port: %s\n", k_parameters.device_port.c_str());
   printf("max_vx: %f\n", g_max_vx);
   printf("max_vyaw: %f\n", g_max_vyaw);
 
-  parameters.sigslots_namespace = "/kobuki";
-  parameters.device_port = "/dev/kobuki";
-  parameters.enable_acceleration_limiter = true;
+  k_parameters.sigslots_namespace = "/kobuki";
+  k_parameters.enable_acceleration_limiter = true;
   g_kobuki = new kobuki::Kobuki();
-  g_kobuki->init(parameters);
+  g_kobuki->init(k_parameters);
   g_kobuki->enable();
 
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel", cmdVelCallback, rmw_qos_profile_default);
-  auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", rmw_qos_profile_default);
+      "cmd_vel", cmdVelCallback, rmw_qos_profile_default);
+  auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>(
+      "odom", rmw_qos_profile_default);
 
   rclcpp::WallRate loop_rate(20);
 
@@ -104,7 +152,7 @@ int main(int argc, char * argv[])
     {
       std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
       g_kobuki->updateOdometry(pose_update, pose_update_rates);
-      auto now = std::chrono::system_clock::now(); 
+      auto now = std::chrono::system_clock::now();
       if ((now - g_last_cmd_vel_time) > std::chrono::milliseconds(200)) {
         g_kobuki->setBaseControl(0.0, 0.0);
         g_last_cmd_vel_time = now;
@@ -115,17 +163,17 @@ int main(int argc, char * argv[])
     odom_msg->pose.pose.position.x = pose.x();
     odom_msg->pose.pose.position.y = pose.y();
     odom_msg->pose.pose.position.z = 0.0;
- 
+
     // TODO: do Euler->quaternion conversion
     odom_msg->pose.pose.orientation.x = 0.0;
     odom_msg->pose.pose.orientation.y = 0.0;
     odom_msg->pose.pose.orientation.z = 0.0;
     odom_msg->pose.pose.orientation.w = pose.heading();
 
-    //std::cout << "Publishing: (" <<
-      //odom_msg->pose.pose.position.x << ", " <<
-      //odom_msg->pose.pose.position.y << ", " <<
-      //odom_msg->pose.pose.orientation.w << ")" << std::endl;
+    // std::cout << "Publishing: (" <<
+    // odom_msg->pose.pose.position.x << ", " <<
+    // odom_msg->pose.pose.position.y << ", " <<
+    // odom_msg->pose.pose.orientation.w << ")" << std::endl;
     odom_pub->publish(odom_msg);
     rclcpp::spin_some(node);
     loop_rate.sleep();
@@ -137,4 +185,3 @@ int main(int argc, char * argv[])
 
   return 0;
 }
-
