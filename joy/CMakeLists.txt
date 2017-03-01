@@ -17,3 +17,5 @@ add_executable(joy_node joy_node.cpp)
 target_link_libraries(joy_node ${rclcpp_LIBRARIES} ${sensor_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES})
 
 install(TARGETS joy_node DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+ament_package()

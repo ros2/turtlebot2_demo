@@ -10,23 +10,21 @@ find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rmw_implementation_cmake REQUIRED)
 
 include_directories(include)
 
-macro(targets)
-  if(NOT target_suffix STREQUAL "")
-    get_rclcpp_information("${rmw_implementation}" "rclcpp${target_suffix}")
-  endif()
+add_executable(follower src/follower.cpp)
+ament_target_dependencies(follower
+  "rclcpp"
+  "nav_msgs"
+  "sensor_msgs")
 
-  add_executable(follower${target_suffix} src/follower.cpp)
-  ament_target_dependencies(follower${target_suffix}
-    "rclcpp${target_suffix}"
-    "nav_msgs"
-    "sensor_msgs")
+install(TARGETS follower
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
-  install(TARGETS follower${target_suffix}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-endmacro()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
-call_for_each_rmw_implementation(targets GENERATE_DEFAULT)
+ament_package()

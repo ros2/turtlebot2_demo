@@ -12,28 +12,34 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rmw_implementation_cmake REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
-include_directories(${kobuki_driver_INCLUDE_DIRS})
+add_executable(kobuki_node src/kobuki_node.cpp)
+ament_target_dependencies(kobuki_node
+  "geometry_msgs"
+  "nav_msgs"
+  "rclcpp"
+  "sensor_msgs"
+  "tf2_ros")
+# Note that this setting must come after the call to
+# ament_target_dependencies() to avoid including a ROS1 tf2 installation that
+# might be on the system.
+target_include_directories(kobuki_node PRIVATE ${kobuki_driver_INCLUDE_DIRS})
+target_link_libraries(kobuki_node ${kobuki_driver_LIBRARIES})
 
-macro(targets)
-  if(NOT target_suffix STREQUAL "")
-    get_rclcpp_information("${rmw_implementation}" "rclcpp${target_suffix}")
-  endif()
-  add_executable(kobuki_node${target_suffix} src/kobuki_node.cpp)
-  ament_target_dependencies(kobuki_node${target_suffix}
-    "rclcpp${target_suffix}"
-    "nav_msgs"
-    "geometry_msgs")
-  target_link_libraries(kobuki_node${target_suffix} ${kobuki_driver_LIBRARIES})
-  add_executable(dumb_teleop${target_suffix} src/dumb_teleop.cpp)
-  ament_target_dependencies(dumb_teleop${target_suffix}
-    "rclcpp${target_suffix}"
-    "nav_msgs"
-    "geometry_msgs")
+add_executable(dumb_teleop src/dumb_teleop.cpp)
+ament_target_dependencies(dumb_teleop
+  "rclcpp"
+  "nav_msgs"
+  "geometry_msgs")
 
-  install(TARGETS kobuki_node${target_suffix} dumb_teleop${target_suffix}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-endmacro()
+install(TARGETS kobuki_node dumb_teleop
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
-call_for_each_rmw_implementation(targets GENERATE_DEFAULT)
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+ament_package()

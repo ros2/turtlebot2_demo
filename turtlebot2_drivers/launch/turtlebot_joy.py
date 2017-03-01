@@ -14,6 +14,7 @@
 
 from launch.exit_handler import restart_exit_handler, default_exit_handler
 
+
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
     ld.add_process(
