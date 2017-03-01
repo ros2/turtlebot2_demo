@@ -104,6 +104,7 @@ int main(int argc, char * argv[])
 
   auto odom_msg = std::make_shared<nav_msgs::msg::Odometry>();
   odom_msg->header.frame_id = odom_frame;
+  odom_msg->child_frame_id = base_link_frame;
   auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();
   imu_msg->header.frame_id = gyro_link_frame;
   auto tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
