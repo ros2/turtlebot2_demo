@@ -105,7 +105,7 @@ int main(int argc, char * argv[])
   msg->buttons.resize(1);
   msg->buttons[0] = 0;
 
-  //rclcpp::WallRate loop_rate(10);
+  rclcpp::WallRate loop_rate(20);
 
   fd_set read_fds;
   struct timeval tv;
@@ -170,7 +170,7 @@ int main(int argc, char * argv[])
     }
 
     joy_pub->publish(msg);
-    //loop_rate.sleep();
+    loop_rate.sleep();
   }
   return 0;
 }

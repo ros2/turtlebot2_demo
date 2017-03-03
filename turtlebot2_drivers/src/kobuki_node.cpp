@@ -71,7 +71,9 @@ int main(int argc, char * argv[])
   parameters.device_port = "/dev/kobuki";
   g_max_vx = 0.5;
   g_max_vyaw = 1.0;
-  std::string odom_frame, base_link_frame, gyro_link_frame;
+  std::string odom_frame = "odom";
+  std::string base_link_frame = "base_link";
+  std::string gyro_link_frame = "gyro_link";
   for (auto & parameter : parameters_client->get_parameters({"device_port"})) {
     parameters.device_port = parameter.as_string();
   }
@@ -175,7 +177,7 @@ int main(int argc, char * argv[])
     imu_msg->header.stamp = odom_msg->header.stamp;
 
     tf2::Quaternion q_imu;
-    q.setRPY(0.0, 0.0, gyro_yaw);
+    q_imu.setRPY(0.0, 0.0, gyro_yaw);
     imu_msg->orientation.x = q_imu.x();
     imu_msg->orientation.y = q_imu.y();
     imu_msg->orientation.z = q_imu.z();
