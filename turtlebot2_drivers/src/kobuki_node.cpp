@@ -41,7 +41,7 @@
 
 kobuki::Kobuki * g_kobuki;
 std::mutex g_kobuki_mutex;
-std::chrono::system_clock::time_point g_last_cmd_vel_time;
+rcl_time_point_value_t g_last_cmd_vel_time;
 double g_max_vx;
 double g_max_vyaw;
 
@@ -51,7 +51,9 @@ void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
   double vx = std::min(std::max(msg->linear.x, -g_max_vx), g_max_vx);
   double vyaw = std::min(std::max(msg->angular.z, -g_max_vyaw), g_max_vyaw);
   g_kobuki->setBaseControl(vx, vyaw);
-  g_last_cmd_vel_time = std::chrono::system_clock::now();
+  if (rcl_system_time_now(&g_last_cmd_vel_time) != RCL_RET_OK) {
+    std::cerr << "Failed to get system time" << std::endl;
+  }
 }
 
 int main(int argc, char * argv[])
@@ -127,8 +129,7 @@ int main(int argc, char * argv[])
       if (rcl_system_time_now(&now) != RCL_RET_OK) {
         std::cerr << "Failed to get system time" << std::endl;
       }
-      auto now = std::chrono::system_clock::now();
-      if ((now - g_last_cmd_vel_time) > std::chrono::milliseconds(200)) {
+      if ((now - g_last_cmd_vel_time) > 200) {
         g_kobuki->setBaseControl(0.0, 0.0);
         g_last_cmd_vel_time = now;
       }
