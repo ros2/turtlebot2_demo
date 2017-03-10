@@ -62,7 +62,6 @@ int main(int argc, char * argv[])
 
   auto node = rclcpp::node::Node::make_shared("kobuki_node");
   auto parameter_service = std::make_shared<rclcpp::parameter_service::ParameterService>(node);
-  auto parameters_client = std::make_shared<rclcpp::parameter_client::SyncParametersClient>(node);
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", cmdVelCallback, rmw_qos_profile_default);
   auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", rmw_qos_profile_default);
@@ -71,29 +70,18 @@ int main(int argc, char * argv[])
 
   kobuki::Parameters parameters;
   parameters.device_port = "/dev/kobuki";
-  g_max_vx = 0.5;
-  g_max_vyaw = 1.0;
+  node->get_parameter("device_port", parameters.device_port);
   std::string odom_frame = "odom";
-  std::string base_link_frame = "base_link";
+  node->get_parameter("odom_frame", odom_frame);
   std::string gyro_link_frame = "gyro_link";
-  for (auto & parameter : parameters_client->get_parameters({"device_port"})) {
-    parameters.device_port = parameter.as_string();
-  }
-  for (auto & parameter : parameters_client->get_parameters({"odom_frame"})) {
-    odom_frame = parameter.as_string();
-  }
-  for (auto & parameter : parameters_client->get_parameters({"gyro_link_frame"})) {
-    gyro_link_frame = parameter.as_string();
-  }
-  for (auto & parameter : parameters_client->get_parameters({"base_link_frame"})) {
-    base_link_frame = parameter.as_string();
-  }
-  for (auto & parameter : parameters_client->get_parameters({"max_vx"})) {
-    g_max_vx = parameter.as_double();
-  }
-  for (auto & parameter : parameters_client->get_parameters({"max_vyaw"})) {
-    g_max_vyaw = parameter.as_double();
-  }
+  node->get_parameter("gyro_link_frame", gyro_link_frame);
+  std::string base_link_frame = "base_link";
+  node->get_parameter("base_link_frame", base_link_frame);
+  g_max_vx = 0.5;
+  node->get_parameter("max_vx", g_max_vx);
+  g_max_vyaw = 1.0;
+  node->get_parameter("max_vyaw", g_max_vyaw);
+
   printf("device_port: %s\n", parameters.device_port.c_str());
   printf("max_vx: %f\n", g_max_vx);
   printf("max_vyaw: %f\n", g_max_vyaw);
