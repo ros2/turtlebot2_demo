@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <iostream>
+#include <memory>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -24,7 +25,8 @@ int main(int argc, char * argv[])
 
   auto node = rclcpp::node::Node::make_shared("dumb_teleop");
 
-  auto cmd_vel_pub = node->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", rmw_qos_profile_default);
+  auto cmd_vel_pub = node->create_publisher<geometry_msgs::msg::Twist>(
+    "cmd_vel", rmw_qos_profile_default);
 
   rclcpp::WallRate loop_rate(20);
   int count = 0;
@@ -47,4 +49,3 @@ int main(int argc, char * argv[])
 
   return 0;
 }
-

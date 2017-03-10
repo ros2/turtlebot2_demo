@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch.exit_handler import restart_exit_handler, default_exit_handler
+from launch.exit_handler import default_exit_handler, restart_exit_handler
+
 
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
