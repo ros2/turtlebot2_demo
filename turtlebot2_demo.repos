@@ -204,7 +204,7 @@ repositories:
   ros2/ros_astra_camera:
     type: git
     url: https://github.com/ros2/ros_astra_camera.git
-    version: master  # devleopment should be on ros2 branch, master should stay in sync
+    version: ros2
 #  vendor/cartographer:
 #    type: git
 #    url: https://github.com/googlecartographer/cartographer
