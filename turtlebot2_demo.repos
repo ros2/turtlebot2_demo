@@ -207,9 +207,9 @@ repositories:
     version: ros2
 #  vendor/cartographer:
 #    type: git
-#    url: https://github.com/googlecartographer/cartographer
+#    url: https://github.com/googlecartographer/cartographer # will be a ros2 fork at some point
 #    version: master
 #  vendor/ceres-solver:
 #    type: git
-#    url: https://github.com/ceres-solver/ceres-solver
+#    url: https://github.com/ceres-solver/ceres-solver # will be a ros2 fork at some point
 #    version: master
