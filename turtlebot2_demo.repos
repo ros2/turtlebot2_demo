@@ -55,10 +55,18 @@ repositories:
     type: git
     url: https://github.com/ros2/c_utilities.git
     version: master
+#  ros2/cartographer_ros:
+#    type: git
+#    url: https://github.com/ros2/cartographer_ros.git
+#    version: ros2
   ros2/cli_tools:
     type: git
     url: https://github.com/ros2/cli_tools.git
     version: master
+#  ros2/cmake_modules:
+#    type: git
+#    url: https://github.com/ros2/cmake_modules.git
+#    version: ros2
   ros2/common_interfaces:
     type: git
     url: https://github.com/ros2/common_interfaces.git
@@ -75,10 +83,18 @@ repositories:
     type: git
     url: https://github.com/ros2/geometry2.git
     version: ros2
+  ros2/joystick_drivers:
+    type: git
+    url: https://github.com/ros2/joystick_drivers.git
+    version: master
   ros2/launch:
     type: git
     url: https://github.com/ros2/launch.git
     version: master
+  ros2/navigation:
+    type: git
+    url: https://github.com/ros2/navigation.git
+    version: ros2
   ros2/orocos_kinematics_dynamics:
     type: git
     url: https://github.com/ros2/orocos_kinematics_dynamics.git
@@ -155,6 +171,10 @@ repositories:
     type: git
     url: https://github.com/ros2/rosidl_typesupport.git
     version: master
+  ros2/ros_astra_camera:
+    type: git
+    url: https://github.com/ros2/ros_astra_camera.git
+    version: master  # devleopment should be on ros2 branch, master should stay in sync
   ros2/system_tests:
     type: git
     url: https://github.com/ros2/system_tests.git
@@ -166,6 +186,10 @@ repositories:
   ros2/tlsf:
     type: git
     url: https://github.com/ros2/tlsf.git
+    version: master
+  ros2/turtlebot2_demo:
+    type: git
+    url: https://github.com/ros2/turtlebot2_demo.git
     version: master
 #  ros2/tutorials:
 #    type: git
@@ -179,6 +203,14 @@ repositories:
     type: git
     url: https://github.com/ros2/urdfdom_headers.git
     version: math_h
+#  vendor/cartographer:
+#    type: git
+#    url: https://github.com/googlecartographer/cartographer
+#    version: master
+#  vendor/ceres-solver:
+#    type: git
+#    url: https://github.com/ceres-solver/ceres-solver
+#    version: master
   vendor/console_bridge:
     type: git
     url: https://github.com/ros/console_bridge.git
