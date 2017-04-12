@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", cmdVelCallback, rmw_qos_profile_default);
   auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", rmw_qos_profile_default);
-  auto imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu_data", rmw_qos_profile_default);
+  auto imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu", rmw_qos_profile_default);
   tf2_ros::TransformBroadcaster br(node);
 
   kobuki::Parameters parameters;
@@ -99,10 +99,14 @@ int main(int argc, char * argv[])
   odom_msg->child_frame_id = base_link_frame;
   auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();
   imu_msg->header.frame_id = gyro_link_frame;
-  auto tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
-  tf_msg->header.frame_id = odom_frame;
-  tf_msg->child_frame_id = base_link_frame;
+  auto odom_tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
+  odom_tf_msg->header.frame_id = odom_frame;
+  odom_tf_msg->child_frame_id = base_link_frame;
   ecl::LegacyPose2D<double> pose;
+
+  auto imu_tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
+  imu_tf_msg->header.frame_id = gyro_link_frame;
+  imu_tf_msg->child_frame_id = base_link_frame;
 
   while (rclcpp::ok()) {
     rcl_time_point_value_t now;
@@ -190,19 +194,44 @@ int main(int argc, char * argv[])
     imu_msg->angular_velocity_covariance[4] = DBL_MAX;
     imu_msg->angular_velocity_covariance[8] = 0.05;
 
+    imu_msg->linear_acceleration.x = 0.0;
+    imu_msg->linear_acceleration.y = 0.0;
+    imu_msg->linear_acceleration.z = 9.8;
+
     imu_pub->publish(imu_msg);
 
     // Stuff and publish /tf
-    tf_msg->header.stamp = odom_msg->header.stamp;
-    tf_msg->transform.translation.x = pose.x();
-    tf_msg->transform.translation.y = pose.y();
-    tf_msg->transform.translation.z = 0.0;
-    tf_msg->transform.rotation.x = q.x();
-    tf_msg->transform.rotation.y = q.y();
-    tf_msg->transform.rotation.z = q.z();
-    tf_msg->transform.rotation.w = q.w();
+    odom_tf_msg->header.stamp = odom_msg->header.stamp;
+    odom_tf_msg->transform.translation.x = pose.x();
+    odom_tf_msg->transform.translation.y = pose.y();
+    odom_tf_msg->transform.translation.z = 0.0;
+    odom_tf_msg->transform.rotation.x = q.x();
+    odom_tf_msg->transform.rotation.y = q.y();
+    odom_tf_msg->transform.rotation.z = q.z();
+    odom_tf_msg->transform.rotation.w = q.w();
 
-    br.sendTransform(*tf_msg);
+    br.sendTransform(*odom_tf_msg);
+
+    // Stuff and publish /tf
+    imu_tf_msg->header.stamp = imu_msg->header.stamp;
+#if 0
+    imu_tf_msg->transform.translation.x = pose.x();
+    imu_tf_msg->transform.translation.y = pose.y();
+    imu_tf_msg->transform.translation.z = 0.0;
+    imu_tf_msg->transform.rotation.x = q_imu.x();
+    imu_tf_msg->transform.rotation.y = q_imu.y();
+    imu_tf_msg->transform.rotation.z = q_imu.z();
+    imu_tf_msg->transform.rotation.w = q_imu.w();
+#endif
+    imu_tf_msg->transform.translation.x = 0.0;
+    imu_tf_msg->transform.translation.y = 0.0;
+    imu_tf_msg->transform.translation.z = 0.0;
+    imu_tf_msg->transform.rotation.x = 0.0;
+    imu_tf_msg->transform.rotation.y = 0.0;
+    imu_tf_msg->transform.rotation.z = 0.0;
+    imu_tf_msg->transform.rotation.w = 1.0;
+
+    br.sendTransform(*imu_tf_msg);
 
     rclcpp::spin_some(node);
     loop_rate.sleep();
