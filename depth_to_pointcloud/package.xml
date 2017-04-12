@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>depth_to_pointcloud</name>
+  <version>0.0.0</version>
+  <description>Description!</description>
+  <maintainer email="clalancette@osrfoundation.org">Chris Lalancette</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>image_geometry</depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
