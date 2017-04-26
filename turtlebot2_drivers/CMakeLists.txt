@@ -33,7 +33,6 @@ target_link_libraries(kobuki_node ${kobuki_driver_LIBRARIES})
 add_executable(dumb_teleop src/dumb_teleop.cpp)
 ament_target_dependencies(dumb_teleop
   "rclcpp"
-  "nav_msgs"
   "geometry_msgs")
 
 install(TARGETS kobuki_node dumb_teleop
