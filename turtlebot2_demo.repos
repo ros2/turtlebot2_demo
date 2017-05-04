@@ -171,10 +171,6 @@ repositories:
     type: git
     url: https://github.com/ros2/tlsf.git
     version: master
-  ros2/turtlebot2_demo:
-    type: git
-    url: https://github.com/ros2/turtlebot2_demo.git
-    version: master
 #  ros2/tutorials:
 #    type: git
 #    url: https://github.com/ros2/tutorials.git
@@ -213,6 +209,10 @@ repositories:
     type: git
     url: https://github.com/ros2/ros_astra_camera.git
     version: ros2
+  ros2/turtlebot2_demo:
+    type: git
+    url: https://github.com/ros2/turtlebot2_demo.git
+    version: master
 #  vendor/cartographer:
 #    type: git
 #    url: https://github.com/googlecartographer/cartographer # will be a ros2 fork at some point
