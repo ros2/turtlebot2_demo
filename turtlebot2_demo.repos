@@ -1,5 +1,4 @@
 repositories:
-# Turtlebot2_demo repos
 #  ros2/cartographer_ros:
 #    type: git
 #    url: https://github.com/ros2/cartographer_ros.git
