@@ -44,8 +44,12 @@ cd ~/turtlebot_demo_ws
 ## Configure a couple of things
 ```
 # Astra device rule
-# copy across the udev rules for kobuki
-rosrun kobuki_ftdi create_udev_rules
+cd ~/ros2_ws/src/ros_astra_camera
+sudo cp 56-orbbec-usb.rules /etc/udev/rules.d
+# Kobuki device rule
+sudo cp `rospack find kobuki_ftdi`/57-kobuki.rules /etc/udev/rules.d
+sudo service udev reload
+sudo service udev restart
 ```
 
 # Run the new nodes
