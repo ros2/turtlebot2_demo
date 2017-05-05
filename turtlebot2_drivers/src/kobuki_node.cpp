@@ -105,8 +105,8 @@ int main(int argc, char * argv[])
   ecl::LegacyPose2D<double> pose;
 
   auto imu_tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
-  imu_tf_msg->header.frame_id = gyro_link_frame;
-  imu_tf_msg->child_frame_id = base_link_frame;
+  imu_tf_msg->header.frame_id = base_link_frame;
+  imu_tf_msg->child_frame_id = gyro_link_frame;
 
   while (rclcpp::ok()) {
     rcl_time_point_value_t now;
@@ -212,17 +212,12 @@ int main(int argc, char * argv[])
 
     br.sendTransform(*odom_tf_msg);
 
-    // Stuff and publish /tf
+    // Stuff and publish tf for the IMU.
+    // TODO(clalancette): This is a static transform, and we are currently
+    // assuming the IMU is directly at the base_link.  We publish it here
+    // because it is an intrinsic part of the robot, and thus it seems to
+    // make sense to put it in the kobuki node.
     imu_tf_msg->header.stamp = imu_msg->header.stamp;
-#if 0
-    imu_tf_msg->transform.translation.x = pose.x();
-    imu_tf_msg->transform.translation.y = pose.y();
-    imu_tf_msg->transform.translation.z = 0.0;
-    imu_tf_msg->transform.rotation.x = q_imu.x();
-    imu_tf_msg->transform.rotation.y = q_imu.y();
-    imu_tf_msg->transform.rotation.z = q_imu.z();
-    imu_tf_msg->transform.rotation.w = q_imu.w();
-#endif
     imu_tf_msg->transform.translation.x = 0.0;
     imu_tf_msg->transform.translation.y = 0.0;
     imu_tf_msg->transform.translation.z = 0.0;
