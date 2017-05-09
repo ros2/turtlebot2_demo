@@ -24,4 +24,10 @@ install(TARGETS depth_to_pointcloud_node
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
 )
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_package()

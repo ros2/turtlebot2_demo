@@ -18,6 +18,11 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
+
 static rclcpp::publisher::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr g_pub_point_cloud;
 
 static sensor_msgs::msg::CameraInfo::SharedPtr cam_info;
@@ -30,28 +35,29 @@ static sensor_msgs::msg::CameraInfo::SharedPtr cam_info;
 // copied code in here until we figure out what we want to do.
 
 // Encapsulate differences between processing float and uint16_t depths
-template<typename T> struct DepthTraits {};
+template<typename T>
+struct DepthTraits {};
 
 template<>
 struct DepthTraits<uint16_t>
 {
-  static inline bool valid(uint16_t depth) { return depth != 0; }
-  static inline float toMeters(uint16_t depth) { return depth * 0.001f; } // originally mm
-  static inline uint16_t fromMeters(float depth) { return (depth * 1000.0f) + 0.5f; }
-  static inline void initializeBuffer(std::vector<uint8_t>& buffer) {} // Do nothing - already zero-filled
+  static inline bool valid(uint16_t depth) {return depth != 0; }
+  static inline float toMeters(uint16_t depth) {return depth * 0.001f; }  // originally mm
+  static inline uint16_t fromMeters(float depth) {return (depth * 1000.0f) + 0.5f; }
+  static inline void initializeBuffer(std::vector<uint8_t> &) {}  // Do nothing
 };
 
 template<>
 struct DepthTraits<float>
 {
-  static inline bool valid(float depth) { return std::isfinite(depth); }
-  static inline float toMeters(float depth) { return depth; }
-  static inline float fromMeters(float depth) { return depth; }
+  static inline bool valid(float depth) {return std::isfinite(depth); }
+  static inline float toMeters(float depth) {return depth; }
+  static inline float fromMeters(float depth) {return depth; }
 
-  static inline void initializeBuffer(std::vector<uint8_t>& buffer)
+  static inline void initializeBuffer(std::vector<uint8_t> & buffer)
   {
-    float* start = reinterpret_cast<float*>(&buffer[0]);
-    float* end = reinterpret_cast<float*>(&buffer[0] + buffer.size());
+    float * start = reinterpret_cast<float *>(&buffer[0]);
+    float * end = reinterpret_cast<float *>(&buffer[0] + buffer.size());
     std::fill(start, end, std::numeric_limits<float>::quiet_NaN());
   }
 };
@@ -59,17 +65,17 @@ struct DepthTraits<float>
 // Handles float or uint16 depths
 template<typename T>
 void convert(
-    const sensor_msgs::msg::Image::ConstSharedPtr& depth_msg,
-    sensor_msgs::msg::PointCloud2::SharedPtr& cloud_msg,
-    const image_geometry::PinholeCameraModel& model,
-    double range_max = 0.0)
+  const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg,
+  sensor_msgs::msg::PointCloud2::SharedPtr & cloud_msg,
+  const image_geometry::PinholeCameraModel & model,
+  double range_max = 0.0)
 {
   // Use correct principal point from calibration
   float center_x = model.cx();
   float center_y = model.cy();
 
   // Combine unit conversion (if necessary) with scaling by focal length for computing (X,Y)
-  double unit_scaling = DepthTraits<T>::toMeters( T(1) );
+  double unit_scaling = DepthTraits<T>::toMeters(T(1) );
   float constant_x = unit_scaling / model.fx();
   float constant_y = unit_scaling / model.fy();
   float bad_point = std::numeric_limits<float>::quiet_NaN();
@@ -77,23 +83,17 @@ void convert(
   sensor_msgs::PointCloud2Iterator<float> iter_x(*cloud_msg, "x");
   sensor_msgs::PointCloud2Iterator<float> iter_y(*cloud_msg, "y");
   sensor_msgs::PointCloud2Iterator<float> iter_z(*cloud_msg, "z");
-  const T* depth_row = reinterpret_cast<const T*>(&depth_msg->data[0]);
+  const T * depth_row = reinterpret_cast<const T *>(&depth_msg->data[0]);
   int row_step = depth_msg->step / sizeof(T);
-  for (int v = 0; v < (int)cloud_msg->height; ++v, depth_row += row_step)
-  {
-    for (int u = 0; u < (int)cloud_msg->width; ++u, ++iter_x, ++iter_y, ++iter_z)
-    {
+  for (int v = 0; v < static_cast<int>(cloud_msg->height); ++v, depth_row += row_step) {
+    for (int u = 0; u < static_cast<int>(cloud_msg->width); ++u, ++iter_x, ++iter_y, ++iter_z) {
       T depth = depth_row[u];
 
       // Missing points denoted by NaNs
-      if (!DepthTraits<T>::valid(depth))
-      {
-        if (range_max != 0.0)
-        {
+      if (!DepthTraits<T>::valid(depth)) {
+        if (range_max != 0.0) {
           depth = DepthTraits<T>::fromMeters(range_max);
-        }
-        else
-        {
+        } else {
           *iter_x = *iter_y = *iter_z = bad_point;
           continue;
         }
@@ -109,14 +109,14 @@ void convert(
 
 void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
 {
-  if (cam_info == nullptr)
-  {
+  if (cam_info == nullptr) {
     // we haven't gotten the camera info yet, so just drop until
     // we do.
     fprintf(stderr, "No camera info, skipping point cloud conversion\n");
     return;
   }
-  sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
+  sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg =
+    std::make_shared<sensor_msgs::msg::PointCloud2>();
   cloud_msg->header = image->header;
   cloud_msg->height = image->height;
   cloud_msg->width = image->width;
@@ -150,7 +150,8 @@ void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   cloud_msg->row_step = cloud_msg->width * cloud_msg->point_step;
   cloud_msg->data.resize(cloud_msg->height * cloud_msg->row_step);
 
-  // info_msg here is a sensor_msg::msg::CameraInfo::ConstSharedPtr; we should be able to get this from the astra_driver layer.
+  // info_msg here is a sensor_msg::msg::CameraInfo::ConstSharedPtr;
+  // we should be able to get this from the astra_driver layer.
   image_geometry::PinholeCameraModel model_;
   model_.fromCameraInfo(cam_info);
 
@@ -165,7 +166,7 @@ void infoCb(sensor_msgs::msg::CameraInfo::SharedPtr info)
   cam_info = info;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
@@ -177,10 +178,13 @@ int main(int argc, char **argv)
   custom_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
   custom_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
 
-  g_pub_point_cloud = node->create_publisher<sensor_msgs::msg::PointCloud2>("points2", custom_qos_profile);
+  g_pub_point_cloud = node->create_publisher<sensor_msgs::msg::PointCloud2>("points2",
+      custom_qos_profile);
 
-  auto image_sub = node->create_subscription<sensor_msgs::msg::Image>("depth", depthCb, custom_qos_profile);
-  auto cam_info_sub = node->create_subscription<sensor_msgs::msg::CameraInfo>("depth_camera_info", infoCb, custom_qos_profile);
+  auto image_sub = node->create_subscription<sensor_msgs::msg::Image>("depth", depthCb,
+      custom_qos_profile);
+  auto cam_info_sub = node->create_subscription<sensor_msgs::msg::CameraInfo>("depth_camera_info",
+      infoCb, custom_qos_profile);
 
   rclcpp::spin(node);
 
