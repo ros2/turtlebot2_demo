@@ -45,7 +45,7 @@ rcutils_time_point_value_t g_last_cmd_vel_time;
 double g_max_vx;
 double g_max_vyaw;
 
-void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
+static void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
   std::lock_guard<std::mutex> kobuki_guard(g_kobuki_mutex);
   double vx = std::min(std::max(msg->linear.x, -g_max_vx), g_max_vx);
@@ -60,12 +60,24 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
+  rmw_qos_profile_t cmd_vel_qos_profile;
+  cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
+  cmd_vel_qos_profile.depth = 50;
+  cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+  cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
+
+  rmw_qos_profile_t sensor_qos_profile;
+  sensor_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
+  sensor_qos_profile.depth = 50;
+  sensor_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+  sensor_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
+
   auto node = rclcpp::node::Node::make_shared("kobuki_node");
   auto parameter_service = std::make_shared<rclcpp::parameter_service::ParameterService>(node);
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel", cmdVelCallback, rmw_qos_profile_default);
-  auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", rmw_qos_profile_default);
-  auto imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu", rmw_qos_profile_default);
+    "cmd_vel", cmdVelCallback, cmd_vel_qos_profile);
+  auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", sensor_qos_profile);
+  auto imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu", sensor_qos_profile);
   tf2_ros::TransformBroadcaster br(node);
 
   kobuki::Parameters parameters;
