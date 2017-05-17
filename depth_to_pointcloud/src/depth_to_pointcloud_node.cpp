@@ -16,6 +16,7 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/image_encodings.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -39,6 +40,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
     fprintf(stderr, "No camera info, skipping point cloud conversion\n");
     return;
   }
+
   sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg =
     std::make_shared<sensor_msgs::msg::PointCloud2>();
   cloud_msg->header = image->header;
@@ -52,8 +54,8 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   sensor_msgs::PointCloud2Modifier pcd_modifier(*cloud_msg);
   pcd_modifier.setPointCloud2FieldsByString(1, "xyz");
 
-  // g_cam_info here is a sensor_msg::msg::CameraInfo::ConstSharedPtr,
-  // which we get from the cam_info topic.
+  // g_cam_info here is a sensor_msg::msg::CameraInfo::SharedPtr,
+  // which we get from the depth_camera_info topic.
   image_geometry::PinholeCameraModel model;
   model.fromCameraInfo(g_cam_info);
 
@@ -69,7 +71,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   g_pub_point_cloud->publish(cloud_msg);
 }
 
-void infoCb(sensor_msgs::msg::CameraInfo::SharedPtr info)
+static void infoCb(sensor_msgs::msg::CameraInfo::SharedPtr info)
 {
   g_cam_info = info;
 }
@@ -95,6 +97,8 @@ int main(int argc, char ** argv)
     "depth_camera_info", infoCb, custom_qos_profile);
 
   rclcpp::spin(node);
+
+  rclcpp::shutdown();
 
   return 0;
 }
