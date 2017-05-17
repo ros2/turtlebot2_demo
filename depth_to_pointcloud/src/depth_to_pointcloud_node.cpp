@@ -16,6 +16,7 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/image_encodings.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -39,6 +40,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
     fprintf(stderr, "No camera info, skipping point cloud conversion\n");
     return;
   }
+
   sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg =
     std::make_shared<sensor_msgs::msg::PointCloud2>();
   cloud_msg->header = image->header;
@@ -69,7 +71,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   g_pub_point_cloud->publish(cloud_msg);
 }
 
-void infoCb(sensor_msgs::msg::CameraInfo::SharedPtr info)
+static void infoCb(sensor_msgs::msg::CameraInfo::SharedPtr info)
 {
   g_cam_info = info;
 }
@@ -82,9 +84,10 @@ int main(int argc, char ** argv)
 
   rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
 
-  custom_qos_profile.depth = 1;
-  custom_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
   custom_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
+  custom_qos_profile.depth = 50;
+  custom_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+  custom_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
   g_pub_point_cloud = node->create_publisher<sensor_msgs::msg::PointCloud2>(
     "points2", custom_qos_profile);
@@ -95,6 +98,8 @@ int main(int argc, char ** argv)
     "depth_camera_info", infoCb, custom_qos_profile);
 
   rclcpp::spin(node);
+
+  rclcpp::shutdown();
 
   return 0;
 }
