@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <image_geometry/pinhole_camera_model.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <image_geometry/pinhole_camera_model.h>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
 #include <limits>
