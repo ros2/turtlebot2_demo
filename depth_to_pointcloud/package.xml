@@ -2,7 +2,7 @@
 <package format="2">
   <name>depth_to_pointcloud</name>
   <version>0.0.0</version>
-  <description>A simple node to convert a depth image and camera info into a point cloud.</description>
+  <description>A simple node to convert a depth image and camera info into a PointCloud2.</description>
   <maintainer email="clalancette@osrfoundation.org">Chris Lalancette</maintainer>
   <license>Apache License 2.0</license>
 

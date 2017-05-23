@@ -10,6 +10,8 @@ find_package(image_geometry REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
+include_directories(include)
+
 add_executable(depth_to_pointcloud_node
   src/depth_to_pointcloud_node.cpp
 )
