@@ -88,12 +88,12 @@ int main(int argc, char ** argv)
   custom_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
 
   g_pub_point_cloud = node->create_publisher<sensor_msgs::msg::PointCloud2>(
-      "points2", custom_qos_profile);
+    "points2", custom_qos_profile);
 
   auto image_sub = node->create_subscription<sensor_msgs::msg::Image>(
-      "depth", depthCb, custom_qos_profile);
+    "depth", depthCb, custom_qos_profile);
   auto cam_info_sub = node->create_subscription<sensor_msgs::msg::CameraInfo>(
-      "depth_camera_info", infoCb, custom_qos_profile);
+    "depth_camera_info", infoCb, custom_qos_profile);
 
   rclcpp::spin(node);
 

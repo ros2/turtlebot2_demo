@@ -31,10 +31,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // This file is originally from:
-// https://github.com/ros-perception/image_pipeline/blob/da750d1/depth_image_proc/include/depth_image_proc/depth_conversions.h .
+// https://github.com/ros-perception/image_pipeline/blob/da750d1/depth_image_proc/include/depth_image_proc/depth_conversions.h  // NOLINT
 
-#ifndef DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_
-#define DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_
+#ifndef DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_HPP_
+#define DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_HPP_
 
 #include <depth_to_pointcloud/depth_traits.hpp>
 #include <image_geometry/pinhole_camera_model.h>
@@ -43,7 +43,8 @@
 
 #include <limits>
 
-namespace depth_to_pointcloud {
+namespace depth_to_pointcloud
+{
 
 // Handles float or uint16 depths
 template<typename T>
@@ -92,4 +93,4 @@ void convert(
 
 }  // namespace depth_to_pointcloud
 
-#endif  // DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_
+#endif  // DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_HPP_

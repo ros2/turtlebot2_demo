@@ -31,15 +31,17 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // This file is originally from:
-// https://github.com/ros-perception/image_pipeline/blob/da750d1/depth_image_proc/include/depth_image_proc/depth_traits.h .
+// https://github.com/ros-perception/image_pipeline/blob/da750d1/depth_image_proc/include/depth_image_proc/depth_traits.h  // NOLINT
 
-#ifndef DEPTH_TO_POINTCLOUD__DEPTH_TRAITS_
-#define DEPTH_TO_POINTCLOUD__DEPTH_TRAITS_
+#ifndef DEPTH_TO_POINTCLOUD__DEPTH_TRAITS_HPP_
+#define DEPTH_TO_POINTCLOUD__DEPTH_TRAITS_HPP_
 
 #include <algorithm>
 #include <limits>
+#include <vector>
 
-namespace depth_to_pointcloud {
+namespace depth_to_pointcloud
+{
 
 // Encapsulate differences between processing float and uint16_t depths
 template<typename T>
@@ -71,4 +73,4 @@ struct DepthTraits<float>
 
 }  // namespace depth_to_pointcloud
 
-#endif  // DEPTH_TO_POINTCLOUD__DEPTH_TRAITS_
+#endif  // DEPTH_TO_POINTCLOUD__DEPTH_TRAITS_HPP_
