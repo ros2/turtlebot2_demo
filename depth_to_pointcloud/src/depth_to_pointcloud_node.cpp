@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <depth_to_pointcloud/depth_conversions.hpp>
+#include "depth_to_pointcloud/depth_conversions.hpp"
 #include <image_geometry/pinhole_camera_model.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/image_encodings.hpp>
@@ -35,8 +35,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   // https://github.com/ros-perception/image_pipeline/blob/92d7f6b/depth_image_proc/src/nodelets/point_cloud_xyz.cpp
 
   if (nullptr == g_cam_info) {
-    // we haven't gotten the camera info yet, so just drop until
-    // we do.
+    // we haven't gotten the camera info yet, so just drop until we do
     fprintf(stderr, "No camera info, skipping point cloud conversion\n");
     return;
   }
