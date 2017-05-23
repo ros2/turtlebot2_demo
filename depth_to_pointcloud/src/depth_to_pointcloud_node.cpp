@@ -14,6 +14,7 @@
 
 #include <image_geometry/pinhole_camera_model.h>
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -25,7 +26,7 @@
 
 static rclcpp::publisher::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr g_pub_point_cloud;
 
-static sensor_msgs::msg::CameraInfo::SharedPtr cam_info;
+static sensor_msgs::msg::CameraInfo::SharedPtr g_cam_info;
 
 // TODO(clalancette): The DepthTraits structure and the convert<>() function are
 // both copied from
@@ -107,9 +108,12 @@ void convert(
   }
 }
 
-void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
+static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
 {
-  if (cam_info == nullptr) {
+  // The meat of this function is a port of the code from:
+  // https://github.com/ros-perception/image_pipeline/blob/indigo/depth_image_proc/src/nodelets/point_cloud_xyz.cpp
+
+  if (g_cam_info == nullptr) {
     // we haven't gotten the camera info yet, so just drop until
     // we do.
     fprintf(stderr, "No camera info, skipping point cloud conversion\n");
@@ -125,37 +129,22 @@ void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   cloud_msg->fields.clear();
   cloud_msg->fields.reserve(1);
 
-  sensor_msgs::msg::PointField pfx;
-  pfx.name = "x";
-  pfx.count = 1;
-  pfx.datatype = sensor_msgs::msg::PointField::FLOAT32;
-  pfx.offset = 0;
-  cloud_msg->fields.push_back(pfx);
+  sensor_msgs::PointCloud2Modifier pcd_modifier(*cloud_msg);
+  pcd_modifier.setPointCloud2FieldsByString(1, "xyz");
 
-  sensor_msgs::msg::PointField pfy;
-  pfy.name = "y";
-  pfy.count = 1;
-  pfy.datatype = sensor_msgs::msg::PointField::FLOAT32;
-  pfy.offset = 4;
-  cloud_msg->fields.push_back(pfy);
+  // g_cam_info here is a sensor_msg::msg::CameraInfo::ConstSharedPtr,
+  // which we get from the cam_info topic.
+  image_geometry::PinholeCameraModel model;
+  model.fromCameraInfo(g_cam_info);
 
-  sensor_msgs::msg::PointField pfz;
-  pfz.name = "z";
-  pfz.count = 1;
-  pfz.datatype = sensor_msgs::msg::PointField::FLOAT32;
-  pfz.offset = 8;
-  cloud_msg->fields.push_back(pfz);
-
-  cloud_msg->point_step = 16;
-  cloud_msg->row_step = cloud_msg->width * cloud_msg->point_step;
-  cloud_msg->data.resize(cloud_msg->height * cloud_msg->row_step);
-
-  // info_msg here is a sensor_msg::msg::CameraInfo::ConstSharedPtr;
-  // we should be able to get this from the astra_driver layer.
-  image_geometry::PinholeCameraModel model_;
-  model_.fromCameraInfo(cam_info);
-
-  convert<float>(image, cloud_msg, model_);
+  if (image->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
+    convert<uint16_t>(image, cloud_msg, model);
+  } else if (image->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
+    convert<float>(image, cloud_msg, model);
+  } else {
+    fprintf(stderr, "Depth image has unsupported encoding [%s]\n", image->encoding.c_str());
+    return;
+  }
 
   cloud_msg->header.frame_id = std::string("openni_depth_optical_frame");
   g_pub_point_cloud->publish(cloud_msg);
@@ -163,7 +152,7 @@ void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
 
 void infoCb(sensor_msgs::msg::CameraInfo::SharedPtr info)
 {
-  cam_info = info;
+  g_cam_info = info;
 }
 
 int main(int argc, char ** argv)
