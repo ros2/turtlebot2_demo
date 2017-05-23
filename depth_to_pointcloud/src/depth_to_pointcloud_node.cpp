@@ -146,7 +146,6 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
     return;
   }
 
-  cloud_msg->header.frame_id = std::string("openni_depth_optical_frame");
   g_pub_point_cloud->publish(cloud_msg);
 }
 
