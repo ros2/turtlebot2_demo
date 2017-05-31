@@ -63,13 +63,13 @@ int main(int argc, char * argv[])
   rmw_qos_profile_t cmd_vel_qos_profile;
   cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
   cmd_vel_qos_profile.depth = 50;
-  cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+  cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE;
   cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
   rmw_qos_profile_t sensor_qos_profile;
   sensor_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
   sensor_qos_profile.depth = 50;
-  sensor_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+  sensor_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE;
   sensor_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
   auto node = rclcpp::node::Node::make_shared("kobuki_node");

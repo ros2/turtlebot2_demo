@@ -120,7 +120,7 @@ def main(args=None):
     cmd_vel_qos_profile = qos_profile_default
     cmd_vel_qos_profile.history = QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST
     cmd_vel_qos_profile.depth = 50
-    cmd_vel_qos_profile.reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT
+    cmd_vel_qos_profile.reliability = QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_RELIABLE
     cmd_vel_qos_profile.durability = QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_VOLATILE
 
     node = rclpy.create_node('teleop_twist_keyboard')

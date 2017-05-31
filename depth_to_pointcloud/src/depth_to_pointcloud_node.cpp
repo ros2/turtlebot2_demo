@@ -86,7 +86,7 @@ int main(int argc, char ** argv)
 
   custom_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
   custom_qos_profile.depth = 50;
-  custom_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+  custom_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE;
   custom_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
   g_pub_point_cloud = node->create_publisher<sensor_msgs::msg::PointCloud2>(
