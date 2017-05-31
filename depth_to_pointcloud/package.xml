@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>depth_to_pointcloud</name>
+  <version>0.0.0</version>
+  <description>A simple node to convert a depth image and camera info into a PointCloud2.</description>
+  <maintainer email="clalancette@osrfoundation.org">Chris Lalancette</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>image_geometry</depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
