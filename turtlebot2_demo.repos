@@ -5,7 +5,7 @@ repositories:
 #    version: ros2
   ros2/joystick_drivers:
     type: git
-    url: https://github.com/ros2/joystick_drivers.git
+    url: https://github.com/ros2/joystick_drivers_from_scratch.git
     version: master
   ros2/navigation:
     type: git
