@@ -19,10 +19,10 @@ repositories:
     type: git
     url: https://github.com/ros2/turtlebot2_demo.git
     version: master
-#  vendor/cartographer:
-#    type: git
-#    url: https://github.com/googlecartographer/cartographer # will be a ros2 fork at some point
-#    version: master
+  vendor/cartographer:
+    type: git
+    url: https://github.com/ros2/cartographer
+    version: ros2
   vendor/ceres-solver:
     type: git
     url: https://github.com/ros2/ceres-solver
