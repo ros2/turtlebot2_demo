@@ -41,7 +41,7 @@
 
 kobuki::Kobuki * g_kobuki;
 std::mutex g_kobuki_mutex;
-rcl_time_point_value_t g_last_cmd_vel_time;
+rcutils_time_point_value_t g_last_cmd_vel_time;
 double g_max_vx;
 double g_max_vyaw;
 
@@ -51,7 +51,7 @@ void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
   double vx = std::min(std::max(msg->linear.x, -g_max_vx), g_max_vx);
   double vyaw = std::min(std::max(msg->angular.z, -g_max_vyaw), g_max_vyaw);
   g_kobuki->setBaseControl(vx, vyaw);
-  if (rcl_system_time_now(&g_last_cmd_vel_time) != RCL_RET_OK) {
+  if (rcutils_system_time_now(&g_last_cmd_vel_time) != RCUTILS_RET_OK) {
     std::cerr << "Failed to get system time" << std::endl;
   }
 }
@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
   imu_tf_msg->child_frame_id = gyro_link_frame;
 
   while (rclcpp::ok()) {
-    rcl_time_point_value_t now;
+    rcutils_time_point_value_t now;
     double gyro_yaw, gyro_vyaw;
     ecl::LegacyPose2D<double> pose_update;
     ecl::linear_algebra::Vector3d pose_update_rates;
@@ -118,7 +118,7 @@ int main(int argc, char * argv[])
       g_kobuki->updateOdometry(pose_update, pose_update_rates);
       gyro_yaw = g_kobuki->getHeading();
       gyro_vyaw = g_kobuki->getAngularVelocity();
-      if (rcl_system_time_now(&now) != RCL_RET_OK) {
+      if (rcutils_system_time_now(&now) != RCUTILS_RET_OK) {
         std::cerr << "Failed to get system time" << std::endl;
       }
       if ((now - g_last_cmd_vel_time) > 200) {
