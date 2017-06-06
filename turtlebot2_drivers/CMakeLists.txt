@@ -35,12 +35,20 @@ ament_target_dependencies(dumb_teleop
   "rclcpp"
   "geometry_msgs")
 
-install(TARGETS kobuki_node dumb_teleop
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS
+  kobuki_node
+  dumb_teleop
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+install(
+  FILES launch/turtlebot_carto_2d.py launch/turtlebot_carto_3d.py
+  DESTINATION share)
 
 ament_package()
