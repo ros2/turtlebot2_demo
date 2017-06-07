@@ -224,15 +224,16 @@ int main(int argc, char * argv[])
 
     br.sendTransform(*odom_tf_msg);
 
-    // Stuff and publish tf for the IMU.
-    // TODO(clalancette): This is a static transform, and we are currently
-    // assuming the IMU is directly at the base_link.  We publish it here
+    // Stuff and publish tf for the IMU; the values for XYZ come from:
+    // https://github.com/yujinrobot/kobuki/blob/devel/kobuki_description/urdf/kobuki.urdf.xacro
+    // TODO(clalancette):  We publish the static transform here
     // because it is an intrinsic part of the robot, and thus it seems to
-    // make sense to put it in the kobuki node.
+    // make sense to put it in the kobuki node.  Eventually this should
+    // probably move out into the URDF.
     imu_tf_msg->header.stamp = imu_msg->header.stamp;
-    imu_tf_msg->transform.translation.x = 0.0;
-    imu_tf_msg->transform.translation.y = 0.0;
-    imu_tf_msg->transform.translation.z = 0.0;
+    imu_tf_msg->transform.translation.x = 0.056;
+    imu_tf_msg->transform.translation.y = 0.062;
+    imu_tf_msg->transform.translation.z = 0.0202;
     imu_tf_msg->transform.rotation.x = 0.0;
     imu_tf_msg->transform.rotation.y = 0.0;
     imu_tf_msg->transform.rotation.z = 0.0;

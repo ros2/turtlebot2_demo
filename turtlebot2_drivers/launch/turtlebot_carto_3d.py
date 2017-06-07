@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch.exit_handler import default_exit_handler, restart_exit_handler
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch.exit_handler import restart_exit_handler
 
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
@@ -32,8 +35,23 @@ def launch(launch_descriptor, argv):
         exit_handler=restart_exit_handler,
     )
     ld.add_process(
-        cmd=['static_transform_publisher', '0', '0', '0', '0', '0', '0', '1', 'base_link', 'openni_depth_optical_frame'],
-        name='static_transform_publisher',
+        # The XYZ numbers for base_link -> camera_rgb_frame are taken from the turtlebot URDF
+        # in https://github.com/turtlebot/turtlebot/blob/kinetic/turtlebot_description/urdf/sensors/astra.urdf.xacro
+        cmd=[
+            'static_transform_publisher',
+            '-0.087', '-0.0125', '0.287', '0', '0', '0', '1', 'base_link', 'camera_rgb_frame'
+        ],
+        name='static_tf_pub_base_rgb',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        # The XYZ numbers for camera_rgb_frame -> camera_depth_frame are taken from the turtlebot URDF
+        # in https://github.com/turtlebot/turtlebot/blob/kinetic/turtlebot_description/urdf/sensors/astra.urdf.xacro
+        cmd=[
+            'static_transform_publisher',
+            '0', '0.0250', '0', '0', '0', '0', '1', 'camera_rgb_frame', 'openni_depth_optical_frame'
+        ],
+        name='static_tf_pub_rgb_depth',
         exit_handler=restart_exit_handler,
     )
     ld.add_process(
@@ -46,8 +64,14 @@ def launch(launch_descriptor, argv):
         name='teleop_node',
         exit_handler=restart_exit_handler,
     )
+    cartographer_ros_prefix = get_package_share_directory('cartographer_ros')
+    cartographer_config_dir = os.path.join(cartographer_ros_prefix, 'configuration_files')
     ld.add_process(
-        cmd=['cartographer_node', '-configuration_directory', '/home/ubuntu/ros2_ws-new-cart/install_isolated/cartographer_ros/share/cartographer_ros/configuration_files', '-configuration_basename', 'turtlebot_3d.lua'],
+        cmd=[
+            'cartographer_node',
+            '-configuration_directory', cartographer_config_dir,
+            '-configuration_basename', 'turtlebot_3d.lua'
+        ],
         name='cartographer_node',
         exit_handler=restart_exit_handler,
     )
