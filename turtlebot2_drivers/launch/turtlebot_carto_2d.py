@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import sys
 
 from ament_index_python.packages import get_package_share_directory
 from launch.exit_handler import restart_exit_handler
@@ -64,7 +65,9 @@ def launch(launch_descriptor, argv):
         name='teleop_node',
         exit_handler=restart_exit_handler,
     )
+    print("Getting share directory", file=sys.stderr)
     cartographer_ros_prefix = get_package_share_directory('cartographer_ros')
+    print("Prefix is %s" % (cartographer_ros_prefix), file=sys.stderr)
     cartographer_config_dir = os.path.join(cartographer_ros_prefix, 'configuration_files')
     ld.add_process(
         cmd=[

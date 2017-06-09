@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -39,11 +40,17 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
 
-kobuki::Kobuki * g_kobuki;
-std::mutex g_kobuki_mutex;
-rcutils_time_point_value_t g_last_cmd_vel_time;
-double g_max_vx;
-double g_max_vyaw;
+static kobuki::Kobuki * g_kobuki;
+static std::mutex g_kobuki_mutex;
+static rcutils_time_point_value_t g_last_cmd_vel_time;
+static rcutils_time_point_value_t g_last_raw_imu_time;
+static double g_max_vx;
+static double g_max_vyaw;
+
+static inline double from_degrees(double degrees)
+{
+  return degrees * M_PI / 180.0;
+}
 
 static void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
 {
@@ -63,13 +70,13 @@ int main(int argc, char * argv[])
   rmw_qos_profile_t cmd_vel_qos_profile;
   cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
   cmd_vel_qos_profile.depth = 50;
-  cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE;
+  cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
   cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
   rmw_qos_profile_t sensor_qos_profile;
   sensor_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
   sensor_qos_profile.depth = 50;
-  sensor_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE;
+  sensor_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
   sensor_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
   auto node = rclcpp::node::Node::make_shared("kobuki_node");
@@ -78,6 +85,7 @@ int main(int argc, char * argv[])
     "cmd_vel", cmdVelCallback, cmd_vel_qos_profile);
   auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", sensor_qos_profile);
   auto imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu", sensor_qos_profile);
+  auto imu_raw_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu_raw", sensor_qos_profile);
   tf2_ros::TransformBroadcaster br(node);
 
   kobuki::Parameters parameters;
@@ -120,6 +128,9 @@ int main(int argc, char * argv[])
   imu_tf_msg->header.frame_id = base_link_frame;
   imu_tf_msg->child_frame_id = gyro_link_frame;
 
+  auto imu_raw_msg = std::make_shared<sensor_msgs::msg::Imu>();
+  imu_raw_msg->header.frame_id = gyro_link_frame;
+
   while (rclcpp::ok()) {
     rcutils_time_point_value_t now;
     double gyro_yaw, gyro_vyaw;
@@ -141,8 +152,8 @@ int main(int argc, char * argv[])
     pose *= pose_update;
 
     // Stuff and publish /odom
-    odom_msg->header.stamp.sec = RCL_NS_TO_S(now);
-    odom_msg->header.stamp.nanosec = now - RCL_S_TO_NS(odom_msg->header.stamp.sec);
+    odom_msg->header.stamp.sec = RCUTILS_NS_TO_S(now);
+    odom_msg->header.stamp.nanosec = now - RCUTILS_S_TO_NS(odom_msg->header.stamp.sec);
     odom_msg->pose.pose.position.x = pose.x();
     odom_msg->pose.pose.position.y = pose.y();
     odom_msg->pose.pose.position.z = 0.0;
@@ -211,6 +222,61 @@ int main(int argc, char * argv[])
     imu_msg->linear_acceleration.z = 9.8;
 
     imu_pub->publish(imu_msg);
+
+    //imu_raw_msg->header.stamp = odom_msg->header.stamp;
+
+    auto data = g_kobuki->getRawInertiaData();
+    const double digit_to_dps = 0.00875;
+    unsigned int length = data.followed_data_length / 3;
+    for( unsigned int i=0; i<length; i++) {
+      imu_raw_msg->angular_velocity.x = from_degrees(-digit_to_dps * (short)data.data[i*3+1]);
+      imu_raw_msg->angular_velocity.y = from_degrees(digit_to_dps * (short)data.data[i*3+0]);
+      imu_raw_msg->angular_velocity.z = from_degrees(digit_to_dps * (short)data.data[i*3+2]);
+
+      imu_raw_msg->orientation.x = 0.0;
+      imu_raw_msg->orientation.y = 0.0;
+      imu_raw_msg->orientation.z = 0.0;
+      imu_raw_msg->orientation.w = 0.0;
+
+      imu_raw_msg->orientation_covariance[0] = 0.0;
+      imu_raw_msg->orientation_covariance[1] = 0.0;
+      imu_raw_msg->orientation_covariance[2] = 0.0;
+      imu_raw_msg->orientation_covariance[3] = 0.0;
+      imu_raw_msg->orientation_covariance[4] = 0.0;
+      imu_raw_msg->orientation_covariance[5] = 0.0;
+      imu_raw_msg->orientation_covariance[6] = 0.0;
+      imu_raw_msg->orientation_covariance[7] = 0.0;
+      imu_raw_msg->orientation_covariance[8] = 0.0;
+
+      imu_raw_msg->angular_velocity_covariance[0] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[1] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[2] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[3] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[4] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[5] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[6] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[7] = 0.0;
+      imu_raw_msg->angular_velocity_covariance[8] = 0.0;
+
+      imu_raw_msg->linear_acceleration.x = 0.0;
+      imu_raw_msg->linear_acceleration.y = 0.0;
+      imu_raw_msg->linear_acceleration.z = 9.8;
+
+      rcutils_time_point_value_t fixed = now - RCUTILS_MS_TO_NS(10) * length-i-1;
+      if (fixed >= g_last_raw_imu_time) {
+        imu_raw_msg->header.stamp.sec = RCUTILS_NS_TO_S(fixed);
+        imu_raw_msg->header.stamp.nanosec = fixed - RCUTILS_S_TO_NS(imu_raw_msg->header.stamp.sec);
+        //fprintf(stderr, "KOBUKI: fixed %lu, sec %d, nanosec %u\n", fixed, imu_raw_msg->header.stamp.sec, imu_raw_msg->header.stamp.nanosec);
+        //imu_raw_msg->header.stamp.sec = (int32_t)(fixed / (1000000000ull));
+        //imu_raw_msg->header.stamp.nanosec = (uint32_t)((fixed % 1000000000ull));
+
+        imu_raw_pub->publish(imu_raw_msg);
+      }
+      else {
+        //fprintf(stderr, "KOBUKI: went back in time %lu -> %lu (len %d, i %d)\n", now, fixed, length, i);
+      }
+      g_last_raw_imu_time = fixed;
+    }
 
     // Stuff and publish /tf
     odom_tf_msg->header.stamp = odom_msg->header.stamp;
