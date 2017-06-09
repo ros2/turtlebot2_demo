@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(turtlebot2_drivers)
 
 if(NOT WIN32)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
 endif()
 
 find_package(kobuki_driver REQUIRED)
@@ -16,7 +16,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 
-add_executable(kobuki_node src/kobuki_node.cpp)
+add_executable(kobuki_node src/kobuki_node.cpp src/kobuki_ros.cpp src/odometry.cpp)
 ament_target_dependencies(kobuki_node
   "geometry_msgs"
   "nav_msgs"
@@ -30,10 +30,12 @@ ament_target_dependencies(kobuki_node
 target_include_directories(kobuki_node PRIVATE ${kobuki_driver_INCLUDE_DIRS})
 target_link_libraries(kobuki_node ${kobuki_driver_LIBRARIES})
 
+include_directories(include)
+
 add_executable(dumb_teleop src/dumb_teleop.cpp)
 ament_target_dependencies(dumb_teleop
-  "rclcpp"
-  "geometry_msgs")
+  "geometry_msgs"
+  "rclcpp")
 
 install(TARGETS
   kobuki_node
