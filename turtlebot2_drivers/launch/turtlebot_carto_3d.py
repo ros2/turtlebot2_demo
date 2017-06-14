@@ -26,7 +26,7 @@ def launch(launch_descriptor, argv):
         exit_handler=restart_exit_handler,
     )
     ld.add_process(
-        cmd=['astra_camera_node', '-dw', '320', '-dh', '240'],
+        cmd=['astra_camera_node', '-dw', '320', '-dh', '240', '-C', '-I'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
