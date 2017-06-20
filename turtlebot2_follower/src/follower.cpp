@@ -34,6 +34,7 @@
 //#include <pluginlib/class_list_macros.h>
 //#include <nodelet/nodelet.h>
 #include <geometry_msgs/msg/twist.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 //#include <visualization_msgs/Marker.h>
 //#include <turtlebot_msgs/SetFollowState.h>
@@ -43,7 +44,6 @@
 
 //#include <depth_image_proc/depth_traits.h>
 #include "turtlebot2_follower/depth_traits.h"
-#include "turtlebot2_follower/image_encodings.h"
 
 
 namespace turtlebot_follower
