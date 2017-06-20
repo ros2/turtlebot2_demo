@@ -114,7 +114,12 @@ private:
     private_nh.getParam("enabled", enabled_);
 */
 
-    cmdpub_ = n_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", rmw_qos_profile_default);
+    rmw_qos_profile_t cmd_vel_qos_profile;
+    cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
+    cmd_vel_qos_profile.depth = 50;
+    cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+    cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
+    cmdpub_ = n_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", cmd_vel_qos_profile);
     //markerpub_ = private_nh.advertise<visualization_msgs::Marker>("marker",1);
     //bboxpub_ = private_nh.advertise<visualization_msgs::Marker>("bbox",1);
     sub_= n_->create_subscription<sensor_msgs::msg::Image>("depth", std::bind(&TurtlebotFollower::imagecb, this, std::placeholders::_1), rmw_qos_profile_sensor_data);
