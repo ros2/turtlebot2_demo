@@ -53,7 +53,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  FILES launch/turtlebot_carto_2d.py launch/turtlebot_carto_3d.py
+  DIRECTORY launch/
   DESTINATION share)
 
 ament_package()

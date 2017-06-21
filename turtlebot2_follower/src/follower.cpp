@@ -27,11 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <vector>
+
 #include <rclcpp/rclcpp.hpp>
 //#include <ros/ros.h>
 //#include <pluginlib/class_list_macros.h>
 //#include <nodelet/nodelet.h>
 #include <geometry_msgs/msg/twist.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 //#include <visualization_msgs/Marker.h>
 //#include <turtlebot_msgs/SetFollowState.h>
@@ -41,7 +44,6 @@
 
 //#include <depth_image_proc/depth_traits.h>
 #include "turtlebot2_follower/depth_traits.h"
-#include "turtlebot2_follower/image_encodings.h"
 
 
 namespace turtlebot_follower
@@ -112,10 +114,15 @@ private:
     private_nh.getParam("enabled", enabled_);
 */
 
-    cmdpub_ = n_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", rmw_qos_profile_default);
+    rmw_qos_profile_t cmd_vel_qos_profile;
+    cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
+    cmd_vel_qos_profile.depth = 50;
+    cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+    cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
+    cmdpub_ = n_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", cmd_vel_qos_profile);
     //markerpub_ = private_nh.advertise<visualization_msgs::Marker>("marker",1);
     //bboxpub_ = private_nh.advertise<visualization_msgs::Marker>("bbox",1);
-    sub_= n_->create_subscription<sensor_msgs::msg::Image>("image", std::bind(&TurtlebotFollower::imagecb, this, std::placeholders::_1), rmw_qos_profile_sensor_data);
+    sub_= n_->create_subscription<sensor_msgs::msg::Image>("depth", std::bind(&TurtlebotFollower::imagecb, this, std::placeholders::_1), rmw_qos_profile_sensor_data);
 
     //switch_srv_ = private_nh.advertiseService("change_state", &TurtlebotFollower::changeModeSrvCb, this);
 
@@ -160,15 +167,15 @@ private:
     // Precompute the sin function for each row and column
     uint32_t image_width = depth_msg->width;
     float x_radians_per_pixel = 60.0/57.0/image_width;
-    float sin_pixel_x[image_width];
-    for (int x = 0; x < image_width; ++x) {
+    std::vector<float> sin_pixel_x(image_width);
+    for (uint32_t x = 0; x < image_width; ++x) {
       sin_pixel_x[x] = sin((x - image_width/ 2.0)  * x_radians_per_pixel);
     }
 
     uint32_t image_height = depth_msg->height;
     float y_radians_per_pixel = 45.0/57.0/image_width;
-    float sin_pixel_y[image_height];
-    for (int y = 0; y < image_height; ++y) {
+    std::vector<float> sin_pixel_y(image_height);
+    for (uint32_t y = 0; y < image_height; ++y) {
       // Sign opposite x for y up values
       sin_pixel_y[y] = sin((image_height/ 2.0 - y)  * y_radians_per_pixel);
     }
@@ -202,6 +209,16 @@ private:
      }
     }
 
+    auto cmd_vel_msg = std::make_shared<geometry_msgs::msg::Twist>();
+
+    cmd_vel_msg->linear.x = 0.0;
+    cmd_vel_msg->linear.y = 0.0;
+    cmd_vel_msg->linear.z = 0.0;
+
+    cmd_vel_msg->angular.x = 0.0;
+    cmd_vel_msg->angular.y = 0.0;
+    cmd_vel_msg->angular.z = 0.0;
+
     //If there are points, find the centroid and calculate the command goal.
     //If there are no points, simply publish a stop goal.
     if (n>4000)
@@ -210,10 +227,10 @@ private:
       y /= n;
       if(z > max_z_){
         //ROS_INFO_THROTTLE(1, "Centroid too far away %f, stopping the robot\n%s", z);
-        printf("Centroid too far away %f, stopping the robot\n%s\n", z);
+        printf("Centroid too far away %f, stopping the robot\n", z);
         if (enabled_)
         {
-          cmdpub_->publish(geometry_msgs::msg::Twist::SharedPtr(new geometry_msgs::msg::Twist()));
+          cmdpub_->publish(cmd_vel_msg);
         }
         return;
       }
@@ -224,10 +241,9 @@ private:
 
       if (enabled_)
       {
-        geometry_msgs::msg::Twist::SharedPtr cmd(new geometry_msgs::msg::Twist());
-        cmd->linear.x = (z - goal_z_) * z_scale_;
-        cmd->angular.z = -x * x_scale_;
-        cmdpub_->publish(cmd);
+        cmd_vel_msg->linear.x = (z - goal_z_) * z_scale_;
+        cmd_vel_msg->angular.z = -x * x_scale_;
+        cmdpub_->publish(cmd_vel_msg);
       }
     }
     else
@@ -238,7 +254,7 @@ private:
 
       if (enabled_)
       {
-        cmdpub_->publish(geometry_msgs::msg::Twist::SharedPtr(new geometry_msgs::msg::Twist()));
+        cmdpub_->publish(cmd_vel_msg);
       }
     }
 
