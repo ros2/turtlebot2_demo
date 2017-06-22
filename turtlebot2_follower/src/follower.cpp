@@ -114,7 +114,7 @@ private:
     private_nh.getParam("enabled", enabled_);
 */
 
-    rmw_qos_profile_t cmd_vel_qos_profile;
+    rmw_qos_profile_t cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
     cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
     cmd_vel_qos_profile.depth = 50;
     cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
