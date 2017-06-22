@@ -63,13 +63,13 @@ int main(int argc, char * argv[])
   // TODO(clalancette): we set the depth to 50 here since it seems to help workaround
   // a bug where rclcpp::spin_some() can go into an infinite loop sometimes.  We should
   // find and fix the root cause instead of this workaround.
-  rmw_qos_profile_t cmd_vel_qos_profile;
+  rmw_qos_profile_t cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
   cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
   cmd_vel_qos_profile.depth = 50;
   cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
   cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
-  rmw_qos_profile_t odom_and_imu_qos_profile;
+  rmw_qos_profile_t odom_and_imu_qos_profile = rmw_qos_profile_sensor_data;
   odom_and_imu_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
   odom_and_imu_qos_profile.depth = 50;
   odom_and_imu_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
