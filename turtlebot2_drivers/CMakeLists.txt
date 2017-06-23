@@ -37,8 +37,9 @@ target_link_libraries(kobuki_node ${kobuki_driver_LIBRARIES})
 
 add_executable(dumb_teleop src/dumb_teleop.cpp)
 ament_target_dependencies(dumb_teleop
+  "geometry_msgs"
   "rclcpp"
-  "geometry_msgs")
+)
 
 install(TARGETS
   kobuki_node
@@ -51,9 +52,5 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
-
-install(
-  DIRECTORY launch/
-  DESTINATION share)
 
 ament_package()

@@ -33,6 +33,11 @@ def launch(launch_descriptor, argv):
         exit_handler=restart_exit_handler,
     )
     ld.add_process(
+        cmd=['teleop_node'],
+        name='teleop_node',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
         cmd=['joy_node'],
         name='joy',
         # The joy node is optional, we don't care if it actually launches
