@@ -16,7 +16,7 @@ install(
 
 install(
   FILES
-  launch/turtlebot_amcl.py
+  launch/turtlebot2_amcl.py
   DESTINATION share/${PROJECT_NAME}/launch)
 
 ament_package()
