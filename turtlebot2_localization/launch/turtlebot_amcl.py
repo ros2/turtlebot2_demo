@@ -14,14 +14,17 @@
 
 import argparse
 import os
+import sys
 
 from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescriptor
+from launch.launcher import DefaultLauncher
 from launch.exit_handler import restart_exit_handler
 from launch.output_handler import ConsoleOutput
 
 
 def launch(launch_descriptor, argv):
-    parser = argparse.ArgumentParser(description='launch amcl demo')
+    parser = argparse.ArgumentParser(description='launch amcl turtlebot demo')
     parser.add_argument(
         '--map',
         help='path to map (will be passed to map_server)')
@@ -84,13 +87,12 @@ def launch(launch_descriptor, argv):
     turtlebot2_localization_prefix = get_package_share_directory('turtlebot2_localization')
     map_path = os.path.join(turtlebot2_localization_prefix, 'examples', 'osrf_map.yaml')
     if args.map:
-        map_path = args.dir
+        map_path = args.map
     ld.add_process(
         cmd=[
             'map_server', map_path,
         ],
         name='map_server',
-        exit_handler=restart_exit_handler,
     )
     ld.add_process(
         cmd=[
@@ -100,3 +102,17 @@ def launch(launch_descriptor, argv):
         exit_handler=restart_exit_handler,
         output_handlers=[ConsoleOutput()],
     )
+
+    return ld
+
+
+def main(argv=sys.argv[1:]):
+    launcher = DefaultLauncher()
+    launch_descriptor = launch(LaunchDescriptor(), argv)
+    launcher.add_launch_descriptor(launch_descriptor)
+    rc = launcher.launch()
+    return rc
+
+
+if __name__ == '__main__':
+    sys.exit(main())
