@@ -1,0 +1,102 @@
+# Copyright 2017 Open Source Robotics Foundation, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import argparse
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch.exit_handler import restart_exit_handler
+from launch.output_handler import ConsoleOutput
+
+
+def launch(launch_descriptor, argv):
+    parser = argparse.ArgumentParser(description='launch amcl demo')
+    parser.add_argument(
+        '--map',
+        help='path to map (will be passed to map_server)')
+    args = parser.parse_args(argv)
+
+    ld = launch_descriptor
+    ld.add_process(
+        cmd=['kobuki_node'],
+        name='kobuki_node',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        cmd=['astra_camera_node', '-dw', '320', '-dh', '240', '-C', '-I'],
+        name='astra_camera_node',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        cmd=['depthimage_to_laserscan_node'],
+        name='depthimage_to_laserscan_node',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        # The XYZ/Quat numbers for base_link -> camera_rgb_frame are taken from the
+        # turtlebot URDF in
+        # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
+        cmd=[
+            'static_transform_publisher',
+            '-0.087', '-0.0125', '0.287',
+            '0', '0', '0', '1',
+            'base_link',
+            'camera_rgb_frame'
+        ],
+        name='static_tf_pub_base_rgb',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        # The XYZ/Quat numbers for camera_rgb_frame -> camera_depth_frame are taken from the
+        # turtlebot URDF in
+        # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
+        cmd=[
+            'static_transform_publisher',
+            '0', '0.0250', '0',
+            '0', '0', '0', '1',
+            'camera_rgb_frame',
+            'camera_depth_frame'
+        ],
+        name='static_tf_pub_rgb_depth',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        cmd=['joy_node'],
+        name='joy_node',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        cmd=['teleop_node'],
+        name='teleop_node',
+        exit_handler=restart_exit_handler,
+    )
+    turtlebot2_localization_prefix = get_package_share_directory('turtlebot2_localization')
+    map_path = os.path.join(turtlebot2_localization_prefix, 'examples', 'osrf_map.yaml')
+    if args.map:
+        map_path = args.dir
+    ld.add_process(
+        cmd=[
+            'map_server', map_path,
+        ],
+        name='map_server',
+        exit_handler=restart_exit_handler,
+    )
+    ld.add_process(
+        cmd=[
+            'amcl', '--use-map-topic',
+        ],
+        name='amcl',
+        exit_handler=restart_exit_handler,
+        output_handlers=[ConsoleOutput()],
+    )

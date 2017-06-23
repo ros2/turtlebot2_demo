@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>turtlebot2_localization</name>
+  <version>0.0.0</version>
+  <description>Demos of turtlebot2 localization.</description>
+  <maintainer email="dhood@osrfoundation.org"></maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>amcl</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>turtlebot2_drivers</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
