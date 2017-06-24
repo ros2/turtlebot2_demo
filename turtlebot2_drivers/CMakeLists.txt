@@ -44,9 +44,7 @@ ament_target_dependencies(dumb_teleop
 install(TARGETS
   kobuki_node
   dumb_teleop
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
+  DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

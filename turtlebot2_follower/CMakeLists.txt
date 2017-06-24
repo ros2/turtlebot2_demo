@@ -25,6 +25,6 @@ ament_target_dependencies(follower
   "sensor_msgs")
 
 install(TARGETS follower
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+        DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

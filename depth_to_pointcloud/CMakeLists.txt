@@ -29,7 +29,7 @@ ament_target_dependencies(depth_to_pointcloud_node
 )
 
 install(TARGETS depth_to_pointcloud_node
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

@@ -11,6 +11,6 @@ endif()
 
 install(
   DIRECTORY launch/
-  DESTINATION share)
+  DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
