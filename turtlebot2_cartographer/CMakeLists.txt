@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(tb2_demo_teleop)
+project(turtlebot2_cartographer)
 
 find_package(ament_cmake REQUIRED)
 

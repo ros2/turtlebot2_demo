@@ -47,7 +47,8 @@ def launch(launch_descriptor, argv):
     ld.add_process(
         cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'teleop_node')],
         name='teleop_node',
-        exit_handler=restart_exit_handler,
+        # The teleop node is optional, we don't care if it actually launches
+        exit_handler=ignore_exit_handler,
     )
     package = 'joy'
     ld.add_process(
