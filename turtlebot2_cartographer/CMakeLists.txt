@@ -13,4 +13,9 @@ install(
   DIRECTORY launch/
   DESTINATION lib/${PROJECT_NAME})
 
+install(
+  DIRECTORY configuration_files
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()
