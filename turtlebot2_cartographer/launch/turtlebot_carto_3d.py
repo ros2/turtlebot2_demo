@@ -17,11 +17,11 @@
 import os
 import sys
 
-from launch import LaunchDescriptor
-from launch.launcher import DefaultLauncher
-from ament_index_python.packages import get_package_share_directory
-from launch.exit_handler import restart_exit_handler
 from ament_index_python import get_package_prefix
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescriptor
+from launch.exit_handler import restart_exit_handler
+from launch.launcher import DefaultLauncher
 
 
 def launch(launch_descriptor, argv):
@@ -34,13 +34,17 @@ def launch(launch_descriptor, argv):
     )
     package = 'astra_camera'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'astra_camera_node'), '-dw', '320', '-dh', '240', '-C', '-I'],
+        cmd=[
+            os.path.join(get_package_prefix(package), 'lib', package, 'astra_camera_node'),
+            '-dw', '320', '-dh', '240', '-C', '-I'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
     package = 'depth_to_pointcloud'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'depth_to_pointcloud_node')],
+        cmd=[os.path.join(
+            get_package_prefix(package),
+            'lib', package, 'depth_to_pointcloud_node')],
         name='depth_to_pointcloud_node',
         exit_handler=restart_exit_handler,
     )
@@ -50,7 +54,10 @@ def launch(launch_descriptor, argv):
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            os.path.join(get_package_prefix(package), 'lib', package, 'static_transform_publisher'),
+            os.path.join(
+                get_package_prefix(package),
+                'lib', package, 'static_transform_publisher'
+            ),
             '-0.087', '-0.0125', '0.287',
             '0', '0', '0', '1',
             'base_link',
@@ -65,7 +72,8 @@ def launch(launch_descriptor, argv):
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            os.path.join(get_package_prefix(package), 'lib', package, 'static_transform_publisher'),
+            os.path.join(
+                get_package_prefix(package), 'lib', package, 'static_transform_publisher'),
             '0', '0.0250', '0',
             '0', '0', '0', '1',
             'camera_rgb_frame',
@@ -101,12 +109,14 @@ def launch(launch_descriptor, argv):
 
     return ld
 
+
 def main(argv=sys.argv[1:]):
     launcher = DefaultLauncher()
     launch_descriptor = launch(LaunchDescriptor(), argv)
     launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc
+
 
 if __name__ == '__main__':
     sys.exit(main())

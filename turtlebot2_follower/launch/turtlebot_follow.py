@@ -17,10 +17,10 @@
 import os
 import sys
 
-from launch import LaunchDescriptor
-from launch.launcher import DefaultLauncher
-from launch.exit_handler import ignore_exit_handler, restart_exit_handler
 from ament_index_python import get_package_prefix
+from launch import LaunchDescriptor
+from launch.exit_handler import ignore_exit_handler, restart_exit_handler
+from launch.launcher import DefaultLauncher
 
 
 def launch(launch_descriptor, argv):
@@ -33,7 +33,9 @@ def launch(launch_descriptor, argv):
     )
     package = 'astra_camera'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'astra_camera_node'), '-C', '-I', '-dw', '320', '-dh', '240'],
+        cmd=[
+            os.path.join(get_package_prefix(package), 'lib', package, 'astra_camera_node'),
+            '-dw', '320', '-dh', '240', '-C', '-I'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
@@ -60,12 +62,14 @@ def launch(launch_descriptor, argv):
 
     return ld
 
+
 def main(argv=sys.argv[1:]):
     launcher = DefaultLauncher()
     launch_descriptor = launch(LaunchDescriptor(), argv)
     launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc
+
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -17,10 +17,10 @@
 import os
 import sys
 
-from launch import LaunchDescriptor
-from launch.launcher import DefaultLauncher
-from launch.exit_handler import default_exit_handler, restart_exit_handler
 from ament_index_python import get_package_prefix
+from launch import LaunchDescriptor
+from launch.exit_handler import default_exit_handler, restart_exit_handler
+from launch.launcher import DefaultLauncher
 
 
 def launch(launch_descriptor, argv):
@@ -47,12 +47,14 @@ def launch(launch_descriptor, argv):
 
     return ld
 
+
 def main(argv=sys.argv[1:]):
     launcher = DefaultLauncher()
     launch_descriptor = launch(LaunchDescriptor(), argv)
     launcher.add_launch_descriptor(launch_descriptor)
     rc = launcher.launch()
     return rc
+
 
 if __name__ == '__main__':
     sys.exit(main())
