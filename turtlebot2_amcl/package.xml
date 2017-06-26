@@ -10,7 +10,13 @@
 
   <exec_depend>amcl</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>astra_camera</exec_depend>
+  <exec_depend>depthimage_to_laserscan</exec_depend>
+  <exec_depend>joy</exec_depend>
   <exec_depend>launch</exec_depend>
+  <exec_depend>map_server</exec_depend>
+  <exec_depend>teleop_twist_joy</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
   <exec_depend>turtlebot2_drivers</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
