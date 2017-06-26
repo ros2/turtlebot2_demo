@@ -16,10 +16,11 @@ import argparse
 import os
 import sys
 
+from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescriptor
-from launch.launcher import DefaultLauncher
 from launch.exit_handler import restart_exit_handler
+from launch.launcher import DefaultLauncher
 from launch.output_handler import ConsoleOutput
 
 
@@ -31,27 +32,38 @@ def launch(launch_descriptor, argv):
     args = parser.parse_args(argv)
 
     ld = launch_descriptor
+
+    package = 'turtlebot2_drivers'
     ld.add_process(
-        cmd=['kobuki_node'],
+        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'kobuki_node')],
         name='kobuki_node',
         exit_handler=restart_exit_handler,
     )
+    package = 'astra_camera'
     ld.add_process(
-        cmd=['astra_camera_node', '-dw', '320', '-dh', '240', '-C', '-I'],
+        cmd=[
+            os.path.join(get_package_prefix(package), 'lib', package, 'astra_camera_node'),
+            '-dw', '320', '-dh', '240', '-C', '-I'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
+    package = 'depthimage_to_laserscan'
     ld.add_process(
-        cmd=['depthimage_to_laserscan_node'],
+        cmd=[os.path.join(
+            get_package_prefix(package),
+            'lib', package, 'depthimage_to_laserscan_node')],
         name='depthimage_to_laserscan_node',
         exit_handler=restart_exit_handler,
     )
+    package = 'tf2_ros'
     ld.add_process(
         # The XYZ/Quat numbers for base_link -> camera_rgb_frame are taken from the
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            'static_transform_publisher',
+            os.path.join(
+                get_package_prefix(package), 'lib', package, 'static_transform_publisher'
+            ),
             '-0.087', '-0.0125', '0.287',
             '0', '0', '0', '1',
             'base_link',
@@ -60,12 +72,14 @@ def launch(launch_descriptor, argv):
         name='static_tf_pub_base_rgb',
         exit_handler=restart_exit_handler,
     )
+    package = 'tf2_ros'
     ld.add_process(
         # The XYZ/Quat numbers for camera_rgb_frame -> camera_depth_frame are taken from the
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            'static_transform_publisher',
+            os.path.join(
+                get_package_prefix(package), 'lib', package, 'static_transform_publisher'),
             '0', '0.0250', '0',
             '0', '0', '0', '1',
             'camera_rgb_frame',
@@ -74,24 +88,25 @@ def launch(launch_descriptor, argv):
         name='static_tf_pub_rgb_depth',
         exit_handler=restart_exit_handler,
     )
+    package = 'joy'
     ld.add_process(
-        cmd=['joy_node'],
+        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'joy_node')],
         name='joy_node',
         exit_handler=restart_exit_handler,
     )
+    package = 'teleop_twist_joy'
     ld.add_process(
-        cmd=['teleop_node'],
+        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'teleop_node')],
         name='teleop_node',
         exit_handler=restart_exit_handler,
     )
-    turtlebot2_localization_prefix = get_package_share_directory('turtlebot2_localization')
-    map_path = os.path.join(turtlebot2_localization_prefix, 'examples', 'osrf_map.yaml')
+    turtlebot2_amcl_share = get_package_share_directory('turtlebot2_amcl')
+    map_path = os.path.join(turtlebot2_amcl_share, 'examples', 'osrf_map.yaml')
     if args.map:
         map_path = args.map
+    package = 'map_server'
     ld.add_process(
-        cmd=[
-            'map_server', map_path,
-        ],
+        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'map_server'), map_path],
         name='map_server',
     )
     ld.add_process(
