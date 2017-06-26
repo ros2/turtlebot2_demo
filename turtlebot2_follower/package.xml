@@ -12,6 +12,7 @@
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
 
+  <exec_depend>ament_index_python</exec_depend>
   <exec_depend>astra_camera</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>turtlebot_drivers</exec_depend>
