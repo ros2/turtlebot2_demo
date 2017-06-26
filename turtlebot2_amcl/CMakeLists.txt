@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(turtlebot2_localization)
+project(turtlebot2_amcl)
 
 find_package(ament_cmake REQUIRED)
 

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>turtlebot2_localization</name>
+  <name>turtlebot2_amcl</name>
   <version>0.0.0</version>
-  <description>Demos of turtlebot2 localization.</description>
+  <description>Demo of turtlebot2 localization with amcl.</description>
   <maintainer email="dhood@osrfoundation.org"></maintainer>
   <license>Apache License 2.0</license>
 
