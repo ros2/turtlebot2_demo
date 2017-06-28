@@ -17,29 +17,28 @@
 import os
 import sys
 
-from ament_index_python import get_package_prefix
 from launch import LaunchDescriptor
 from launch.exit_handler import default_exit_handler, restart_exit_handler
 from launch.launcher import DefaultLauncher
-
+from ros2run.api import get_executable_path
 
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
     package = 'turtlebot2_drivers'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'kobuki_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='kobuki_node')],
         name='kobuki_node',
         exit_handler=restart_exit_handler,
     )
     package = 'teleop_twist_joy'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'teleop_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='teleop_node')],
         name='teleop_node',
         exit_handler=restart_exit_handler,
     )
     package = 'joy'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'joy_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='joy_node')],
         name='joy_node',
         # The joy node is required, die if it dies
         exit_handler=default_exit_handler,

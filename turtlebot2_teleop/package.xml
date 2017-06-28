@@ -8,9 +8,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>ament_index_python</exec_depend>
   <exec_depend>joy</exec_depend>
   <exec_depend>launch</exec_depend>
+  <exec_depend>ros2run</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>turtlebot2_drivers</exec_depend>
 

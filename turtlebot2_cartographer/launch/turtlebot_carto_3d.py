@@ -17,25 +17,25 @@
 import os
 import sys
 
-from ament_index_python import get_package_prefix
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescriptor
 from launch.exit_handler import restart_exit_handler
 from launch.launcher import DefaultLauncher
+from ros2run.api import get_executable_path
 
 
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
     package = 'turtlebot2_drivers'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'kobuki_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='kobuki_node')],
         name='kobuki_node',
         exit_handler=restart_exit_handler,
     )
     package = 'astra_camera'
     ld.add_process(
         cmd=[
-            os.path.join(get_package_prefix(package), 'lib', package, 'astra_camera_node'),
+            get_executable_path(package_name=package, executable_name='astra_camera_node'),
             '-dw', '320', '-dh', '240', '-C', '-I'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
@@ -84,13 +84,13 @@ def launch(launch_descriptor, argv):
     )
     package = 'joy'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'joy_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='joy_node')],
         name='joy_node',
         exit_handler=restart_exit_handler,
     )
     package = 'teleop_twist_joy'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'teleop_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='teleop_node')],
         name='teleop_node',
         exit_handler=restart_exit_handler,
     )
@@ -99,7 +99,7 @@ def launch(launch_descriptor, argv):
     cartographer_config_dir = os.path.join(cartographer_ros_prefix, 'configuration_files')
     ld.add_process(
         cmd=[
-            os.path.join(get_package_prefix(package), 'lib', package, 'cartographer_node'),
+            get_executable_path(package_name=package, executable_name='cartographer_node'),
             '-configuration_directory', cartographer_config_dir,
             '-configuration_basename', 'turtlebot_3d.lua'
         ],
