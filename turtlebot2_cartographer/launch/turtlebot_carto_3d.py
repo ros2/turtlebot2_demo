@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-#
 # Copyright 2017 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +16,7 @@ import os
 import sys
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescriptor
 from launch.exit_handler import restart_exit_handler
-from launch.launcher import DefaultLauncher
 from ros2run.api import get_executable_path
 
 
@@ -92,28 +88,16 @@ def launch(launch_descriptor, argv):
         exit_handler=restart_exit_handler,
     )
     package = 'cartographer_ros'
-    cartographer_ros_prefix = get_package_share_directory(package)
-    cartographer_config_dir = os.path.join(cartographer_ros_prefix, 'configuration_files')
+    turtlebot2_cartographer_prefix = get_package_share_directory('turtlebot2_cartographer')
+    cartographer_config_dir = os.path.join(turtlebot2_cartographer_prefix, 'configuration_files')
     ld.add_process(
         cmd=[
             get_executable_path(package_name=package, executable_name='cartographer_node'),
             '-configuration_directory', cartographer_config_dir,
-            '-configuration_basename', 'turtlebot_3d.lua'
+            '-configuration_basename', 'turtlebot_2d.lua'
         ],
         name='cartographer_node',
         exit_handler=restart_exit_handler,
     )
 
     return ld
-
-
-def main(argv=sys.argv[1:]):
-    launcher = DefaultLauncher()
-    launch_descriptor = launch(LaunchDescriptor(), argv)
-    launcher.add_launch_descriptor(launch_descriptor)
-    rc = launcher.launch()
-    return rc
-
-
-if __name__ == '__main__':
-    sys.exit(main())

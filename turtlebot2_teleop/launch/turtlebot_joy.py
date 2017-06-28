@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-#
 # Copyright 2016 Open Source Robotics Foundation, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import sys
 
-from launch import LaunchDescriptor
 from launch.exit_handler import default_exit_handler, restart_exit_handler
-from launch.launcher import DefaultLauncher
 from ros2run.api import get_executable_path
 
 def launch(launch_descriptor, argv):
@@ -45,15 +40,3 @@ def launch(launch_descriptor, argv):
     )
 
     return ld
-
-
-def main(argv=sys.argv[1:]):
-    launcher = DefaultLauncher()
-    launch_descriptor = launch(LaunchDescriptor(), argv)
-    launcher.add_launch_descriptor(launch_descriptor)
-    rc = launcher.launch()
-    return rc
-
-
-if __name__ == '__main__':
-    sys.exit(main())

@@ -27,4 +27,7 @@ ament_target_dependencies(follower
 install(TARGETS follower
         DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY launch
+        DESTINATION share/${PROJECT_NAME})
+
 ament_package()

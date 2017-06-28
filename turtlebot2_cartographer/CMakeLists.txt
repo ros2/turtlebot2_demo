@@ -10,11 +10,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  DIRECTORY launch/
-  DESTINATION lib/${PROJECT_NAME})
-
-install(
-  DIRECTORY configuration_files
+  DIRECTORY configuration_files launch
   DESTINATION share/${PROJECT_NAME}/
 )
 

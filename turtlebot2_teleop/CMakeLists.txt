@@ -10,7 +10,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  DIRECTORY launch/
-  DESTINATION lib/${PROJECT_NAME})
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME})
 
 ament_package()
