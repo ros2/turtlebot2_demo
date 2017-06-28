@@ -42,9 +42,8 @@ def launch(launch_descriptor, argv):
     )
     package = 'depth_to_pointcloud'
     ld.add_process(
-        cmd=[os.path.join(
-            get_package_prefix(package),
-            'lib', package, 'depth_to_pointcloud_node')],
+        cmd=[
+            get_executable_path(package_name=package, executable_name='depth_to_pointcloud_node')],
         name='depth_to_pointcloud_node',
         exit_handler=restart_exit_handler,
     )
@@ -54,10 +53,8 @@ def launch(launch_descriptor, argv):
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            os.path.join(
-                get_package_prefix(package),
-                'lib', package, 'static_transform_publisher'
-            ),
+            get_executable_path(
+                package_name=package, executable_name='static_transform_publisher'),
             '-0.087', '-0.0125', '0.287',
             '0', '0', '0', '1',
             'base_link',
@@ -72,8 +69,8 @@ def launch(launch_descriptor, argv):
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            os.path.join(
-                get_package_prefix(package), 'lib', package, 'static_transform_publisher'),
+            get_executable_path(
+                package_name=package, executable_name='static_transform_publisher'),
             '0', '0.0250', '0',
             '0', '0', '0', '1',
             'camera_rgb_frame',
