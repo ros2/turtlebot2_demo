@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(depth_to_pointcloud)
+project(depthimage_to_pointcloud2)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -18,17 +18,17 @@ find_package(sensor_msgs REQUIRED)
 
 include_directories(include)
 
-add_executable(depth_to_pointcloud_node
-  src/depth_to_pointcloud_node.cpp
+add_executable(depthimage_to_pointcloud2_node
+  src/depthimage_to_pointcloud2_node.cpp
 )
 
-ament_target_dependencies(depth_to_pointcloud_node
+ament_target_dependencies(depthimage_to_pointcloud2_node
   "image_geometry"
   "rclcpp"
   "sensor_msgs"
 )
 
-install(TARGETS depth_to_pointcloud_node
+install(TARGETS depthimage_to_pointcloud2_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

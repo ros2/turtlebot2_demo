@@ -33,17 +33,18 @@
 // This file is originally from:
 // https://github.com/ros-perception/image_pipeline/blob/da750d1/depth_image_proc/include/depth_image_proc/depth_conversions.h  // NOLINT
 
-#ifndef DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_HPP_
-#define DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_HPP_
+#ifndef DEPTHIMAGE_TO_POINTCLOUD2__DEPTH_CONVERSIONS_HPP_
+#define DEPTHIMAGE_TO_POINTCLOUD2__DEPTH_CONVERSIONS_HPP_
 
-#include <depth_to_pointcloud/depth_traits.hpp>
+#include "depthimage_to_pointcloud2/depth_traits.hpp"
+
 #include <image_geometry/pinhole_camera_model.h>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
 #include <limits>
 
-namespace depth_to_pointcloud
+namespace depthimage_to_pointcloud2
 {
 
 // Handles float or uint16 depths
@@ -91,6 +92,6 @@ void convert(
   }
 }
 
-}  // namespace depth_to_pointcloud
+}  // namespace depthimage_to_pointcloud2
 
-#endif  // DEPTH_TO_POINTCLOUD__DEPTH_CONVERSIONS_HPP_
+#endif  // DEPTHIMAGE_TO_POINTCLOUD2__DEPTH_CONVERSIONS_HPP_

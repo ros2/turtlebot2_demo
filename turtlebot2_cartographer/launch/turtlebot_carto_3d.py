@@ -35,11 +35,12 @@ def launch(launch_descriptor, argv):
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
-    package = 'depth_to_pointcloud'
+    package = 'depthimage_to_poincloud2'
     ld.add_process(
         cmd=[
-            get_executable_path(package_name=package, executable_name='depth_to_pointcloud_node')],
-        name='depth_to_pointcloud_node',
+            get_executable_path(
+                package_name=package, executable_name='depthimage_to_poincloud2_node')],
+        name='depthimage_to_poincloud2_node',
         exit_handler=restart_exit_handler,
     )
     package = 'tf2_ros'

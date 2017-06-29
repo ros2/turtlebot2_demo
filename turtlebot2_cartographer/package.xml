@@ -12,7 +12,7 @@
   <exec_depend>astra_camera</exec_depend>
   <exec_depend>cartographer_ros</exec_depend>
   <exec_depend>depthimage_to_laserscan</exec_depend>
-  <exec_depend>depth_to_pointcloud</exec_depend>
+  <exec_depend>depthimage_to_pointcloud2</exec_depend>
   <exec_depend>joy</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>ros2run</exec_depend>

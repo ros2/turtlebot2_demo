@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "depth_to_pointcloud/depth_conversions.hpp"
+#include <depthimage_to_pointcloud2/depth_conversions.hpp>
 #include <image_geometry/pinhole_camera_model.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/image_encodings.hpp>
@@ -60,9 +60,9 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   model.fromCameraInfo(g_cam_info);
 
   if (image->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
-    depth_to_pointcloud::convert<uint16_t>(image, cloud_msg, model);
+    depthimage_to_pointcloud2::convert<uint16_t>(image, cloud_msg, model);
   } else if (image->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
-    depth_to_pointcloud::convert<float>(image, cloud_msg, model);
+    depthimage_to_pointcloud2::convert<float>(image, cloud_msg, model);
   } else {
     fprintf(stderr, "Depth image has unsupported encoding [%s]\n", image->encoding.c_str());
     return;
@@ -80,7 +80,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  rclcpp::node::Node::SharedPtr node = rclcpp::node::Node::make_shared("depth_to_pointcloud");
+  rclcpp::node::Node::SharedPtr node = rclcpp::node::Node::make_shared("depthimage_to_pointcloud2");
 
   rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
 
