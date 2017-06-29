@@ -11,12 +11,12 @@ endif()
 
 install(
   DIRECTORY
-  examples/
-  DESTINATION share/${PROJECT_NAME}/examples)
+  examples
+  DESTINATION share/${PROJECT_NAME})
 
 install(
-  FILES
-  launch/turtlebot_amcl.py
-  DESTINATION share/${PROJECT_NAME}/launch)
+  DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME})
 
 ament_package()
