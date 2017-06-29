@@ -12,9 +12,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 include_directories(include)
 
@@ -25,6 +25,9 @@ ament_target_dependencies(follower
   "sensor_msgs")
 
 install(TARGETS follower
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+        DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY launch
+        DESTINATION share/${PROJECT_NAME})
 
 ament_package()

@@ -9,8 +9,13 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>geometry_msgs</depend>
-  <depend>sensor_msgs</depend>
   <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+
+  <exec_depend>astra_camera</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>ros2run</exec_depend>
+  <exec_depend>turtlebot_drivers</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

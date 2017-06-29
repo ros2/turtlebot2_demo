@@ -13,28 +13,44 @@
 # limitations under the License.
 
 from launch.exit_handler import ignore_exit_handler, restart_exit_handler
+from ros2run.api import get_executable_path
 
 
 def launch(launch_descriptor, argv):
     ld = launch_descriptor
+    package = 'turtlebot2_drivers'
     ld.add_process(
-        cmd=['kobuki_node'],
+        cmd=[get_executable_path(package_name=package, executable_name='kobuki_node')],
         name='kobuki_node',
         exit_handler=restart_exit_handler,
     )
+    package = 'astra_camera'
     ld.add_process(
-        cmd=['astra_camera_node', '-C', '-I', '-dw', '320', '-dh', '240'],
+        cmd=[
+            get_executable_path(package_name=package, executable_name='astra_camera_node'),
+            '-dw', '320', '-dh', '240', '-C', '-I'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
+    package = 'turtlebot2_follower'
     ld.add_process(
-        cmd=['follower'],
+        cmd=[get_executable_path(package_name=package, executable_name='follower')],
         name='follower',
         exit_handler=restart_exit_handler,
     )
+    package = 'teleop_twist_joy'
     ld.add_process(
-        cmd=['joy_node'],
+        cmd=[get_executable_path(package_name=package, executable_name='teleop_node')],
+        name='teleop_node',
+        # The teleop node is optional, we don't care if it actually launches
+        exit_handler=ignore_exit_handler,
+    )
+    package = 'joy'
+    ld.add_process(
+        cmd=[get_executable_path(package_name=package, executable_name='joy_node')],
         name='joy',
         # The joy node is optional, we don't care if it actually launches
         exit_handler=ignore_exit_handler,
     )
+
+    return ld
