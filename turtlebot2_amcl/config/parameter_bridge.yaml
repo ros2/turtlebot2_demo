@@ -1,0 +1,23 @@
+# Topics to bridge using the ROS 1 - ROS 2 bridge
+/topics:
+    -
+        topic: tf
+        type: tf2_msgs/TFMessage
+    -
+        topic: tf_static
+        type: tf2_msgs/TFMessage
+    -
+        topic: scan
+        type: sensor_msgs/LaserScan
+    -
+        topic: amcl_pose
+        type: geometry_msgs/PoseWithCovarianceStamped
+    -
+        topic: map
+        type: nav_msgs/OccupancyGrid
+    -
+        topic: initialpose
+        type: geometry_msgs/PoseWithCovarianceStamped
+    -
+        topic: particlecloud
+        type: geometry_msgs/PoseArray

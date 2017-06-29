@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>turtlebot2_amcl</name>
+  <version>0.0.0</version>
+  <description>Demo of turtlebot2 localization with amcl.</description>
+  <maintainer email="dhood@osrfoundation.org"></maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>amcl</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>astra_camera</exec_depend>
+  <exec_depend>depthimage_to_laserscan</exec_depend>
+  <exec_depend>joy</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>map_server</exec_depend>
+  <exec_depend>ros2run</exec_depend>
+  <exec_depend>teleop_twist_joy</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>turtlebot2_drivers</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
