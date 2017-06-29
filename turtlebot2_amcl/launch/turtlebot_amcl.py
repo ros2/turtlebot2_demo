@@ -16,12 +16,12 @@ import argparse
 import os
 import sys
 
-from ament_index_python.packages import get_package_prefix
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescriptor
 from launch.exit_handler import restart_exit_handler
 from launch.launcher import DefaultLauncher
 from launch.output_handler import ConsoleOutput
+from ros2run.api import get_executable_path
 
 
 def launch(launch_descriptor, argv):
@@ -35,23 +35,23 @@ def launch(launch_descriptor, argv):
 
     package = 'turtlebot2_drivers'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'kobuki_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='kobuki_node')],
         name='kobuki_node',
         exit_handler=restart_exit_handler,
     )
     package = 'astra_camera'
     ld.add_process(
         cmd=[
-            os.path.join(get_package_prefix(package), 'lib', package, 'astra_camera_node'),
+            get_executable_path(package_name=package, executable_name='astra_camera_node'),
             '-dw', '320', '-dh', '240', '-C', '-I'],
         name='astra_camera_node',
         exit_handler=restart_exit_handler,
     )
     package = 'depthimage_to_laserscan'
     ld.add_process(
-        cmd=[os.path.join(
-            get_package_prefix(package),
-            'lib', package, 'depthimage_to_laserscan_node')],
+        cmd=[
+            get_executable_path(
+                package_name=package, executable_name='depthimage_to_laserscan_node')],
         name='depthimage_to_laserscan_node',
         exit_handler=restart_exit_handler,
     )
@@ -61,9 +61,8 @@ def launch(launch_descriptor, argv):
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            os.path.join(
-                get_package_prefix(package), 'lib', package, 'static_transform_publisher'
-            ),
+            get_executable_path(
+                package_name=package, executable_name='static_transform_publisher'),
             '-0.087', '-0.0125', '0.287',
             '0', '0', '0', '1',
             'base_link',
@@ -78,8 +77,8 @@ def launch(launch_descriptor, argv):
         # turtlebot URDF in
         # https://github.com/turtlebot/turtlebot/blob/931d045/turtlebot_description/urdf/sensors/astra.urdf.xacro
         cmd=[
-            os.path.join(
-                get_package_prefix(package), 'lib', package, 'static_transform_publisher'),
+            get_executable_path(
+                package_name=package, executable_name='static_transform_publisher'),
             '0', '0.0250', '0',
             '0', '0', '0', '1',
             'camera_rgb_frame',
@@ -90,13 +89,13 @@ def launch(launch_descriptor, argv):
     )
     package = 'joy'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'joy_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='joy_node')],
         name='joy_node',
         exit_handler=restart_exit_handler,
     )
     package = 'teleop_twist_joy'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'teleop_node')],
+        cmd=[get_executable_path(package_name=package, executable_name='teleop_node')],
         name='teleop_node',
         exit_handler=restart_exit_handler,
     )
@@ -106,7 +105,7 @@ def launch(launch_descriptor, argv):
         map_path = args.map
     package = 'map_server'
     ld.add_process(
-        cmd=[os.path.join(get_package_prefix(package), 'lib', package, 'map_server'), map_path],
+        cmd=[get_executable_path(package_name=package, executable_name='map_server'), map_path],
         name='map_server',
     )
     ld.add_process(
