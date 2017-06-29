@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-import sys
 
 from ament_index_python.packages import get_package_share_directory
 from launch.exit_handler import restart_exit_handler
