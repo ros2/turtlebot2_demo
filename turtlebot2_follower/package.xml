@@ -15,7 +15,7 @@
   <exec_depend>astra_camera</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>ros2run</exec_depend>
-  <exec_depend>turtlebot_drivers</exec_depend>
+  <exec_depend>turtlebot2_drivers</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
