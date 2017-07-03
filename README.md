@@ -2,8 +2,6 @@ This repository contains the code and supporting files to run TurtleBot 2 demos 
 
 # Disclaimer
 
-This demo is under development and these instructions may not work out of the box and will likely change in the near future
-
 <!-- Here's a video of the very first successful run of ROS 2 follower: https://www.youtube.com/watch?v=YTlls9yHZog.
 
 This is very much a work in progress and there's plenty of functionality present in the ROS 1 equivalent system that's currently missing or disabled, but it's an important step. -->
@@ -12,37 +10,57 @@ This demo assumes that you have an Orbbec Astra depth camera. Extra work would b
 
 # Installation
 
-## Prerequisites:
+## Installation from binaries
 
-- ROS kinetic installed
-- A ROS2 workspace installed [from source](https://github.com/ros2/ros2/wiki/Linux-Development-Setup) or [from binary](https://github.com/ros2/ros2/wiki/Linux-Install-Binary) and sourced in your terminal.
-## Install some dependencies
+First, install ROS2 from binaries following [these instructions](https://github.com/ros2/ros2/wiki/Linux-Install-Debians)
+
+Then install the turtlebo2 demo specific packages:
 ```
-sudo apt-get install libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libsdl1.2-dev libsdl-image1.2-dev libudev-dev libusb-1.0.0-dev libyaml-cpp-dev ros-kinetic-astra-camera ros-kinetic-common-msgs ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi
+sudo apt install ros-r2b2-turtlebot2*
 ```
+
+## Installation from source
+This assumes that you have ROS Kinetic installed (or at lease have the ros apt repository in your sources)
+
+First, install ROS2 from source following [these instructions](https://github.com/ros2/ros2/wiki/Linux-Development-Setup)
+
+Then get the turtlebo2 demos specific code:
+```
+cd <YOUR_ROS2_WORKSPACE>
+wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/master/turtlebot2_demo.repos
+vcs import src < turtlebot2_demo.repos
+```
+
+### Install some dependencies:
+```bash
+sudo apt-get install --no-install-recommends -y libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libgoogle-glog-dev liblua5.2-dev libpcl-dev libprotobuf-dev libsdl1.2-dev libsdl-image1.2-dev libsuitesparse-dev libudev-dev libusb-1.0.0-dev libyaml-cpp-dev protobuf-compiler python-sphinx ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi
+```
+
 Reason for each dependency:
 * `ros-kinetic-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
 * `ros-kinetic-kobuki-ftdi` : we use a `udev` rule from this package
 * `ros-kinetic-common-msgs` : to support use of the `ros1_bridge`, we need the ROS 1 messages available (TODO: document use of the bridge to view depth images and other stuff)
 * `ros-kinetic-astra-camera` : we're compiling our own ROS 2 fork of this package, so we don't actually need the ROS 1 version; we're installing it as a convenient way to ensure that all of its dependencies are installed
 
-## Get the demo code
-```
-mkdir ~/turtlebot_demo_ws/src
-cd ~/turtlebot_demo_ws
-wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/master/turtlebot2_demo.repos
-vcs import src < turtlebot2_demo.repos
+### Build the ros2 code
+
+For resource constrained platforms we will split te build into 2 steps to make sure not to overflow the memory
+```bash
+src/ament/ament_tools/scripts/ament.py build --isolated --symlink-install --parallel --skip-packages cartographer cartographer_ros ceres_solver ros1_bridge turtlebot2_amcl turtlebot2_drivers turtlebot2_follower turtlebot2_cartographer turtlebot2_teleop
 ```
 
-## Build the ROS 2 code, including the new nodes
+Now the resource instensive packages and the ones depending on ROS1 packages:
+```bash
+source /opt/ros/kinetic/setub.bash
+src/ament/ament_tools/scripts/ament.py build --isolated --symlink-install --parallel --only cartographer cartographer_ros ceres_solver turtlebot2_amcl turtlebot2_cartographer turtlebot2_drivers turtlebot2_follower turtlebot2_teleop --make-flags -j2 -l2
 ```
-# We'll eventually want to use the ROS 1 bridge, too
-. /opt/ros/kinetic/setup.bash
-cd ~/turtlebot_demo_ws
-./src/ament/ament_tools/scripts/ament.py build -s
-```
-## Configure a couple of things
-```
+Go grab a coffee (or a meal if you compile on ARM)
+
+# Configure a couple of things
+
+## Setup the udev rules
+
+```bash
 # Astra device rule
 cd ~/ros2_ws/src/ros_astra_camera
 sudo cp 56-orbbec-usb.rules /etc/udev/rules.d
@@ -52,45 +70,96 @@ sudo service udev reload
 sudo service udev restart
 ```
 
-# Run the new nodes
+## Source your workspace
+
+If installed from Debian packages
+```bash
+source /opt/ros/r2b2/setup.bash
+```
+
+If installed from source
+```bash
+source . ~/ros2_ws/install/local_setup.bash
+```
+
+You'll need to do this step for every terminal you use for these demos
+
+# Run the demos
 
 ## Joystick teleop
+This is a classic teleoperation demo where the robot can be driven around using a gamepad controller. Thie demo has been tested with logitech controllers and uses `RB` as a deadman, the left joystick for driving forward/backward and the right joystick for rotation.
 Try the launch file:
 ```
-. ~/turtlebot_demo_ws/install/setup.bash
-launch ~/turtlebot_demo_ws/src/turtlebot2_demo/turtlebot2_drivers/launch/turtlebot_joy.py
+launch <YOUR_ROS2_WORKSPACE>/share/turtlebot2_teleop/launch/turtlebot_joy.py
 ```
 
 Or, run the nodes separately:
 ```
-. ~/turtlebot_demo_ws/install/setup.bash
-kobuki_node
+ros2 run turtlebot2_drivers kobuki_node
 ```
 ```
-. ~/turtlebot_demo_ws/install/setup.bash
-joy_node
+ros2 run joy joy_node
 ```
 
+Note: this demo assumes that your controller is in D mode (switch on the back) and that the MODE led is on. 
+
 ## Follower
+This demo uses the astra camera to detect blobs in the depthimage and follow them
 Try the launch file:
 ```
-. ~/turtlebot_demo_ws/install/setup.bash
-launch ~/turtlebot_demo_ws/src/turtlebot2_demo/turtlebot2_drivers/launch/turtlebot_follow.py
+launch <YOUR_ROS2_WORKSPACE>/share/turtlebot2_follower/launch/turtlebot_follow.py
 ```
 
 Or, run the nodes separately.
 ```
-. ~/turtlebot_demo_ws/install/setup.bash
-kobuki_node
+ros2 run turtlebot2_drivers kobuki_node
 ```
 ```
-. ~/turtlebot_demo_ws/install/setup.bash
-astra_camera_node
+ros2 run astra_camera astra_camera_node -- -dw 320 -dh 240 -C -I
 ```
 ```
-. ~/turtlebot_demo_ws/install/setup.bash
-follower
+ros2 run turtlebot2_follower follower
 ```
+
+## Cartographer (mapping)
+This demo is using Google cartographer to build a map of the environment. The resulting map can be visualize in RViz using the ros1_bridge (more information below).
+
+# Run the demo
+Try the launch file:
+```
+launch <YOUR_ROS2_WORKSPACE>/share/turtlebot2_cartographer/launch/turtlebot_carto_2d.py
+```
+
+# Visualize the results
+The created map can be visualize in Rviz on a remote computer by using the dynamic bridge that converts messages between ROS1 and ROS2.
+This assumes that you have a ROS2 workspace installed either [from binaries](https://github.com/ros2/ros2/wiki/Linux-Install-Debians) or from source with the [bridge built](https://github.com/ros2/ros1_bridge/blob/master/README.md#build-the-bridge-from-source)
+
+Terminal A:
+```bash
+. /opt/ros/kinetic/setup.bash
+roscore
+```
+
+Terminal B:
+```bash
+. /opt/ros/kinetic/setup.bash
+. <YOUR_ROS2_WORKSPACE>
+ros2 run ros1_bridge dynamic_bridge
+```
+
+Terminal C:
+```bash
+. /opt/ros/kinetic/setup.bash
+rosrun rviz rviz
+```
+Topics you can visualize in Rviz:
+- the map on the topic `/map`
+- the transforms on the topic `/tf`
+- the depth images on the topic `/depth`
+- the laserscans on the topic `/scans`
+
+## AMCL (localization)
+See the [AMCL demo README](https://github.com/ros2/turtlebot2_demo/blob/amcl_readme/turtlebot2_amcl/README.md)
 
 # Discussion
 What's happening here compared to the ROS 1 versions of these demos? Well, it's 100% ROS 2, with no bridge or shim. We took 4 different
