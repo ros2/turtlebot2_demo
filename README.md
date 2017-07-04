@@ -60,12 +60,28 @@ Go grab a coffee (or a meal if you compile on ARM)
 
 ## Setup the udev rules
 
+### Copy the astra udev rules
+
+#### If you installed from binaries
+If you installed from binary you'll need to download the udev rule by hand:
 ```bash
-# Astra device rule
+wget https://raw.githubusercontent.com/ros2/ros_astra_camera/ros2/56-orbbec-usb.rules
+```
+
+#### If you installed from source
+```bash
 cd ~/ros2_ws/src/ros_astra_camera
 sudo cp 56-orbbec-usb.rules /etc/udev/rules.d
-# Kobuki device rule
+```
+
+### Copy the kobuki udev rule
+
+```bash
 sudo cp `rospack find kobuki_ftdi`/57-kobuki.rules /etc/udev/rules.d
+```
+
+### Restart the udev service
+```bash
 sudo service udev reload
 sudo service udev restart
 ```
