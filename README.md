@@ -47,9 +47,9 @@ For resource constrained platforms we will split te build into 2 steps to make s
 src/ament/ament_tools/scripts/ament.py build --isolated --symlink-install --parallel --skip-packages cartographer cartographer_ros ceres_solver ros1_bridge turtlebot2_amcl turtlebot2_drivers turtlebot2_follower turtlebot2_cartographer turtlebot2_teleop
 ```
 
-Now the resource instensive packages and the ones depending on ROS1 packages:
+Now the resource intensive packages and the ones depending on ROS1 packages:
 ```bash
-source /opt/ros/kinetic/setub.bash
+source /opt/ros/kinetic/setup.bash
 src/ament/ament_tools/scripts/ament.py build --isolated --symlink-install --parallel --only cartographer cartographer_ros ceres_solver turtlebot2_amcl turtlebot2_cartographer turtlebot2_drivers turtlebot2_follower turtlebot2_teleop --make-flags -j2 -l2
 ```
 Go grab a coffee (or a meal if you compile on ARM)
