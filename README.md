@@ -108,7 +108,7 @@ You'll need to do this step for every terminal you use for these demos
 This is a classic teleoperation demo where the robot can be driven around using a gamepad controller. Thie demo has been tested with logitech controllers and uses `RB` as a deadman, the left joystick for driving forward/backward and the right joystick for rotation.
 Try the launch file:
 ```
-launch <YOUR_ROS2_WORKSPACE>/share/turtlebot2_teleop/launch/turtlebot_joy.py
+launch `ros2 pkg prefix turtlebot2_teleop`/share/turtlebot2_teleop/launch/turtlebot_joy.py
 ```
 
 Or, run the nodes separately:
@@ -125,7 +125,7 @@ Note: this demo assumes that your controller is in D mode (switch on the back) a
 This demo uses the astra camera to detect blobs in the depthimage and follow them
 Try the launch file:
 ```
-launch <YOUR_ROS2_WORKSPACE>/share/turtlebot2_follower/launch/turtlebot_follow.py
+launch `ros2 pkg prefix turtlebot2_follower`/share/turtlebot2_follower/launch/turtlebot_follow.py
 ```
 
 Or, run the nodes separately.
@@ -145,7 +145,7 @@ This demo is using Google cartographer to build a map of the environment. The re
 ### Run the demo
 Try the launch file:
 ```
-launch <YOUR_ROS2_WORKSPACE>/share/turtlebot2_cartographer/launch/turtlebot_carto_2d.py
+launch `ros2 pkg prefix turtlebot2_cartographer`/share/turtlebot2_cartographer/launch/turtlebot_carto_2d.py
 ```
 
 ### Visualize the results
