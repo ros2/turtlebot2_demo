@@ -3,6 +3,7 @@
 On the turtlebot, run the following to launch the ROS 2 AMCL nodes:
 
 ```
+. /opt/ros/kinetic/setup.bash
 . ~/ros2_ws/install/setup.bash
 launch `ros2 pkg prefix turtlebot2_amcl`/share/turtlebot2_amcl/launch/turtlebot_amcl.py
 ```

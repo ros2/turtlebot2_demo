@@ -90,11 +90,13 @@ sudo service udev restart
 
 If installed from Debian packages
 ```bash
+source /opt/ros2/kinetic/setup.bash
 source /opt/ros/r2b2/setup.bash
 ```
 
 If installed from source
 ```bash
+source /opt/ros2/kinetic/setup.bash
 source . ~/ros2_ws/install/local_setup.bash
 ```
 
