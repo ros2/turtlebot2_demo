@@ -95,6 +95,13 @@ Terminal 3:
 rviz
 ```
 
+Terminal 4:
+```
+. /opt/ros/kinetic/setup.bash
+. ~/ros2_ws/install/setup.bash
+rosrun map_server map_server `ros2 pkg prefix turtlebot2_amcl`/share/turtlebot2_amcl/example/osrf_map.yaml
+```
+
 Add TF, PoseArray, LaserArray and Map displays, and you should see the particle cloud move around the map with the robot.
 
 ![example localization](https://github.com/ros2/turtlebot2_demo/raw/amcl_readme/turtlebot2_amcl/doc/turtlebot2_amcl_rviz.png "Example of RViz visualization of localization")
