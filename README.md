@@ -14,7 +14,7 @@ First, install ROS2 from binaries following [these instructions](https://github.
 
 Then install the turtlebo2 demo specific packages:
 ```
-sudo apt install ros-r2b2-turtlebot2*
+sudo apt install ros-r2b2-turtlebot2* ros-kinetic-kobuki-ftdi
 ```
 
 ## Installation from source
@@ -69,6 +69,10 @@ wget https://raw.githubusercontent.com/ros2/ros_astra_camera/ros2/56-orbbec-usb.
 #### If you installed from source
 ```bash
 cd ~/ros2_ws/src/ros_astra_camera
+```
+
+#### Copy the rules file
+```bash
 sudo cp 56-orbbec-usb.rules /etc/udev/rules.d
 ```
 
@@ -88,13 +92,13 @@ sudo service udev restart
 
 If installed from Debian packages
 ```bash
-source /opt/ros2/kinetic/setup.bash
+source /opt/ros/kinetic/setup.bash
 source /opt/ros/r2b2/setup.bash
 ```
 
 If installed from source
 ```bash
-source /opt/ros2/kinetic/setup.bash
+source /opt/ros/kinetic/setup.bash
 source . ~/ros2_ws/install/local_setup.bash
 ```
 
