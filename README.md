@@ -69,6 +69,10 @@ wget https://raw.githubusercontent.com/ros2/ros_astra_camera/ros2/56-orbbec-usb.
 #### If you installed from source
 ```bash
 cd ~/ros2_ws/src/ros_astra_camera
+```
+
+#### Copy the rules file
+```bash
 sudo cp 56-orbbec-usb.rules /etc/udev/rules.d
 ```
 
