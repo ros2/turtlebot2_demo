@@ -5,6 +5,7 @@ This repository contains the code and supporting files to run TurtleBot 2 demos 
 This is very much a work in progress and there's plenty of functionality present in the ROS 1 equivalent system that's currently missing or disabled, but it's an important step. -->
 
 This demo assumes that you have an Orbbec Astra depth camera. Extra work would be required to use the Kinect or Asus Xtion Pro. Without an Astra, you can still do joystick teleop.
+For instructions on how to setup your turtlebot please see [Setup your turtlebot2](https://github.com/ros2/turtlebot2_demo/blob/master/Turtlebot_Setup.md)
 
 # Installation
 
