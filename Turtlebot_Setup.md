@@ -11,8 +11,7 @@
 - [8] A microSD card for the Pine64; this is known to work: https://www.amazon.com/gp/product/B013CP5HCK/ref=oh_aui_detailpage_o04_s01?ie=UTF8&psc=1
 - [9] A way to plug the microSD card into your Linux machine; if you don’t have one, buy this: https://www.amazon.com/gp/product/B00KX4TORI/ref=oh_aui_detailpage_o03_s00?ie=UTF8&psc=1
 - [10] A heatsink for the Pine64; the ones for the Raspberry Pi will do: https://www.amazon.com/gp/product/B01GE7Q060/ref=oh_aui_detailpage_o02_s00?ie=UTF8&psc=1
-
-It can also be helpful for debugging to have an HDMI->HDMI cable so you can hook the Pine64 to a monitor [11]: https://www.amazon.com/AmazonBasics-High-Speed-HDMI-Cable-Standard/dp/B014I8SSD0/ref=sr_1_3?ie=UTF8&qid=1495646629&sr=8-3&keywords=HDMI+cable
+- It can also be helpful for debugging to have an HDMI->HDMI cable [11] so you can hook the Pine64 to a monitor: https://www.amazon.com/AmazonBasics-High-Speed-HDMI-Cable-Standard/dp/B014I8SSD0/ref=sr_1_3?ie=UTF8&qid=1495646629&sr=8-3&keywords=HDMI+cable
  
 ## Setup:
 
@@ -53,7 +52,7 @@ It will ask you for a password, which is “ubuntu”.
 - Configure the wireless interface:
   ```bash
   sudo apt install avahi-daemon linux-firmware nano network-manager 
-	sudo nano /etc/network/interfaces.d/eth0
+  sudo nano /etc/network/interfaces.d/eth0
   ```
   Replace the first line `auto eth0` by `allow-hotplug eth0`
   ```bash
@@ -83,4 +82,4 @@ sudo swapon /swapfile
 echo /swapfile none swap sw 0 0 | sudo tee -a /etc/fstab
 ```
 
-Now you can follow the instructions to build the turtlebot2 code for ROS2 in the next section.
+Now you can follow the [instructions](https://github.com/ros2/turtlebot2_demo/tree/tb2_setup_instructions#installation) to install the turtlebot2 code
