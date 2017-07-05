@@ -14,7 +14,7 @@ First, install ROS2 from binaries following [these instructions](https://github.
 
 Then install the turtlebo2 demo specific packages:
 ```
-sudo apt install ros-r2b2-turtlebot2*
+sudo apt install ros-r2b2-turtlebot2* ros-kinetic-kobuki-ftdi
 ```
 
 ## Installation from source
