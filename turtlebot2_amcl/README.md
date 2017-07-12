@@ -48,7 +48,7 @@ $ launch `ros2 pkg prefix turtlebot2_amcl`/share/turtlebot2_amcl/launch/turtlebo
 (joy_node) pid 16850: ['/home/ubuntu/tb2_demo_ws/install_isolated/joy/lib/joy/joy_node'] (stderr > stdout, all > console)
 (teleop_node) pid 16853: ['/home/ubuntu/tb2_demo_ws/install_isolated/teleop_twist_joy/lib/teleop_twist_joy/teleop_node'] (stderr > stdout, all > console)
 (map_server) pid 16869: ['/home/ubuntu/tb2_demo_ws/install_isolated/map_server/lib/map_server/map_server', '/home/ubuntu/tb2_demo_ws/install_isolated/turtlebot2_amcl/share/turtlebot2_amcl/examples/osrf_map.yaml'] (stderr > stdout, all > console)
-(amcl) pid 16883: ['amcl', '--use-map-topic'] (stderr > stdout, all > console)
+(amcl) pid 16883: ['/home/ubuntu/tb2_demo_ws/install_isolated/amcl/lib/amcl/amcl', '--use-map-topic'] (stderr > stdout, all > console)
 [astra_camera_node] Device "2bc5/0401@2/8" found.
 [astra_camera_node] Using depth frame id openni_depth_optical_frame
 [astra_camera_node] Using color frame id openni_color_optical_frame
@@ -99,7 +99,7 @@ Terminal 4:
 ```
 . /opt/ros/kinetic/setup.bash
 . ~/ros2_ws/install/setup.bash
-rosrun map_server map_server `ros2 pkg prefix turtlebot2_amcl`/share/turtlebot2_amcl/example/osrf_map.yaml
+rosrun map_server map_server `ros2 pkg prefix turtlebot2_amcl`/share/turtlebot2_amcl/examples/osrf_map.yaml
 ```
 
 Add TF, PoseArray, LaserArray and Map displays, and you should see the particle cloud move around the map with the robot.

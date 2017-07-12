@@ -108,10 +108,9 @@ def launch(launch_descriptor, argv):
         cmd=[get_executable_path(package_name=package, executable_name='map_server'), map_path],
         name='map_server',
     )
+    package = 'amcl'
     ld.add_process(
-        cmd=[
-            'amcl', '--use-map-topic',
-        ],
+        cmd=[get_executable_path(package_name=package, executable_name='amcl'), '--use-map-topic'],
         name='amcl',
         exit_handler=restart_exit_handler,
         output_handlers=[ConsoleOutput()],
