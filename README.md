@@ -143,7 +143,7 @@ ros2 run turtlebot2_follower follower
 ```
 
 ## Cartographer (mapping)
-This demo is using Google cartographer to build a map of the environment. The resulting map can be visualize in RViz using the ros1_bridge (more information below).
+This demo is using Google cartographer to build a map of the environment. The resulting map can be visualized in RViz using the ros1_bridge (more information below).
 
 ### Run the demo
 Try the launch file:
@@ -152,8 +152,8 @@ launch `ros2 pkg prefix turtlebot2_cartographer`/share/turtlebot2_cartographer/l
 ```
 
 ### Visualize the results
-The created map can be visualize in Rviz on a remote computer by using the dynamic bridge that converts messages between ROS1 and ROS2.
-This assumes that you have a ROS2 workspace installed either [from binaries](https://github.com/ros2/ros2/wiki/Linux-Install-Debians) or from source with the [bridge built](https://github.com/ros2/ros1_bridge/blob/master/README.md#build-the-bridge-from-source)
+The created map can be visualized in Rviz on a remote computer by using the dynamic bridge that converts messages between ROS1 and ROS2.
+This assumes that you have a ROS2 workspace installed either [from binaries](https://github.com/ros2/ros2/wiki/Linux-Install-Debians) or from source with the bridge built following the required procedure, [the details of which are documented here](https://github.com/ros2/ros1_bridge/blob/master/README.md#build-the-bridge-from-source).
 
 Terminal A:
 ```bash
