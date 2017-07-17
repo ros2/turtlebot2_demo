@@ -153,7 +153,20 @@ launch `ros2 pkg prefix turtlebot2_cartographer`/share/turtlebot2_cartographer/l
 
 ### Visualize the results
 The created map can be visualized in Rviz on a remote computer by using the dynamic bridge that converts messages between ROS1 and ROS2.
-This assumes that you have a ROS2 workspace installed either [from binaries](https://github.com/ros2/ros2/wiki/Linux-Install-Debians) or from source with the bridge built following the required procedure, [the details of which are documented here](https://github.com/ros2/ros1_bridge/blob/master/README.md#build-the-bridge-from-source).
+This assumes that you have a ROS2 dynamic bridge on your system.
+
+#### Installing the bridge
+
+##### From binaries:
+Setup your sources as explained on the [setup sources section](https://github.com/ros2/ros2/wiki/Linux-Install-Debians#setup-sources) and then run
+```bash
+sudo apt update && sudo apt install ros-r2b2-ros1-bridge
+```
+
+##### From source:
+Build your ROS2 workspace as explained in [these instructions](https://github.com/ros2/ros1_bridge/blob/master/README.md#build-the-bridge-from-source).
+
+#### Run the bridge
 
 Terminal A:
 ```bash
