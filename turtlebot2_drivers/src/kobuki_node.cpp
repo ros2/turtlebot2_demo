@@ -24,6 +24,7 @@
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wignored-qualifiers"
 # pragma GCC diagnostic ignored "-Wsign-compare"
+# pragma GCC diagnostic ignored "-Wstrict-aliasing"
 # pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 # pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
