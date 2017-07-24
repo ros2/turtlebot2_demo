@@ -100,7 +100,7 @@ source /opt/ros/r2b2/setup.bash
 If installed from source
 ```bash
 source /opt/ros/kinetic/setup.bash
-source . ~/ros2_ws/install/local_setup.bash
+source ~/ros2_ws/install/local_setup.bash
 ```
 
 You'll need to do this step for every terminal you use for these demos
