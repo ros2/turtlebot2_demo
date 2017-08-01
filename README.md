@@ -193,7 +193,7 @@ Topics you can visualize in Rviz:
 - the laserscans on the topic `/scans`
 
 ## AMCL (localization)
-See the [AMCL demo README](https://github.com/ros2/turtlebot2_demo/blob/amcl_readme/turtlebot2_amcl/README.md)
+See the [AMCL demo README](https://github.com/ros2/turtlebot2_demo/blob/master/turtlebot2_amcl/README.md)
 
 # Discussion
 What's happening here compared to the ROS 1 versions of these demos? Well, it's 100% ROS 2, with no bridge or shim. We took 4 different
