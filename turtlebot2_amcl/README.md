@@ -104,7 +104,7 @@ rosrun map_server map_server `ros2 pkg prefix turtlebot2_amcl`/share/turtlebot2_
 
 Add TF, PoseArray, LaserArray and Map displays, and you should see the particle cloud move around the map with the robot.
 
-![example localization](https://github.com/ros2/turtlebot2_demo/raw/amcl_readme/turtlebot2_amcl/doc/turtlebot2_amcl_rviz.png "Example of RViz visualization of localization")
+![example localization](https://github.com/ros2/turtlebot2_demo/raw/master/turtlebot2_amcl/doc/turtlebot2_amcl_rviz.png "Example of RViz visualization of localization")
 
 
 ## Alternative: using the parameter bridge
