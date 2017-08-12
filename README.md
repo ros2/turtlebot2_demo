@@ -26,7 +26,7 @@ First, install ROS2 from source following [these instructions](https://github.co
 Then get the turtlebo2 demos specific code:
 ```
 cd <YOUR_ROS2_WORKSPACE>
-wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/master/turtlebot2_demo.repos
+wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/release-latest/turtlebot2_demo.repos
 vcs import src < turtlebot2_demo.repos
 ```
 
