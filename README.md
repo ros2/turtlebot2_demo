@@ -26,13 +26,13 @@ First, install ROS2 from source following [these instructions](https://github.co
 Then get the turtlebo2 demos specific code:
 ```
 cd <YOUR_ROS2_WORKSPACE>
-wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/master/turtlebot2_demo.repos
+wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/release-latest/turtlebot2_demo.repos
 vcs import src < turtlebot2_demo.repos
 ```
 
 ### Install some dependencies:
 ```bash
-sudo apt-get install --no-install-recommends -y libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libgoogle-glog-dev liblua5.2-dev libpcl-dev libprotobuf-dev libsdl1.2-dev libsdl-image1.2-dev libsuitesparse-dev libudev-dev libusb-1.0.0-dev libyaml-cpp-dev protobuf-compiler python-sphinx ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi
+sudo apt-get install --no-install-recommends -y libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libceres-dev libgoogle-glog-dev liblua5.2-dev libpcl-dev libprotobuf-dev libsdl1.2-dev libsdl-image1.2-dev libsuitesparse-dev libudev-dev libusb-1.0.0-dev libyaml-cpp-dev protobuf-compiler python-sphinx ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi
 ```
 
 Reason for each dependency:
