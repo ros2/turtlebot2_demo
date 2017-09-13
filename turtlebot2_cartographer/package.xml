@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>turtlebot2_cartographer</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <description>Launch files for turtlebot2 cartographer demo</description>
   <maintainer email="clalancette@openrobotics.org">Chris Lalancette</maintainer>
   <license>Apache License 2.0</license>

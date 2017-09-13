@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>depthimage_to_pointcloud2</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <description>A simple node to convert a depth image and camera info into a PointCloud2.</description>
   <maintainer email="clalancette@osrfoundation.org">Chris Lalancette</maintainer>
   <license>Apache License 2.0</license>
