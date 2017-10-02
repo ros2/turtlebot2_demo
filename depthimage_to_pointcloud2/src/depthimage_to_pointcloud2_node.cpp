@@ -15,6 +15,7 @@
 #include <depthimage_to_pointcloud2/depth_conversions.hpp>
 #include <image_geometry/pinhole_camera_model.h>
 #include <rclcpp/rclcpp.hpp>
+#include <rcutils/logging_macros.h>
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
@@ -37,7 +38,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
 
   if (nullptr == g_cam_info) {
     // we haven't gotten the camera info yet, so just drop until we do
-    fprintf(stderr, "No camera info, skipping point cloud conversion\n");
+    RCUTILS_LOG_WARN("No camera info, skipping point cloud conversion");
     return;
   }
 
@@ -64,7 +65,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   } else if (image->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
     depthimage_to_pointcloud2::convert<float>(image, cloud_msg, model);
   } else {
-    fprintf(stderr, "Depth image has unsupported encoding [%s]\n", image->encoding.c_str());
+    RCUTILS_LOG_WARN("Depth image has unsupported encoding [%s]", image->encoding.c_str());
     return;
   }
 
