@@ -54,7 +54,7 @@ static void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
   double vyaw = std::min(std::max(msg->angular.z, -g_max_vyaw), g_max_vyaw);
   g_kobuki->setBaseControl(vx, vyaw);
   if (rcutils_system_time_now(&g_last_cmd_vel_time) != RCUTILS_RET_OK) {
-    RCUTILS_LOG_ERROR("Failed to get system time");
+    RCUTILS_LOG_ERROR("Failed to get system time")
   }
 }
 
@@ -99,9 +99,9 @@ int main(int argc, char * argv[])
   g_max_vyaw = 1.0;
   node->get_parameter("max_vyaw", g_max_vyaw);
 
-  RCUTILS_LOG_INFO("device_port: %s\n", parameters.device_port.c_str());
-  RCUTILS_LOG_INFO("max_vx: %f\n", g_max_vx);
-  RCUTILS_LOG_INFO("max_vyaw: %f\n", g_max_vyaw);
+  RCUTILS_LOG_INFO("device_port: %s", parameters.device_port.c_str())
+  RCUTILS_LOG_INFO("max_vx: %f", g_max_vx)
+  RCUTILS_LOG_INFO("max_vyaw: %f", g_max_vyaw)
 
   parameters.sigslots_namespace = "/kobuki";
   parameters.enable_acceleration_limiter = true;
@@ -136,7 +136,7 @@ int main(int argc, char * argv[])
       gyro_yaw = g_kobuki->getHeading();
       gyro_vyaw = g_kobuki->getAngularVelocity();
       if (rcutils_system_time_now(&now) != RCUTILS_RET_OK) {
-        RCUTILS_LOG_ERROR("Failed to get system time");
+        RCUTILS_LOG_ERROR("Failed to get system time")
       }
       if ((now - g_last_cmd_vel_time) > 200) {
         g_kobuki->setBaseControl(0.0, 0.0);
