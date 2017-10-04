@@ -99,9 +99,9 @@ int main(int argc, char * argv[])
   g_max_vyaw = 1.0;
   node->get_parameter("max_vyaw", g_max_vyaw);
 
-  RCUTILS_LOG_INFO("device_port: %s", parameters.device_port.c_str())
-  RCUTILS_LOG_INFO("max_vx: %f", g_max_vx)
-  RCUTILS_LOG_INFO("max_vyaw: %f", g_max_vyaw)
+  RCUTILS_LOG_DEBUG("device_port: %s", parameters.device_port.c_str())
+  RCUTILS_LOG_DEBUG("max_vx: %f", g_max_vx)
+  RCUTILS_LOG_DEBUG("max_vyaw: %f", g_max_vyaw)
 
   parameters.sigslots_namespace = "/kobuki";
   parameters.enable_acceleration_limiter = true;

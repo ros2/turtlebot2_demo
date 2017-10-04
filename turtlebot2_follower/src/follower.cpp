@@ -47,6 +47,7 @@
 #include "turtlebot2_follower/depth_traits.h"
 
 #define ROS_WARN RCUTILS_LOG_WARN
+#define ROS_ERROR RCUTILS_LOG_ERROR
 #define ROS_INFO_THROTTLE(sec, ...) RCUTILS_LOG_INFO_THROTTLE(RCUTILS_STEADY_TIME, sec, __VA_ARGS__)
 
 namespace turtlebot_follower
@@ -163,7 +164,7 @@ private:
     // We're assuming floating point data
     if(depth_msg->encoding != sensor_msgs::image_encodings::TYPE_32FC1)
     {
-      ROS_WARN("received depth image with unsupported encoding: %s", depth_msg->encoding.c_str());
+      ROS_ERROR("received depth image with unsupported encoding: %s", depth_msg->encoding.c_str());
       return;
     }
 

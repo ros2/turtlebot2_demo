@@ -65,7 +65,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
   } else if (image->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
     depthimage_to_pointcloud2::convert<float>(image, cloud_msg, model);
   } else {
-    RCUTILS_LOG_WARN("Depth image has unsupported encoding [%s]", image->encoding.c_str())
+    RCUTILS_LOG_WARN_THROTTLE(RCUTILS_STEADY_TIME, 5000, "Depth image has unsupported encoding [%s]", image->encoding.c_str())
     return;
   }
 
