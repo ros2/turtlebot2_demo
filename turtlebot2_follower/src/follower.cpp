@@ -27,6 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+// This file is originally from:
+// https://github.com/turtlebot/turtlebot_apps/blob/cefaf0a/turtlebot_follower/src/follower.cpp
+
 #include <vector>
 
 #include <rclcpp/rclcpp.hpp>
