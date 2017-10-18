@@ -43,7 +43,7 @@ Reason for each dependency:
 
 ### Build the ros2 code
 
-For resource constrained platforms we will split te build into 2 steps to make sure not to overflow the memory
+For resource constrained platforms we will split the build into 2 steps to make sure not to overflow the memory
 ```bash
 src/ament/ament_tools/scripts/ament.py build --isolated --symlink-install --parallel --skip-packages cartographer cartographer_ros ros1_bridge turtlebot2_amcl turtlebot2_drivers turtlebot2_follower turtlebot2_cartographer turtlebot2_teleop
 ```
