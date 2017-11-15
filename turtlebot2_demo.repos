@@ -35,6 +35,10 @@ repositories:
     type: git
     url: https://github.com/ros2/turtlebot2_demo.git
     version: master
+  ros2/vision_opencv:
+    type: git
+    url: https://github.com/ros2/vision_opencv.git
+    version: ros2
   vendor/cartographer:
     type: git
     url: https://github.com/ros2/cartographer
