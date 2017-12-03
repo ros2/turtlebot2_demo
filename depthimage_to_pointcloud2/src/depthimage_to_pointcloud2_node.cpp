@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-static rclcpp::publisher::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr g_pub_point_cloud;
+static rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr g_pub_point_cloud;
 
 static sensor_msgs::msg::CameraInfo::SharedPtr g_cam_info;
 

@@ -352,7 +352,7 @@ private:
   //ros::Subscriber sub_;
   rclcpp::subscription::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_;
   //ros::Publisher cmdpub_;
-  rclcpp::publisher::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmdpub_;
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmdpub_;
   //ros::Publisher markerpub_;
   //ros::Publisher bboxpub_;
 };
