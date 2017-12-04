@@ -350,7 +350,7 @@ private:
 
   rclcpp::node::Node::SharedPtr n_;
   //ros::Subscriber sub_;
-  rclcpp::subscription::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_;
+  rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_;
   //ros::Publisher cmdpub_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmdpub_;
   //ros::Publisher markerpub_;
