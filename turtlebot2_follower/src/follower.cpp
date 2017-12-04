@@ -70,7 +70,7 @@ public:
    * @brief The constructor for the follower.
    * Constructor for the follower.
    */
-  TurtlebotFollower(rclcpp::node::Node::SharedPtr n) : min_y_(0.1), max_y_(0.5),
+  TurtlebotFollower(rclcpp::Node::SharedPtr n) : min_y_(0.1), max_y_(0.5),
                         min_x_(-0.3), max_x_(0.3),
                         max_z_(1.5), goal_z_(0.6),
                         z_scale_(1.0), x_scale_(5.0), enabled_(true), n_(n)
@@ -348,7 +348,7 @@ private:
   }
 */
 
-  rclcpp::node::Node::SharedPtr n_;
+  rclcpp::Node::SharedPtr n_;
   //ros::Subscriber sub_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_;
   //ros::Publisher cmdpub_;
@@ -366,7 +366,7 @@ int
 main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
-  auto n = rclcpp::node::Node::make_shared("turtlebot2_follower");
+  auto n = rclcpp::Node::make_shared("turtlebot2_follower");
   turtlebot_follower::TurtlebotFollower tf(n);
   tf.onInit();
   rclcpp::spin(n);

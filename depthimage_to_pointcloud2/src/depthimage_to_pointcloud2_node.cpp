@@ -82,7 +82,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  rclcpp::node::Node::SharedPtr node = rclcpp::node::Node::make_shared("depthimage_to_pointcloud2");
+  rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("depthimage_to_pointcloud2");
 
   rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
 

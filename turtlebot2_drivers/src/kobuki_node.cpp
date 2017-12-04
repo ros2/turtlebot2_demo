@@ -77,7 +77,7 @@ int main(int argc, char * argv[])
   odom_and_imu_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
   odom_and_imu_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
-  auto node = rclcpp::node::Node::make_shared("kobuki_node");
+  auto node = rclcpp::Node::make_shared("kobuki_node");
   auto parameter_service = std::make_shared<rclcpp::ParameterService>(node);
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", cmdVelCallback, cmd_vel_qos_profile);
