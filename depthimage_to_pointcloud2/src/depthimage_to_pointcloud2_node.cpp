@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-static rclcpp::publisher::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr g_pub_point_cloud;
+static rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr g_pub_point_cloud;
 
 static sensor_msgs::msg::CameraInfo::SharedPtr g_cam_info;
 
@@ -82,7 +82,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  rclcpp::node::Node::SharedPtr node = rclcpp::node::Node::make_shared("depthimage_to_pointcloud2");
+  rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("depthimage_to_pointcloud2");
 
   rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
 
