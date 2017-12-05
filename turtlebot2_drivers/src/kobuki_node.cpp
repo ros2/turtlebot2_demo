@@ -44,6 +44,7 @@
 static kobuki::Kobuki * g_kobuki;
 static std::mutex g_kobuki_mutex;
 static rcutils_time_point_value_t g_last_cmd_vel_time;
+static rclcpp::Logger g_logger = rclcpp::get_logger("kobuki_node");
 static double g_max_vx;
 static double g_max_vyaw;
 
@@ -54,7 +55,7 @@ static void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
   double vyaw = std::min(std::max(msg->angular.z, -g_max_vyaw), g_max_vyaw);
   g_kobuki->setBaseControl(vx, vyaw);
   if (rcutils_system_time_now(&g_last_cmd_vel_time) != RCUTILS_RET_OK) {
-    RCUTILS_LOG_ERROR("Failed to get system time")
+    RCLCPP_ERROR(g_logger, "Failed to get system time")
   }
 }
 
@@ -78,6 +79,7 @@ int main(int argc, char * argv[])
   odom_and_imu_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
 
   auto node = rclcpp::node::Node::make_shared("kobuki_node");
+  g_logger = node->get_logger();
   auto parameter_service = std::make_shared<rclcpp::parameter_service::ParameterService>(node);
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", cmdVelCallback, cmd_vel_qos_profile);
@@ -99,9 +101,9 @@ int main(int argc, char * argv[])
   g_max_vyaw = 1.0;
   node->get_parameter("max_vyaw", g_max_vyaw);
 
-  RCUTILS_LOG_DEBUG("device_port: %s", parameters.device_port.c_str())
-  RCUTILS_LOG_DEBUG("max_vx: %f", g_max_vx)
-  RCUTILS_LOG_DEBUG("max_vyaw: %f", g_max_vyaw)
+  RCLCPP_DEBUG(node->get_logger(), "device_port: %s", parameters.device_port.c_str())
+  RCLCPP_DEBUG(node->get_logger(), "max_vx: %f", g_max_vx)
+  RCLCPP_DEBUG(node->get_logger(), "max_vyaw: %f", g_max_vyaw)
 
   parameters.sigslots_namespace = "/kobuki";
   parameters.enable_acceleration_limiter = true;
@@ -136,7 +138,7 @@ int main(int argc, char * argv[])
       gyro_yaw = g_kobuki->getHeading();
       gyro_vyaw = g_kobuki->getAngularVelocity();
       if (rcutils_system_time_now(&now) != RCUTILS_RET_OK) {
-        RCUTILS_LOG_ERROR("Failed to get system time")
+        RCLCPP_ERROR(node->get_logger(), "Failed to get system time")
       }
       if ((now - g_last_cmd_vel_time) > 200) {
         g_kobuki->setBaseControl(0.0, 0.0);
