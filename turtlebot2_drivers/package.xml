@@ -2,9 +2,10 @@
 <package format="2">
   <name>turtlebot2_drivers</name>
   <version>0.0.3</version>
-  <description>Description!</description>
-  <maintainer email="gerkey@osrfoundation.org">Brian Gerkey</maintainer>
+  <description>Set of drivers to talk to the kobuki base.</description>
+  <maintainer email="mikael@osrfoundation.org">Mikael Arguedas</maintainer>
   <license>Apache License 2.0</license>
+  <author email="gerkey@osrfoundation.org">Brian Gerkey</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
