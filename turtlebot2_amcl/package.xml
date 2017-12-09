@@ -3,7 +3,7 @@
   <name>turtlebot2_amcl</name>
   <version>0.0.3</version>
   <description>Demo of turtlebot2 localization with amcl.</description>
-  <maintainer email="dhood@osrfoundation.org"></maintainer>
+  <maintainer email="dhood@osrfoundation.org">D. Hood</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
