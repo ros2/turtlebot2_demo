@@ -15,7 +15,7 @@ First, install ROS2 from binaries following [these instructions](https://github.
 
 Then install the turtlebo2 demo specific packages:
 ```
-sudo apt install ros-r2b2-turtlebot2* ros-kinetic-kobuki-ftdi
+sudo apt install ros-ardent-turtlebot2* ros-kinetic-kobuki-ftdi
 ```
 
 ## Installation from source
@@ -26,7 +26,7 @@ First, install ROS2 from source following [these instructions](https://github.co
 Then get the turtlebo2 demos specific code:
 ```
 cd <YOUR_ROS2_WORKSPACE>
-wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/release-latest/turtlebot2_demo.repos
+wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/master/turtlebot2_demo.repos
 vcs import src < turtlebot2_demo.repos
 ```
 
@@ -69,7 +69,7 @@ wget https://raw.githubusercontent.com/ros2/ros_astra_camera/ros2/56-orbbec-usb.
 
 #### If you installed from source
 ```bash
-cd ~/ros2_ws/src/ros_astra_camera
+cd ~/ros2_ws/src/ros2/ros_astra_camera
 ```
 
 #### Copy the rules file
@@ -94,7 +94,7 @@ sudo service udev restart
 If installed from Debian packages
 ```bash
 source /opt/ros/kinetic/setup.bash
-source /opt/ros/r2b2/setup.bash
+source /opt/ros/ardent/setup.bash
 ```
 
 If installed from source
@@ -160,7 +160,7 @@ This assumes that you have a ROS2 dynamic bridge on your system.
 ##### From binaries:
 Setup your sources as explained on the [setup sources section](https://github.com/ros2/ros2/wiki/Linux-Install-Debians#setup-sources) and then run
 ```bash
-sudo apt update && sudo apt install ros-r2b2-ros1-bridge
+sudo apt update && sudo apt install ros-ardent-ros1-bridge
 ```
 
 ##### From source:
