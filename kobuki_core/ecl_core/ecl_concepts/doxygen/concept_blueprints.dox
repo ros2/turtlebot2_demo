@@ -1,0 +1,155 @@
+/**
+@page blueprintsConcept Blueprints
+ 
+@section overviewSection Overview
+ 
+Blueprints store a minimal ruleset for instantiating or configuring 
+specialised representations of a class such as a uniformly filled
+array, or the unit vectors of each dimension. This can of course,
+be done inside a class, but via the blueprints, we introduce 
+an extra layer of indirection that helps get around two issues.
+
+@subsection whySection Problems with Constructor Overloading
+ 
+Overloading the constructor can become difficult when you cannot find a
+unique signature for one of many constructor calls. For example,
+ 
+@code
+A(double x, double y);
+A(double r, double angle);
+@endcode
+ 
+Traditionally, the way around it would be to define  
+a static function within the class. However, this runs into difficulty
+when incorporating a 3rd party library - you cannot add static functions
+to pre-existing classes. This is often very desirable if you want to create
+your own pre-defined instantiations of things like matrices. So in these cases, 
+an externally applied method is necessary.
+
+@subsection whyAssignment Problems with Assignment
+
+Even when there are static methods available to generate specialised instances,
+operator assignment will usually result in a construction followed by a
+full copy, which is expensive.
+
+@code
+Array<int,4> array;
+//... 
+array = Array<int,4>::ConstantArray(3);
+@endcode
+
+@subsection whatSection How BluePrints Work
+
+By generating a minimal blueprint and then passing to a class's assignment operator, 
+or forcing the blueprint to generate an instance externally, we resolve the two 
+problems above. In some cases we also get a speedup if we need to repeatedly use
+a blueprint, in sofar as the blueprint can save and store the state required 
+to generate the class from the blueprint.
+
+@section CompilingLinking Compiling & Linking
+ 
+Include the following at the top of any translation unit for which you are
+running compile time checks on your blueprint classes. 
+  
+@code
+#include <ecl/concepts.hpp>
+
+using ecl::BluePrintConcept;
+@endcode
+ 
+Since it only uses macros and templatised objects, no linking is required for just this feature.
+
+@section creation Concept Definition
+
+Creating a blueprint class can be done in any namespace, it just has to satisfy the
+three conditions outlined below: 
+
+- base_type : a typedef for the target class for which they generate instances/configurations.
+- base_type instantiate() : they must be able to instantiate a base_type object.
+- void apply(base_type&) : they must be able to apply this configuration to an existing object.
+
+A simple example for a blueprint related to the Foo class:
+
+@code
+class Foo {
+public:
+  Foo(std::string &id) : name(id) {}
+  void changeName(std::string &new_name) { name = new_name; }
+  // ...
+private:
+  std::string name;
+};
+
+class SimpleFoo {
+public:
+  typdef Foo base_type;
+  base_type instantiate() { return Foo("simpleton"); }
+  void apply(base_type& foo) {
+    foo.changeName("simpleton");
+  }
+@endcode
+
+That, of course, was complicating a redundantly trivial situation. 
+A better, practicial example is the ConstantArray blueprint for array containers in ecl_containers.
+
+@section Usage
+
+@subsection check Convenient BluePrint Class Handling
+
+While its possible to simply use the blueprint class in the following manner (in this
+example, ConstrantArray is a blueprint):
+
+@code
+Array<int,4> array = ConstantArray<int,4>()(3).instantiate();
+ConstantArray<int,4>()(3).apply(array);
+@endcode
+
+It's not very convenient. I usually wrap them in a factory class which possesses static methods
+that will either result in instantiations or blueprints. A direct implementation of such a factory might like like this:
+
+@code
+Array<int,4> array = ArrayFactory<int,4>::ConstantArray(3); // Construction
+ArrayFactory<int,4>::ConstantArray(array,3);                // Assignment  
+@endcode
+
+This is about as far as you can go with a factory class working for a 3rd party class that you
+cannot modify. If however, you can modify the base_type class, then it is possible to
+insert a constructor and assignment operator to directly handle blueprints, e.g. in the 
+Array container class (ecl_containers), we have the following declarations:
+
+@code
+    template<typename T>
+    Array(const T& blueprint) {
+        compile_time_concept_check(BluePrintConcept<T>);
+        blueprint.apply(*this);
+    }
+
+    template<typename T>
+    void operator=(const T& blueprint) {
+        compile_time_concept_check(BluePrintConcept<T>);
+        blueprint.apply(*this);
+    }
+@endcode
+Then we can handle both construction and assignment equivalently:
+@code
+Array<int,4> array = ArrayFactory<int,4>::ConstantArray(3); // Construction
+array = ArrayFactory<int,4>::ConstantArray(3);              // Assignment (no costly copy)  
+@endcode
+
+Furthermore, if our base class inherits the factory, then we can simplify this further:
+@code
+Array<int,4> array = Array<int,4>::ConstantArray(3); // Construction
+array = Array<int,4>::ConstantArray(3);              // Assignment (no costly copy)  
+@endcode
+
+@section Examples
+
+These are the relevant components for array type blueprints which can be found in ecl_containers.
+
+- ecl::Array
+- ecl::blueprints::ArrayFactory
+- ecl::blueprints::ConstantArray
+
+@section Changelog
+- Blueprint testing class added [May 09].
+ **/

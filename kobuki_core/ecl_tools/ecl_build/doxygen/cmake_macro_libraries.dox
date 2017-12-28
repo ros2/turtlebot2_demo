@@ -1,0 +1,94 @@
+/**
+@page cmakeMacroLibraries CMake Library
+
+@section Overview
+
+These are modules which can be included by cmake in the regular way with
+a macro/function api to call upon (think regular c-style library).
+
+One nice feature of this is that you don't waste time processing macros you don't use (unlike
+a usual cmake module).
+
+@section Usage
+
+@subsection RoS
+
+If using the ecl to build an ros package:
+
+- Ensure ecl_build is listed as a dependency in your manifest.xml
+- Simply rosbuild_include any of the macro libraries you wish to use:
+
+@code
+# Include the macro libraries you wish to use...e.g.
+rosbuild_include(ecl_build ecl_build_utilities)
+rosbuild_include(ecl_build ecl_platform_detection)
+rosbuild_include(ecl_build ecl_ros_utilities)
+
+# Call the macros
+ecl_detect_platform() # a general purpose platform sniffer
+ecl_ros_get_dependency_list() # get the dependency list for this project
+
+# Finally use some of the variables it sets (this one the dependency 
+message(STATUS "Dependencies: ${${PROJECT_NAME}_DEPENDENCIES}") 
+@endcode
+
+@subsection System
+
+Pkg-config can be used to find the macro libraries when you have a regular system install of the ecl. An example: 
+
+@code
+find_package(PkgConfig)
+pkg_check_modules(ECL_CMAKE ecl_cmake) # Stores the path to the ecl cmake dir in ECL_CMAKE_PREFIX
+set(CMAKE_MODULE_PATH ${ECL_CMAKE_PREFIX}/modules) # Location of the ecl cmake modules
+
+# Include the macro libraries you wish to use...e.g.
+include(ecl_build_utilities)
+include(ecl_platform_detection)
+include(ecl_ros_utilities)
+
+# Call the macros
+ecl_detect_platform() # a general purpose platform sniffer
+@endcode
+
+@section macroLibraryList The Library
+
+See the sources (.cmake files) for more detailed usage notes and examples.
+
+@subsection platformDetection Platform Detection
+
+File: ecl_platform_detection.cmake
+
+- ecl_detect_distro() - returns distro version details )currently ubuntu only).
+- ecl_detect_posix() - returns variables confirming the level of posix available.
+- ecl_detect_threads() - detects the thread model.
+- ecl_detect_timers() - detects the timers model.
+- ecl_detect_sizes() - determines the size of the fundamental types.
+- ecl_detect_char_type() - detects the typedef of char.
+- ecl_detect_endianness() - detects endianness of the platform.
+- ecl_set_platform_cflags() - sets platform flags based on various input variables.
+- ecl_detect_compiler_version() - returns the version of the compiler (msvc and gnu).
+- ecl_check_cxx_flags() - general version of CheckCXXCompilerFlags can be used for linker flags.
+- ecl_link_as_needed() - cross platform application of --link-as-needed.
+- ecl_link_no_as_needed() - cross platform application of the opposite.
+- ecl_detect_platform() - brings most of the above scripts together.
+- ecl_summary_platform() - prints results of the platform detection script.
+
+@subsection buildUtilities Build Utilities
+
+File: ecl_build_utilities.cmake
+
+- ecl_download_url()
+- ecl_extract_tarball()
+- ecl_extract_bzip2()
+- ecl_autotools_compile()
+- ecl_add_uninstall()
+
+@subsection rosUtilities Ros Utilities
+
+File: ecl_ros_utilities.cmake
+
+- ecl_ros_manifest_brief() - parses the package's manifest for the short description.
+- ecl_ros_get_dependency_list() - returns the list of all dependencies for a package.
+- ecl_ros_output_paths() - sets standard output paths for ros builds.
+
+**/

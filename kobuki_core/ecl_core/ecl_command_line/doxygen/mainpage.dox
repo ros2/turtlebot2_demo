@@ -1,0 +1,111 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Provides a templatised c++ parser for handling command line arguments.
+	The templates provide a very flexible manner for handling any type
+	of input argument.
+
+	The code for the command line parser is a simple wrapper around another
+	template header library called <a href="http://tclap.sourceforge.net/">TCLAP</a>.
+	Since it is relatively small, its
+	bundled here in the command_line subdirectory and namespaced
+	in a convenient manner. Licensing terms (MIT) are included in the
+	command_line subdirectory (also included as an install target).
+
+	@subsection Alternatives
+
+		A more complicated, but more flexible alternative
+		(it allows argument parsing from both command line and configuration
+		file simultaneously) is the boost::program_options library.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/command_line.hpp>
+    
+    // Interface classes
+    using ecl::CmdLine;
+    using ecl::ArgException
+    // Argument classes
+    using ecl::SwitchArg;
+    using ecl::ValueArg;
+    using ecl::MultiArg;
+    using ecl::UnlabeledValueArg; 
+    using ecl::UnlabeledMultiArg; // there are more - see tclap docs
+	@endcode
+
+
+	Since it is a template header library, no linking is required if you are
+	only using these classes.
+
+\section usage Usage
+
+  @subsection Initialisation
+
+  A single object is used to parse the command line. Initialise it with
+  a few default properties. These will be used to automatically
+  generate a --help argument.
+
+  @code
+  // Supply a program description, argument separator (optional) and version number (optional).
+  CmdLine cmd("This is a test program to test the command line parsing facilities provided by TCLAP.");
+  // CmdLine cmd("This is a test program to test the command line parsing facilities provided by TCLAP.", ' ', "0.01");
+  @endcode
+
+  @subsection ArgumentsSection Adding Arguments
+
+  @code
+  // Add a boolean (flag, name, description, default)
+  SwitchArg debug("d","debug","Enable debugging.", false);
+  cmd.add(debug);
+
+  // Add an int (flag,name,description,compulsory flag,default value,help description of the type")
+  ValueArg<int> intArg("i","integer","An integer argument for testing.",false,5,"integer");
+  // Not a regular option (name,description,compulsory flag,default value,help description of the type")
+  UnlabeledValueArg<std::string> outputDirArg("output_dir","Output directory for rectified images.",true,"./rectified","string");
+
+  cmd.add(intArg);
+  @endcode
+
+  Valid argument types include
+  - @ref ecl::SwitchArg "SwitchArg" : simple boolean.
+  - @ref ecl::ValueArg "ValueArg" : expect some value on the command line.
+  - @ref ecl::MultiArg "MultiArg" : permit multiple values for an argument which get stored in a vector.
+  - @ref ecl::MultiSwitchArg "MultiSwitchArg" : as above, but for booleans, not often used so see TCLAP for more instructions.
+  - @ref ecl::UnlabeledValueArg "UnlabeledValueArg" : does not use a flag (like the arguments for copy), order is important!
+  - @ref ecl::UnlabeledMultiArg "UnlabeledMultiArg" : reads in all remaining unlabelled args (like rm file1.txt file2.txt etc.)
+
+  @subsection customArgumentsSection Custom Arguments
+
+  Custom ValueArg types can be used so long as they implement the >> operator.
+
+  @section extraHelp Further Help (TCLAP)
+
+  Most of tclap's doxygen is generated automatically inside the ecl. For more detailed
+  documentation, read the <a href="http://tclap.sourceforge.net/manual.html">manual</a> at
+  tclap's home page.
+
+\section unitTests Unit Tests
+
+	- src/test/command_line.cpp
+
+\section examples Examples
+
+	- src/examples/command_line.cpp
+
+\section ChangeLog
+
+	- <b>May 09</b> : wrapper for the tclap headers written.
+	- <b>May 09</b> : initial import of the tclap headers.
+
+@section Errata
+
+	Now it's in the ros, at some point in the future I will unwind this back to the original package since it no longer needs
+	to be embedded in the ecl.
+*/

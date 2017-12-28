@@ -1,0 +1,178 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+@section Introduction
+
+	Devices provide a c++ interface (usually on top of a lower level
+	api such as posix) for input-output manipulation.
+
+    It's pretty hard to find a library that treats devices in anything
+    but an ad-hoc way. There is no consistent interface. This attempts
+    to bring that to the subset of devices that control systems use.
+    It also allows hooking of streams to each and any of the devices.
+    
+	Also of interest, there are a few very theoretical approaches 
+	to writing c++ devices. The ecl's first version too was along 
+	these lines, but ultimately	for control systems, being practical 
+	wins over syntactic correctness.
+	
+	The devices here are kept as consistent and practical as possible
+	without sacrificing speed.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/devices.hpp>
+
+	// Device Classes
+	using ecl::OFile;
+	using ecl::SharedFile;
+	using ecl::Serial;
+	using ecl::OConsole; // Also IConsole, EConsole, but dont use directly, use console streams instead.
+	using ecl::String;   // Dont use directly, use StringStream instead.
+	using ecl::SocketClient; // Simple and does ipv4 only.
+	using ecl::SocketServer; // Simple and does ipv4 only.
+	@endcode
+
+	You will also need to link to <i>-lecl_devices</i>.
+
+@section DeviceUsage Device Usage
+
+	@subsection openClose Open/Close
+
+		All devices have both RAII and non-RAII setup methods. In practice, this means you either bundle all configuration
+		into the constructor, or you utilise the open() method to do configuration yourself. Usually RAII is the more ideal
+		approach, but sometimes its inconvenient so the latter method is also available. For example, the serial class:
+
+		@code
+		Serial serial_raii("/dev/ttyS0",BaudRate_115200,DataBits_8,StopBits_1,NoParity); // RAII
+		Serial serial_nonraii;
+		serial.open("/dev/ttyS0",BaudRate_115200,DataBits_8,StopBits_1,NoParity); // non-RAII
+		@endcode
+
+		Cleanup is always done in the destructor, though if you need to manually open/close a device frequently, a close()
+		method is also provided.
+
+	@subsection readWrite Read/Write
+
+		Some class are output devices (only write), others are input devices (only read) and some can do both. The read
+		and write modes will sometimes be configurable, (e.g. timeout or non-blocking for serial reads), however the
+		actual read and write operations will always be the same.
+
+		@code
+		int n;
+		char buffer[256];
+		n = source.read(buffer,256);
+		n = sink.write("dude\n",5);
+		@endcode
+
+	@subsection Exceptions
+
+	@subsection Concepts
+
+		Essentially, a device class can be written in any way you please.
+		However, if you wish to connect it to higher level components, in particular,
+		streams, you must ensure you class satisfies certain device concepts. Refer to the
+		documentation in ecl_concepts for more information.
+
+@section Devices
+
+	@subsection OFile
+
+		- <i>IO</i>: write
+		- <i>Seekable</i>: no
+		- <i>Sync/Async</i>: synchronous
+
+		This is the logger class. Since its primary purpose is to serve logging, the option to
+		make it seekable was dropped to keep it nice and simple.
+
+		@sa @ref ecl::OFile "OFile".
+
+	@subsection SharedFile
+
+		- <i>Status:</i> DEPRACATED (can resurrect if needed)
+		- <i>IO</i>: write
+		- <i>Seekable</i>: no
+		- <i>Sync/Async</i>: synchronous.
+
+		This is a multithreaded version of the SharedFile class. Multiple instances can open
+		the same file (uniquely identified by a string) and each contains its own buffer that is
+		utilised between flushing (this protects your output from getting tangled unnecessarily).
+
+		@sa @ref ecl::SharedFile "SharedFile".
+
+	@subsection Serial
+
+		- <i>IO</i>: read/write
+		- <i>Seekable</i>: no
+		- <i>Sync/Async</i>: synchronous
+
+		The most important thing to note with the serial class is that it really doesn't implement much of the underlying api.
+		Rather it wraps a configuration appropriate for control and keeps it as simple as possible.
+
+		Of the possible read modes, it utilises only a timeout mode and a non-blocking mode. The other modes generally do not work
+		very well at the speed that control loops need to run.
+
+		@sa @ref ecl::Serial "Serial", @ref ecl::BaudRate "BaudRate", @ref ecl::DataBits "DataBits", @ref ecl::StopBits "StopBits", @ref ecl::Parity "Parity".
+
+	@subsection String
+
+		- <i>IO</i>: read/write
+		- <i>Seekable</i>: no
+		- <i>Sync/Async</i>: synchronous
+
+		This is a virtual device used for storing and converting strings (similar to Converters, but more general).
+		It is not intended for direct use, but as a mechanism for the stringstream class
+		which functions very similarly to the c++ stringstream classes.
+
+		@sa @ref ecl::String "String".
+
+	@subsection Sockets
+
+		- <i>IO</i>: read/write
+		- <i>Seekable</i>: no
+		- <i>Sync/Async</i>: synchronous
+
+		These are a very simple/rough implementation of ipv4. It isn't designed to be an industrial strength tool - just something for simple cross platform connections to enable quick and simple remote debugging program builds (or similar).
+
+		Of the possible read modes, it utilises only a timeout mode and a non-blocking mode. The other modes generally do not work
+		very well at the speed that control loops need to run.
+
+		@sa @ref ecl::SocketClient "SocketClient", @ref ecl::SocketServer "SocketServer".
+
+\section unitTests Unit Tests
+
+	- src/test/files.cpp
+	- src/test/shared_files.cpp
+
+\section Examples
+
+	- src/examples/serial_timeout.cpp : shows off the low latency timeout code [posix only].
+
+\section utilities Utilities
+
+	- ecl_core_apps/src/benchmarks/files.cpp
+	- ecl_core_apps/src/demos/socket_client.cpp
+	- ecl_core_apps/src/demos/socket_server.cpp
+	- ecl_core_apps/src/utils/hex.cpp : simple utility for reading/writing hex across the serial cable.
+	- ecl_core_apps/src/utils/serial.cpp : simple serial testing utility.
+
+\section ChangeLog
+
+	- <b>Apr 11</b> : Overhauled error handling.
+	- <b>May 10</b> : Serial win32 implementation.
+	- <b>May 10</b> : Cmake win32 framework.
+	- <b>Jan 10</b> : A simple ipv4 @ref ecl::SocketServer "socket server".
+	- <b>Jan 10</b> : A simple ipv4 @ref ecl::SocketClient "socket client".
+	- <b>Dec 09</b> : A virtual @ref ecl::String "string" device.
+	- <b>Nov 09</b> : Multi-threaded output to a @ref ecl::SharedFile "shared file" (aka thread-safe ofile).
+	- <b>Nov 09</b> : @ref ecl::OConsole "OConsole" : also IConsole and EConsole for standard output handling.
+	- <b>Sep 09</b> : Synchronised @ref ecl::OFile "output file" devices (posix).
+	- <b>Sep 09</b> : An rs-232 @ref ecl::Serial "serial device" interface (posix).
+*/

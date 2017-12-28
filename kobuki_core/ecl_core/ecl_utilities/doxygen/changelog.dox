@@ -1,0 +1,28 @@
+/**
+@page changelog ChangeLog
+
+
+@section Changes
+
+	- <b>Feb 11</b> : Converters moved out to their own package.
+	- <b>Mar 10</b> : Converters added a human readable hex string to byte array converter.
+	- <b>Jul 09</b> : A @ref referencesGuide "const reference wrapper" wrapper generator (cref).
+	- <b>Jul 09</b> : A @ref referencesGuide "reference wrapper" generator (ref).
+	- <b>Jul 09</b> : A traits test for @ref referencesGuide "reference wrappers".
+	- <b>Jul 09</b> : The @ref referencesGuide "reference wrapper" class.
+	- <b>Jul 09</b> : @ref functionobjectsGuide "Function objects" revised to handle sigslots.
+	- <b>Jun 09</b> : A simple set of @ref functionobjectsGuide "function objects" to handle function loading in higher level classes.
+	- <b>May 09</b> : Converters for to character strings added and performance checked.
+	- <b>May 09</b> : Converters for to character strings added and performance checked.
+	- <b>Apr 09</b> : Converter structure and some simple converters added.
+	- <b>Apr 09</b> : Converter structure and some simple converters added.
+	- <b>Apr 09</b> : @ref parametersGuide "Parameters", a c++ templatised/convenient replacement for the verbose get/set methods added.
+	- <b>Apr 09</b> : Design pattern for @ref singletonsGuide "singletons".
+
+@section Bugs
+
+	- <b>May 09</b> : Constructor args automatic type conversions were mistakenly grabbed by the templatised blueprint constructor - fixed.
+	- <b>May 09</b> : Float and double conversions to character strings were slow - defaulted back to a sprintf implementation.
+	- <b>Apr 09</b> : Fixed the get/set method accessors so that control of the internal variable is never lost by the parameter class.
+**/
+

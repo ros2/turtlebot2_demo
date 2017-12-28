@@ -1,0 +1,42 @@
+/**
+@page nullaryFunctionConcept Nullary Functions
+ 
+@section overviewSection Overview
+ 
+Nullary functions are defined as an object (c++ class/struct) that is 
+sometimes otherwise known as callable without any argument passing.
+
+@section CompilingLinking Compiling & Linking
+ 
+Include the following at the top of any translation unit for which you are
+running compile time checks on your blueprint classes. 
+  
+@code
+#include <ecl/concepts.hpp>
+
+using ecl::NullaryFunctionConcept;
+@endcode
+ 
+Since it only uses macros and templatised objects, no linking is required for just this feature.
+
+@section creation Concept Definition
+
+Creating a class can be done in any namespace, it just has to satisfy the
+conditions outlined below: 
+
+- operator()() : a method for executing the nullary function object.
+- typedef result_type : a typedef to the return type of the operator.
+
+@section Usage
+
+Use with the compile time concept check whenever you wish to check for a nullary function object input.
+For example, the Thread class (ecl_threads) utilises this in a similar way to that outlined
+below:
+
+@code
+    template<typename F>
+    Thread(F function) {
+    	compile_time_concept_check(NullaryFunctionConcept<F>);
+    }
+@endcode
+**/

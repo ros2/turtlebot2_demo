@@ -1,0 +1,97 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	This group includes various structures and tools used in geometry
+	as well as various supporting classes and utilities.
+
+@section compSection External Components
+
+    There are quite a few useful tools also in eigen's geometry module. You can get access to these
+    via the ecl_linear_algebra module.
+    
+	- angle-axis pairs
+	- quaternions
+	- rotation matrices
+	- transforms
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/geometry.hpp>
+
+	// Angles
+	using ecl::Angle;
+	using ecl::wrap_angle;
+	using ecl::degrees_to_radians;
+	using ecl::radians_to_degrees;
+	// Other Objects
+	using ecl::CartesianPoint;
+	using ecl::PascalsTriangle;
+	// Functions that act on functions
+	using ecl::Minimum;
+	using ecl::Maximum;
+	// Functions
+	using ecl::Polynomial; // Also has some typedefs, LinearFunction, CubicPolynomial, QuadraticPoly...
+	using ecl::TensionFunction;
+	// Splines
+	using ecl::SmoothLinearSpline;
+	using ecl::CubicSpline;
+	using ecl::TensionSpline;
+	// Transforms
+	using ecl::Pose2D;
+	@endcode
+
+	You will also need to link to <i>-lecl_geometry</i>.
+
+@section groupSection Usage
+
+    Refer to the class api/guide for each component.
+
+	- @ref anglesGuide "Angles" - c++ style wrapper for angles (radians) and unit conversions (deg<->rad).
+	- @ref ecl::CartesianPoint "Cartesian Points" - generic and specialised representations for cartesian points.
+	- @ref ecl::Pose2D "Pose2D" - extends eigen's geometry transforms with a 2d specialised version.
+	- @ref polynomialsGeometry "Polynomials" - polynomial functions and two-point interpolations.
+	- @ref splinesGeometry "Splines" - generating various splines and interpolating over a set of data.
+
+
+\section unitTests Unit Tests
+
+	- src/test/angles.cpp
+	- src/test/cartesian_points.cpp
+	- src/test/cubic_splines.cpp
+	- src/test/polynomials.cpp
+	- src/test/smooth_linear_splines.cpp
+	- src/test/tension_function.cpp
+	- src/test/tension_splines.cpp
+	- src/test/pose2d.cpp
+	
+@section ChangeLog
+  
+    - <b>Sep 10</b> : ecl::Pose2D transform established, very much eigen style.
+    - <b>Jul 10</b> : ecl::Angle is finalised with float/double versions and a functional api to assist.
+    - <b>Jul 09</b> : ecl::BluePrintFactory<LinearFunction> is a blueprint factory for linear functions.
+    - <b>Jul 09</b> : ecl::blueprints::LinearInterpolation is a blueprint for linear interpolation between end points.
+	- <b>Jul 09</b> : ecl::SmoothLinearSpline is a a smoothed, linearly blend spline (with quintics).
+    - <b>May 09</b> : ecl::blueprints::QuinticInterpolation is a blueprint for quintic interpolation between end points.
+    - <b>May 09</b> : ecl::BluePrintFactory<QuinticPolynomial> is a blueprint factory for quintic polynomials.
+    - <b>May 09</b> : ecl::blueprints::CubicSecondDerivativeInterpolation is a blueprint for acceleration derived interpolations between two end points.
+    - <b>May 09</b> : ecl::blueprints::CubicDerivativeInterpolation is a blueprint for velocity derived interpolations between two end points.
+    - <b>May 09</b> : ecl::BluePrintFactory<CubicPolynomial> is a blueprint factory for cubic polynomials.
+    - <b>May 09</b> : ecl::Polynomial is a templatised class representing polynomials of arbitrary degree.
+    - <b>May 09</b> : A simple templatisation for @ref ecl::PascalsTriangle "pascals triangle" of arbitrary degree.
+	- <b>May 09</b> : ecl::blueprints::C2TensionSpline is a c2 continuous tension spline interpolation.
+	- <b>May 09</b> : ecl::TensionSpline is a representation for a tension spline.
+	- <b>May 09</b> : ecl::TensionFunction is a representation for a tension function.
+	- <b>May 09</b> : ecl::blueprints::C2CubicSpline is a special case of the C2CubicSpline, the natural cubic spline.
+	- <b>May 09</b> : ecl::blueprints::C2CubicSpline is a blueprint for C2 continous splines over a set of data.
+	- <b>May 09</b> : ecl::blueprints::DerivativeHeuristicCubicSpline uses an automated velocity based heuristic to generate a cubic spline on a data set.
+	- <b>May 09</b> : ecl::BluePrintFactory<CubicSpline> is a blueprint factory for cubic splines.
+	- <b>May 09</b> : ecl::CubicSpline is a typedef'd representation for a cubic spline.
+
+*/

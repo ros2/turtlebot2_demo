@@ -1,0 +1,91 @@
+/**
+  @page debugging Debugging the Ecl
+
+  @section intro Bit of Background
+  
+  There are two types of errors that can arise and three main methods of dealing with these. These are listed below for
+  reference.
+  
+  @subsection errorTypes Error Types
+  
+  - <i>Dynamic Errors</i> - errors caused from unpredictable input (e.g. input from a user).
+  - <i>Programming Errors</i> - caused by developer bugs (e.g. out of range errors on containers).
+  
+  @subsection errorHandlingTechniques Error Handling Techniques
+  
+  - <i>Assert and Abort Macros</i> - these are unrecoverable, but simple to use.
+  - <i>Exceptions</i> - these are recoverable and force handling of error situations, but the stack unwinding is costly.
+  - <i>Return Codes/Flags</i> - these are recoverable, but require diligence on the part of the user to utilise properly.
+  
+  @subsection comparison Comparisons
+  
+  <i>Assert and Abort Macros</i> are typically undesirable for a library. Often a library user will want to recover from errors
+  and handle them using whatever mechanisms their application is using. A good example of this (that I'm currently using with
+  the ecl) are RoS nodes. Errors need to be caught and the program gracefully exited from the RoS node network.
+  
+  <i>Return Codes/Flags</i> are used in alot of places, for example, posix uses them to regular effect. They do have the drawback
+  of leaving objects in a zombie state when things go wrong and its up to the user to make sure they diligently check after
+  each operation that everything is still ok. This is alot of programming work. I find it also actually requires alot of 
+  programming to ensure the classes behave correctly and avoid problems when in zombie states - this uses alot of 
+  if conditionals throughout the program, so sometimes is not quite as costless as you imagine.
+  
+  <i>Exception Handling</i> when used with care and in the right places provides a much easier and cleaner solution. However,
+  they do slow the program down, particularly for oft used checks (range errors on containers). In embedded systems and games this 
+  is often avoided for the cost it imparts.  
+  
+  @section theECL What the ECL Does for Debugging
+  
+  In every case, more information on the error handling method used for a given class will be given in that class's documentation.
+  However, in general, ecl adheres to the following guidelines:
+  
+  @subsection fastCode Fast Code Blocks
+  
+  For functions that are typically used within a fast code block, particularly inside a control loop, debug mode provides 
+  many warning/error exception handlers that are turned off in release mode. See below for details on how to switch the ecl
+  between debug and release modes.
+  
+  @subsection configurationCode Configuration/Initialisation
+  
+  Code that is often associated with configuration and initialisation will use exceptions in both debug and release modes.
+  See the ecl_exceptions package for more details.
+  
+  This includes many of the RAII style constructors that that open devices, configure mutexes etc. For control programs, this 
+  stage of the program's lifecycle places a greater emphasis on stability, getting things going right rather than speed and as
+  a consequence, the cost of the stack unwinding is largely irrelevant. For functions that are typically nested inside a
+  control loop, exception handling is enabled only in debug mode. 
+    
+  @subsection memoryDebuggingStack Memory Debugging Under/Overruns
+  
+  The biggest problems with alot of c-style code occur with arrays which are typically plagued by
+  buffer overflow (underrun or overrun) problems. Currently, the ecl has a mechansim to check
+  for this if ecl's array types (ecl_containers) are used in conjunction with a predefined macro
+  and manual code checks for overflows. See the documentation for ecl_containers for more information.
+  
+  @section detailedNotes Detailed Notes
+  
+  @subsection compilingLinking Debug Mode
+  
+  - Do not define the <b>NDEBUG</b> or the <b>ECL_NDEBUG</b> macro.
+  - Link to the _debug versions of the libraries.
+  
+  For example, a debug build might look like:
+  
+  @code
+  g++ -lecl_devices -o hello hello.cpp
+  @endcode
+  
+  Debug mode includes alot of warnings and error handlers for such things as invalid constructor configurations, 
+  out of range container warnings, etc.
+  
+  @subsection compilingLinkingRelease Release Mode
+  
+  - Define either the <b>NDEBUG</b> or the <b>ECL_NDEBUG</b> macro.
+  - Link to the regularly named library.
+  
+  For example,
+  
+  @code
+  g++ -DNDEBUG -lecl_devices -o hello hello.cpp
+  @endcode
+
+**/

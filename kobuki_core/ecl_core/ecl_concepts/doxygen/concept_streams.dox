@@ -1,0 +1,65 @@
+/**
+@page streamsConcept Streams
+ 
+@section overviewSection Overview
+ 
+Many of the ecl classes are streamable, in order to provide quick visual
+debugging of its contents. Typically in c++ the default streaming object
+is the ostream object, however the io module here extends streaming 
+functionalities to almost every device. The important caveat though, is 
+they do not use the c++ iostream overheads (these are very costly). 
+
+In order to accomodate both (and also perhaps third party streams), the
+streams concept has been defined so streaming with a generalised template
+function is convenient.
+
+@section CompilingLinking Compiling & Linking
+ 
+Include the following at the top of any translation unit for which you are
+running compile time checks on your blueprint classes. 
+  
+@code
+#include <ecl/concepts.hpp>
+
+using ecl::StreamsConcept;
+@endcode
+ 
+Since it only uses macros and templatised objects, no linking is required for just this feature.
+
+@section creation Concept Definition
+
+A streaming class just has to satisfy the following conditions:
+
+- operator << : can stream characters.
+- flush() : a method which writes the stream to an underlying device or object.
+
+Note that the object instance <i>cout</i> automatically satisfies these.
+
+@section Usage
+
+A simple example of a streaming function definition and the concept check usage is outlined below.
+
+@code
+#include <ecl/concepts/streams.hpp>
+
+using ecl::Stream;
+
+class MyMatrix {
+public:
+    template <typename OutputStream>
+    friend OutputStream& operator << (OutputStream &ostream, MyMatrix &matrix);
+};
+
+template <typename OutputStream>
+OutputStream& operator << (OutputStream &ostream, MyMatrix &matrix) {
+
+	compile_time_concept_check(StreamConcept<OutputStream>);
+    
+    ostream << "Hello Dudes, this is a matrix\n";
+    
+    ostream.flush();
+    return ostream;
+}
+@endcode
+
+ **/

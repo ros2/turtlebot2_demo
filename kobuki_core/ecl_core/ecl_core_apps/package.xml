@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ecl_core_apps</name>
+  <version>0.61.18</version>
+  <description>
+     This includes a suite of programs demo'ing various aspects of the
+     ecl_core. It also includes various benchmarking and utility programs for
+     use primarily with embedded systems.
+  </description>
+  <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/ecl_core_apps</url>
+  <url type="repository">https://github.com/stonier/ecl_core</url>
+  <url type="bugtracker">https://github.com/stonier/ecl_core/issues</url>
+  <author email="d.stonier@gmail.com">Daniel Stonier</author> -->
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>ecl_build</build_depend>
+  <build_depend>ecl_license</build_depend>
+  <build_depend>ecl_config</build_depend>
+  <build_depend>ecl_linear_algebra</build_depend>
+  <build_depend>ecl_command_line</build_depend>
+  <build_depend>ecl_converters</build_depend>
+  <build_depend>ecl_containers</build_depend>
+  <build_depend>ecl_devices</build_depend>
+  <build_depend>ecl_errors</build_depend>
+  <build_depend>ecl_exceptions</build_depend>
+  <build_depend>ecl_formatters</build_depend>
+  <build_depend>ecl_geometry</build_depend>
+  <build_depend>ecl_ipc</build_depend>
+  <build_depend>ecl_sigslots</build_depend>
+  <build_depend>ecl_streams</build_depend>
+  <build_depend>ecl_threads</build_depend>
+  <build_depend>ecl_type_traits</build_depend>
+  <build_depend>ecl_time_lite</build_depend>
+
+  <exec_depend>ecl_build</exec_depend>
+  <exec_depend>ecl_license</exec_depend>
+  <exec_depend>ecl_config</exec_depend>
+  <exec_depend>ecl_linear_algebra</exec_depend>
+  <exec_depend>ecl_command_line</exec_depend>
+  <exec_depend>ecl_converters</exec_depend>
+  <exec_depend>ecl_containers</exec_depend>
+  <exec_depend>ecl_devices</exec_depend>
+  <exec_depend>ecl_errors</exec_depend>
+  <exec_depend>ecl_exceptions</exec_depend>
+  <exec_depend>ecl_formatters</exec_depend>
+  <exec_depend>ecl_geometry</exec_depend>
+  <exec_depend>ecl_ipc</exec_depend>
+  <exec_depend>ecl_sigslots</exec_depend>
+  <exec_depend>ecl_streams</exec_depend>
+  <exec_depend>ecl_threads</exec_depend>
+  <exec_depend>ecl_type_traits</exec_depend>
+  <exec_depend>ecl_time_lite</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

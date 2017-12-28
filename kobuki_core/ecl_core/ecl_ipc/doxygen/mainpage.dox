@@ -1,0 +1,142 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Interprocess mechanisms vary substantially across operating systems, though thankfully
+	most support the traditional posix which is also often referred to now as the
+	Single Unix Specification V3 (SUSV3). Nevertheless, where there are differences, the
+	setup will allow abstractions around these so as to provide a single cohesive interface
+	to the interprocess mechanisms.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/ipc.hpp>
+
+	using ecl::Semaphore;
+	using ecl::SharedMemory;
+	@endcode
+
+	You will also need to link to <i>-lecl_ipc</i>.
+
+\section usage Usage
+
+	@subsection sharedMemorySection SharedMemory
+
+		Used in conjunction with semaphores, shared memory sections provide the
+		fastest way for processes to directly communicate with each other.
+		Usually you reserve a block and then cast in and out of the direct
+		memory addresses allocated within the reserved memory. However, this is not
+		typesafe and error-prone, so the shared memory wrapper here instead
+		allocates a block that is implicitly tied to a data structure. The following
+		steps provide an easy, convenient way to access the reserved memory
+		block through a typesafe and well-structured api.
+
+		- Formulate a data structure of fixed size.
+		- Create a wrapper class that includes a semaphore, shared memory object, a read/write interface and pointer to the data.
+		- Instantiate the shared memory using with the data structure as a template argument.
+		- Point to the data section stored in the shared memory.
+		- Initialise the data section (if its the first accessor).
+		- Establish the read/write interface which will internally use semaphores to access the shared memory.
+
+		@code
+		struct DataStructure {
+			int i;
+		};
+		class Data {
+			public:
+				void readInteger(int i);
+				void writeInteger(int j);
+
+			private:
+				void initialise();
+
+				SharedMemory< DataStructure > sm;
+				Semaphore semaphore;
+				DataStructure *data;
+		};
+
+		inline Data::Data() : sm("sm_test"), semaphore("sem_test"), data(NULL) {
+		   data = sm.data();
+		   initialise();
+		}
+		inline Data::readInteger(int i) {
+			semaphore.lock();
+			i = data->i;
+			semaphore.unlock();
+		}
+		inline Data::writeInteger(int i) {
+			semaphore.lock();
+			data->i = i;
+			semaphore.unlock();
+		}
+		@endcode
+
+		Note, ensure you do not use variable length types (such as stl containers) inside the data structure
+		because the shared memory section allocates memory based on the initial size of the data structure.
+
+		Also note, initialisation and closure can be a little complicated. With initailisation, you want to ensure that only
+		the first accessor blanks the memory, but there is no way of guaranteeing via the shared memory class that
+		you're the first accessor - in some cases you could be accessing an already reserved block. One way
+		of getting around this is to set a magic number in the data structure and see if that reads rubbish when
+		you initialise. If it does - then appropriately initialise all you data structure variables and set your
+		magic number accordingly - subsequent accesses from different processes should find the correct magic number and not initialise.
+
+		With regards to closure, there is no guarantee that you can actually clean up the memory block. If everything
+		runs fine and closes without error, then it will be fine, but if your program crashes in some unforeseen way
+		and not all of the operating system signals are set up (usually too much detail to bother with), then
+		the memory block will remain on the system. Often its easier to get some external script to clean the
+		memory sections.
+
+	@subsection Semaphores
+
+		There are many ways to implement semaphores (especially the
+		counting semaphores on posix), but I've kept it relatively
+		simple here with the task at hand being just to provide a lock that
+		can be used when accessing shared memory. Its usage is very similar to
+		thread mutexes with the only difference being the instantiation via a string identifier
+		(similar to the case for shared memory). Note, on windows semaphores
+		are usually referred to as mutexes (confusing!).
+
+		@code
+		//...First process
+		Semaphore semaphore("test_sem");
+		semaphore.lock();
+		// ... access shared memory here
+		semaphore.unlock();
+
+		//...Second process
+		Semaphore semaphore("test_sem");
+		semaphore.lock();
+		// ... access shared memory here
+		semaphore.unlock();
+		@endcode
+
+		If another semaphore (doesn't have to be the same object, just a semaphore
+		instantiated from the same name) tries to lock an already locked semaphore,
+		it will wait until the first semaphore releases the lock. Be wary of
+		deadlocks.
+
+\section unitTests Unit Tests
+
+	- src/test/semaphores.cpp
+	- src/test/semaphores_timed.cpp
+	- src/test/shared_memory.cpp
+
+\section ToDo
+
+    Could use some fallback for error handling when exceptions are disabled.
+
+\section ChangeLog
+
+    - <b>May 11</b> : Updated with better posix and exception handling.
+    - <b>Mar 11</b> : Moved process priorities to threads.
+	- <b>May 09</b> : Posix @ref ecl::SharedMemory "shared memory" structures.
+	- <b>May 09</b> : Binary process locks via posix @ref ecl::Semaphore "semaphores".
+	- <b>May 09</b> : Posix static methods for process handling.
+*/

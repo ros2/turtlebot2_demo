@@ -1,0 +1,18 @@
+/**
+  @defgroup CMakeMacroLibraries CMake Macro Libraries
+
+  A variety of cmake modules that provide a cmake macro api for assistance in building projects.
+
+  @sa @ref cmakeMacroLibraries "Guide: CMake Macro Libraries"
+
+  @date July, 2010.
+**/
+/**
+  @defgroup MakefileFrontends Makefile Frontends
+  
+  Some makefile frontends that you can include in your makefile that provide various predefined variables and targets.
+
+  @sa @ref  makefileLibraryGuide "Guide: Makefile Frontends"
+
+  @date July, 2010.
+**/

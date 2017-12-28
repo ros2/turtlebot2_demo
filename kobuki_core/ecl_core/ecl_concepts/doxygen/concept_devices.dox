@@ -1,0 +1,77 @@
+/**
+@page devicesConcept Devices
+ 
+@section overviewSection Overview
+ 
+Rather than provide a complex inheritable family of classes with super-imposed mixins
+to represent the varying degrees of generic device functionalities 
+(e.g. source, sink, seekable...) a rather more simpler (and faster) concept 
+based method is used for the devices in ecl's input-output library. The concepts
+are required to validate the classes for use by higher level structures such as streams.
+
+@section CompilingLinking Compiling & Linking
+ 
+Include the following at the top of any translation unit for which you are
+running compile time checks on your blueprint classes. 
+  
+@code
+#include <ecl/concepts.hpp>
+
+using ecl::InputCharDeviceConcept;
+using ecl::OutputCharDeviceConcept;
+using ecl::InputOutputCharDeviceConcept;
+using ecl::InputByteDeviceConcept;
+using ecl::OutputByteDeviceConcept;
+using ecl::InputOutputByteDeviceConcept;
+@endcode
+ 
+Since it only uses macros and templatised objects, no linking is required for just this feature.
+
+@section creation Concept Definitions
+
+@subsection InputCharDevice
+
+An input device class has to satisfy the following conditions:
+
+- long read(char &c)   : read a single character from the device buffer.
+- long read(char *s, unsigned long n)   : read a char buffer from the device buffer.
+
+@subsection OutputCharDevice
+
+An output device class has to satisfy the following conditions:
+
+- long write(char &c) : write a single character from the device buffer.
+- long write(char *s, unsigned long n) : write a char buffer from the device buffer.
+- void flush() : a method for flushing the output device buffer to the device.
+
+@subsection InputOutputCharDevice
+
+An input-output device class has to satisfy the conditions required by both input and output devices
+simultaneously.
+
+@subsection ByteDevice
+
+The three byte device concepts are similar except they add additional read/write capabilities for the other
+is_byte types (refer to ecl_mpl's type traits). Namely char, signed char and unsigned char.
+
+@section Usage
+
+Generally, you won't need to use these directly. Rather they're embedded in other ecl objects
+such as streams. However, a simple example of a device function definition and the concept check usage is outlined below.
+
+@code
+#include <ecl/concepts/devices.hpp>
+
+using ecl::InputCharDevice;
+
+template <typename Device>
+class MyStream {
+public:
+    
+    MyStream(Device *device) {
+        compile_time_concept_check(InputCharDeviceConcept<Device>);
+    }
+};
+@endcode
+
+ **/

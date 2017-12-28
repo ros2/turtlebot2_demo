@@ -1,0 +1,224 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Signals and slots provide a means for communication of events.
+	The classes here let you have a many-to-many relationship (unlike most event
+	callback techniques), and also templatise the data transfer to allow the
+	coder to customise the event data that is communicated from signal to slot.
+	It also implements a few conditional (event) related classes.
+
+@section History
+
+	The ideas for this signal/slots implementation come from a few sources.
+
+	 - Qt
+	 - SigSlot
+	 - Boost Libraries
+
+	Qt was the original signal/slots implementation, but it needs a pre-processor
+	to compile the code. Sigslot and Boost on the other hand are pure ISO C++, but
+	both have some disadvantages. The boost implementation is fairly heavy and a
+	little cumbersome, although its now morphing into version 2 with even more
+	functionality (I haven't yet road tested a comparison between the two).
+	Sigslot was the precursor, is more lightweight, but
+	has some oddities - it isn't fully typesafed, can't handle global/static
+	function loading. 
+
+	None of these are thread-safe and it can be somewhat inconvenient
+	manually connecting signal-slot pairs when they are buried far from
+	each other (e.g. deep in parallel heirarchies of c++ objects).
+
+	This motivated this library - what was needed was an abstract way of
+	connecting pairs with an engine in the background to do the hard work - ultimately
+	leaving the programmer free from any tedious details. To do this, the sigslots
+	library uniquely names connections (i.e. topic name in ros-speak), via a string. Signals
+	and slots can connect to the topic simply by referring to a string. This
+	was originally motivated by the way many posix ipc structures connect (e.g.
+	semaphores and shared memory), but later also merged very neatly with the way
+	ros topics connect (in particular nodelets). Adding mutex's for thread safety 
+	so that sigslot destruction	would occur safely was the next step.
+
+@section Features
+
+	 - Lightweight - implements only the necessary features for practical usage.
+	 - Fully typesafe - signal-slot pairs <i>must</i> have the same type, loaded functions must also agree.
+	 - Slot loading is convenient - global/static and member functions can be loaded with the same api.
+	 - Naming - can use posix style names to identify and perform convenient connections/disconnections.
+	 - Thread safe - slots can disconnect/self-destruct without worrying about segfaulting across threads.
+
+@section lite Sigslots Lite
+
+    For a light version of sigslots suitable for firmware projects, see ecl_sigslots_lite. 
+    
+    - No memory allocation on the heap : that is, no malloc, new.
+    - No string naming : connections done by hand.
+    - No threads : no dependancy on platform implementations.
+    
+@section Definitions
+
+	@subsection Signals
+
+	Anywhere that triggers an event requiring a callback to be executed can
+	be implemented with a signal. These can be placed anywhere in your
+	code and can be connected to one or many slots.
+
+	@subsection Slots
+
+	Anywhere that a callback function is required can be
+	implemented with a slot. These can be placed anywhere in your code and are
+	initialised with either a static (global) function, or a member function.
+	Once initialised, they can be hooked up to a signal.
+
+	@subsection Message Data
+
+	The signal-slot pairs developed here only ever accept one template
+	argument representing the data to be transmitted from signal to slot. It
+	would be easy to extend this to more (aka SigSlot/Boost) but I have
+	yet to find a need for it - if you wish multiple arguments, simply
+	wrap up your data in a single struct/class. Conceptually, this
+	makes the code more readable anyway.
+
+	The data class itself could be as simple as an error
+	id or as complicated as the current state in a fsm.
+	Note that both signal and slot must use the same type.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/sigslots.hpp>
+
+	// The types
+	using ecl::Signal;
+	using ecl::Slots;
+	@endcode
+
+	You will also need to link to <i>-lecl_sigslots</i>.
+
+\section usage Usage
+
+	@subsection slotLoading Slot Loading
+
+		Loading of slots can be done directly to free or member functions through
+		the constructors. Below is a simple example for various types of loading.
+
+		@code
+		void f(const int& i) {}
+		class A {
+		public:
+			void f(const int& i) {}
+		};
+		// ...
+		A a;
+		Slot<const int&> slot0(f);
+		Slot<const int&> slot1(&A::f,a);
+		@endcode
+
+	@subsection connectingUsage Connecting
+
+		@code
+		Signal<const int&> signal;
+		Slot<const int&> slot(f);
+		signal.connect("Dudes");
+		slot.connect("Dudes");
+		@endcode
+
+		Signals and slots have no limit to the number of connections they may make.
+
+	@subsection Emitting
+
+		Every time a signal emits, the connected slots are consecutively run with the data that is emitted.
+		@code
+		signal.emit(3); // Pass the '3' to all the slot functions.
+		@endcode
+
+		Every emit, the slots are consecutively run - this means that your slots should by nature be short and
+		concise! Otherwise you'll get serious bottlenecks. This is always a good habit to get into for slots
+		otherwise you'll frequently run into problems. If you have a heavy callback, consider spinning that callback
+		off into a thread. That way the thread response will still be quick (cost of a thread creation) and you can
+		still manage heavy workloads.
+
+	@subsection Relaying
+
+		A signal can relay another signal, effectively posing temporarily as a slot.
+
+		@code
+		@code
+		Signal<> signal;
+		Signal<> signal_relay;
+		Slot<> slot(f);
+		signal.connect("First_Topic");
+		signal_relay.connectAsSlot("First_Topic");
+		signal_relay.connect("Second_Topic");
+		slot.connect("Second_Topic");
+		signal.emit();
+		@endcode
+
+	@subsection Debugging
+
+		Often you may wish to see what is actually connected. This can be done by calling the 
+		SigSlotsManager<T>::printStatistics() function. Note that there is a manager for each
+		templatised family of sigslots (i.e. SigSlotsManager<>, SigSlotsManager<int>). Some 
+		example code:
+		
+		@code
+	    A a;
+	    Signal<> sig_void;
+	
+	    Slot<> slot_void0(g);
+	    Slot<> slot_void1(&A::g,a);
+	
+	    sig_void.connect("void_test");
+	    slot_void0.connect("void_test");
+	    slot_void1.connect("void_test");
+	
+	    sig_void.emit();
+	    ecl::SigSlotsManager<>::printStatistics();
+		@endcode
+		
+		would print output:
+		
+		@code
+		Topics
+	      Name: void_test
+	        # Subscribers: 2
+	        # Publishers : 1
+		@endcode
+		
+
+@section considerations Design Considerations
+
+	- Keep your slot callbacks concise...failing that, reference them or spin the work off into a thread!
+	- For data slots use const references, saves a copy and prevents your original class losing control of its variables.
+	- Slots w/ member functions should be member variables of the same class, this guarantees the function is always valid.
+	- The sigslots manager may become a bottleneck if you are creating/connecting/disconnecting a large number of slots.
+
+	If you do need a sigslot implementation that can handle massive numbers of sigslots, fast connection and disconnection,
+	then you probably need to look at the old ecl signals or boost/qt. At the moment, we can't foresee a need for that in
+	control systems, but if needed, this library can be extended.
+
+@section futureImprovements Future Improvements
+
+    This will be addressed on an 'as needed' basis.
+
+    - Slot loading for nullary and unary function objects.
+
+\section unitTests Unit Tests
+
+	- src/test/sigslots.cpp
+
+\section demos Demos
+    
+    - src/examples/sigslots.cpp	
+    - src/examples/sigslots_manager.cpp	
+
+\section ChangeLog
+
+	- <b>May 10</b> : Evolved from the old signals library, adding posix style naming and thread safety.
+
+*/

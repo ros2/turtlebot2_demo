@@ -1,0 +1,55 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	This package provides cross platform api to some of the lower level
+	socket functions available on different platforms. Currently there is
+	only minor support for a few functions on:
+	
+	- Windows
+	- Posix
+	
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/io.hpp>
+
+	// Cross platform functions
+	using ecl::init_sockets;
+	using ecl::shutdown_sockets;
+	using ecl::poll_sockets;
+	using ecl::close_socket;
+	using ecl::socket_pair;
+	@endcode
+
+	You will also need to link to <i>-lecl_io</i>.
+
+\section library Library
+
+	- init_sockets() : initialises winsock on windows.
+	- shutdown_sockets() : shuts down winsock on windows.
+	- poll_sockets() : a drop in for the posix poll function on windoze.
+	- socketpair() : a drop in for the posix socketpair function on windoze.
+	- close_socket() : standardises the api for closing a socket.
+	
+	A drop in for poll() on windoze is soon to come.
+	
+\section utilities Examples
+
+	Really rough, no tests yet, just some examples.
+
+	- src/examples/poll.cpp : tests the basic sockets api.
+	- src/examples/sockets.cpp : tests the basic sockets api.
+	- src/examples/socketpair.cpp : tests the socketpair drop-in for windows.
+
+\section ChangeLog
+
+	- <b>Feb 11</b> : a drop-in for the socketpair function added for windows.
+	- <b>Jan 11</b> : simple cross platform types and api added.
+
+*/

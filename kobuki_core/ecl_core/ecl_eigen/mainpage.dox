@@ -1,0 +1,24 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+This is a package that stores the eigen header files. You can either
+use it directly, or better still, interface it through ecl_linear_algebra
+which provides a few extra features.
+
+It installs into include/eigen3.1.2/Eigen, firstly so that it keeps the installations
+separate should we happen to install multiple eigens into the install space, and
+secondly, it puts it in the root rather than nested inside ecl to keep it visible. 
+
+\section Usage
+
+Users should only use the internal eigen if they will only access eigen from ecl
+for every part of the code in their eventual binaries. We do this often for
+embedded installs where the dependency list is slim, but eigen does happen to be
+one of those, but lacks an installable deb or similar.
+
+Mixing eigen's can have compatibility issues. For example, utilising eigen 3.1.2
+from ecl would not mix with a pcl that uses a system eigen 3.0.0.
+*/

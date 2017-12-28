@@ -1,0 +1,101 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Provides some cross platform type traits above and beyond what is provided
+	by c++.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/type_traits.hpp>
+
+	// The error interfaces
+	using ecl::numeric_limits;
+	using ecl::is_integral;
+	using ecl::is_float;
+	using ecl::is_signed;
+	using ecl::is_unsigned;
+	using ecl::is_byte;
+	@endcode
+
+	You will also need to link to <i>-lecl_type_traits</i>.
+
+\section usage Usage
+
+\subsection numericLimits Numeric Limits
+
+	This extends c++'s numeric_limits class for fundamental types, providing in addition, static constants
+	that can be utilised as template arguments (as opposed to c macros or c++ functions in numeric_limits).
+	For integral types, an example of the extras available:
+	
+	@code
+	ecl::uint16 bits = NumericLimits<int>::bits;
+	ecl::uint16 bytes = NumericLimits<int>::bytes;
+	int j = NumericLimits<int>::one;
+	int i = NumericLimits<int>::minimum;
+	int k = NumericLimits<int>::maximum;
+	@endcode
+
+	An example of some extras for a float type:
+		
+	@code
+	ecl::uint16 bits = NumericLimits<float>::bits;
+	ecl::uint16 bytes = NumericLimits<float>::bytes;
+	
+	// precision setting is a rough, but useful aid to bounding the accuracy for some math calculations
+	NumericLimits<float>::Precision p = NumericLimits<float>::dummy_precision();
+	 
+	// note, numeric_limits<float>::min() is the smallest 
+	// positive value, this is the smallest negative value.
+	float minimum = NumericLimits<float>::minimum;    
+	float maximum = NumericLimits<float>::maximum;  
+	@endcode
+	
+	
+	Note that it inherits the numeric_limits class, so all the functions therein can also be used.
+
+\subsection isA Fundamental Type Traits
+
+	These are in the upcoming C++0x standard, so are only a temporary feature in the ecl. They 
+	are a subset and work just like boosts type traits. More will be added as needed. The 
+	code snippet below is for runtime code, but they're actually more useful with enable_if
+	in determining which compile time template specialisations to instantiate.
+	
+	
+	@code
+	if ( is_float<double>::value ) {
+	  // take some action
+	}
+	@endcode
+	
+	The current list of type traits include:
+	
+	- @ref ecl::is_integral "is_integral"
+	- @ref ecl::is_signed "is_signed"
+	- @ref ecl::is_unsigned "is_unsigned"
+	- @ref ecl::is_float "is_float"
+	- @ref ecl::is_byte "is_byte"
+	- @ref ecl::is_signed_byte "is_signed_byte"
+	- @ref ecl::is_unsigned_byte "is_unsigned_byte"
+	
+\section unitTests Unit Tests
+
+	- src/test/numeric_limits.cpp
+	- src/test/fundamental_types.cpp
+
+\section ChangeLog
+
+	- <b>Mar 11</b> : added the is_xxx_byte type traits.
+	- <b>Feb 11</b> : collected type traits from ecl_config and ecl_mpl.
+	- <b>Sep 10</b> : @ref ecl::is_byte "is_byte" trait for detection of single byte types added.
+	- <b>Aug 10</b> : @ref ecl::is_signed "is_signed", @ref ecl::is_unsigned "is_unsigned" trait types added.
+	- <b>Jul 10</b> : @ref ecl::is_integral "is_integral", @ref ecl::is_float "is_float" trait types added.
+
+
+*/

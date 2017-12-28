@@ -1,0 +1,22 @@
+/**
+ * @namespace ecl::command_line
+ *
+ * @brief Command line parsing classes.
+ *
+ * Cross-platform collection of tools for command line parsing. It has been
+ * built as a wrapper around the TCLAP template library.
+ **/
+/*
+ * @namespace ecl::command_line::MultiArgHelper
+ *
+ * @brief Collection of utilities and tools for multiple argument handling in tclap.
+ *
+ * Collection of utilities and tools for multiple argument handling in tclap.
+ */
+/*
+ * @namespace ecl::command_line::ValueArgHelper
+ *
+ * @brief Collection of utilities and tools for value argument handling in tclap.
+ *
+ * Collection of utilities and tools for value argument handling in tclap.
+ */

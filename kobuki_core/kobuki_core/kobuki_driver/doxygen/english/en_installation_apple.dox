@@ -1,0 +1,8 @@
+/**
+
+@page enInstallationAppleGuide Installation - Apple
+
+This is currently untested and unsupported. If building within ROS, it should work out of the
+box if you compile from sources.
+
+**/

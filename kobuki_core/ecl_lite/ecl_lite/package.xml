@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ecl_lite</name>
+  <version>0.61.6</version>
+  <description>
+    Libraries and utilities for embedded and low-level linux development.
+  </description>
+  <author email="d.stonier@gmail.com">Daniel Stonier</author>
+  <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
+  <license>BSD</license>
+  <url type="website">http://www.ros.org/wiki/ecl_lite</url>
+  <url type="repository">https://github.com/stonier/ecl_lite</url>
+  <url type="bugtracker">https://github.com/stonier/ecl_lite/issues</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>ecl_config</exec_depend>
+  <exec_depend>ecl_converters_lite</exec_depend>
+  <exec_depend>ecl_errors</exec_depend>
+  <exec_depend>ecl_io</exec_depend>
+  <exec_depend>ecl_sigslots_lite</exec_depend>
+  <exec_depend>ecl_time_lite</exec_depend>
+
+  <export>
+		<build_type>ament_cmake</build_type>
+  </export>
+</package>

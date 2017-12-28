@@ -1,0 +1,30 @@
+/**
+@page makefileLibraryGuide Makefile Library
+
+@section Overview
+
+Currently there is only one makefile and that is used in general to build
+ecl packages. It's not really intended for public consumption.
+
+@section rosmake Ecl Package Makefile
+
+File: rosmake.mk - wrapper around the usual ros makefile (ros/core/mk/cmake.mk).
+
+  This wrapper provides a few extra targets above and beyond the usual ros
+  package:
+  
+  - install : installs files like a typical ./configure, make, make install.
+  - install/strip : as above, but strips libraries and binaries as well.
+  - uninstall : only if ecl_build_utilities' ecl_uninstall macro is called.
+  - examples : for any binaries using the ecl_add_example macro.
+  - benchmarks : for any binaries using the ecl_add_benchmarks macro.
+  - utilities : for any binaries using the ecl_add_utilities macro.
+  - apps : for any binaries using any one of the example/benchmark/utilities macros.
+  - sources : like install, but only gathers sources, not libs and headers.
+  - package : only if cpack information has been built in to your CMakeLists.txt
+
+Note that building sources is a useful way to collect library sources for 
+embedded development that cannot use the ros/cmake environment (e.g. Texas Instruments
+IDE for dsp development).
+
+**/

@@ -1,0 +1,67 @@
+/**
+@page containersConcept Containers
+ 
+@section overviewSection Overview
+ 
+Containers have a few properties in common that can simplify the 
+passing of or the development of methods that use generic containers. Rather
+than having a suite of overloaded functions, a simple template argument with
+a concept check will suffice for all variants.
+
+@section CompilingLinking Compiling & Linking
+ 
+Include the following at the top of any translation unit for which you are
+running compile time checks on your blueprint classes. 
+  
+@code
+#include <ecl/concepts.hpp>
+
+using ecl::ContainerConcept;
+using ecl::DynamicContainerConcept;
+using ecl::UnsignedByteContainerConcept;
+using ecl::SignedByteContainerConcept;
+@endcode
+ 
+Since it only uses macros and templatised objects, no linking is required for just this feature.
+
+@section creation Container Concept Definition
+
+Classes passing the ContainerConcept must satisfy: 
+
+- begin() : a method for retrieving a pointer/iterator to the start of the container.
+- end() : a method for retrieving a pointer/iterator to the end of the container.
+- size() : a method for retrieving the number of elements stored in the container.
+
+@subsection dynamic Dynamic Containers
+
+Classes passing the DynamicContainerConcept must additionally satisfy:
+
+- resize(int) : a method for resizing the number of elements managed by the container.
+
+@subsection byte Byte Containers
+
+In addition, if it is testing for a byte container, then it will do a check on the value type 
+in the container and fail if it is not a char (uses a trick via specialisations and private
+constructors to ensure a compile time failure).
+
+@section Usage
+
+Use with the compile time concept check whenever you wish to check for a container template class.
+
+@code
+    template<typename T>
+    void f(const T& container) {
+        compile_time_concept_check(ContainerConcept<T>);
+        unsigned int size = container.size();
+        //...
+    }
+    template<typename T>
+    void g(const T& byte_container) {
+        compile_time_concept_check(SignedByteContainerConcept<T>);
+        unsigned int size = container.size();
+        char c = container[0];
+        //...
+    }
+@endcode
+
+ **/

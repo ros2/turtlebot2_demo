@@ -1,0 +1,234 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Timing utilities are very dependent on the system api provided for their use.
+	This package provides a means for handling different timing models.
+
+@subsection posixRtTimers Posix RT Timers
+
+	Posix timers record times as a pair : (seconds,nanoseconds), so they have a
+	very fine resolution, but it needs to remembered that the system latency
+	will still affect their results. For example, sleeping for 1nanosecond
+	wont work as you expect, since the system latency will usually mean the
+	command has to wait for the scheduler to grant it a slice of the action
+	(usually a wait of around 1ms on a linux desktop). This latency is usually
+	configured by the scheduler being used by the kernel.
+
+	Returning to the pair, the first unit, seconds is usually of a system defined
+	type. This allows it to be extendable to a larger type in the future if
+	the system time requires a larger value. The latter is measured with the
+	long variable, which is more than sufficient to cater for 1x10^9 units.
+
+@subsection macOSTimers MacOSX Timers
+
+    MacOSX timers are mostly posix, however they are missing the extensions
+    provided by the librt library, e.g. clock_gettime and clock_nanosleep. The
+    real downside of this is that it is not possible to use absolute time with
+    the macosx posix timers (i.e. periodic timers will drift).
+
+    There are another set of mac specific timers that will let you do this, but
+    it has not yet been implemented.
+
+@subsection windozeTimers Windows Timers
+
+	I haven't yet implemented these.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit that uses
+	time functions or classes.
+	@code
+	#include <ecl/time.hpp>
+
+	// The time classes
+	using ecl::CpuWatch;
+	using ecl::Duration;
+	using ecl::MicroSleep;
+	using ecl::MilliSleep;
+	using ecl::NanoSleep;
+	using ecl::Sleep;
+	using ecl::Snooze;
+	using ecl::StopWatch;
+	using ecl::TimeData;
+	using ecl::TimeStamp;
+	@endcode
+
+	You will also need to link to <i>-lecl_time</i>.
+
+\section usage Usage
+
+	@subsection Timestamps
+
+		Timestamps provide a means of doing one of two things:
+
+		- Recording the system time since some reference point.
+		- Manually recording a timestamp, or time duration (e.g. result of a timestamp difference operation).
+
+		There are several ways of initialising the timestamp:
+		@code
+		TimeStamp time_system;           // Automatically captures system time since Epoch.
+		TimeStamp time_double(3.21)      // Initialise with a decimalised time (slow).
+		TimeStamp time_pair(3,210000000) // Initialise with a (s,ns) pair (fast for posix rt systems).
+		@endcode
+
+		These operations can also be performed to set the timestamp after construction:
+
+		@code
+		time_system.stamp();         // Automatically captures system time since Epoch.
+		time_double.stamp(3.21)      // Initialise with a decimalised time (slow).
+		time_pair.stamp(3,210000000) // Initialise with a (s,ns) pair (fast for posix rt systems).
+		@endcode
+
+		All the usual comparison (==,!=,<=,>=,<,>) and mathematical (+,-,+=,-=) operations can also be used.
+
+		@code
+		if ( time_system > time_double ) {
+			time_system -= time_double;
+		}
+		@endcode
+		
+		Streaming:
+		
+		@code
+		TimeStamp timestamp; // captures current time
+		std::cout << timestamp << std::endl; // 1682346.235653090
+		@endcode
+		
+		<b>Caution</b>: The only thing to be wary of with timestamps is to remember that they
+		must always be positive. This was a design decision that keeps the timestamp class as light as
+		possible. If negativity was introduced, an extra sign bit would be required, and in almost all
+		timestamp operations, this is not necessary.
+
+		<b>Exceptions</b>: The timestamp class will throw exceptions (in debug mode only) whenever a
+		timestamp method is used that would create a negative timestamp.
+
+	@subsection Duration
+
+		Durations are intended to intuitively represent the passage of time. Although is is conceptually
+		different from a timestamp, the functionality under the hood is currently identical. Subsequently,
+		the @ref ecl::TimeStamp "Timestamp" class is currently typedef'd to the @ref ecl::Duration
+		"Duration" class.
+
+		This might change at some point in the future if we require negativity (as mentioned above).
+
+	@subsection StopWatch
+
+		This is a fairly intuitive class and uses the TimeStamp class under the hood for recording
+		times.
+
+		Note that the stopwatch starts automatically, just use restart() if you
+		wish to reset and start again.
+
+		@code
+		StopWatch stopwatch;
+		TimeStamp time;
+		time = stopwatch.split()
+		cout << time << endl;
+		time = stopwatch.elapsed()
+		cout << time << endl;
+		stopwatch.restart();
+		@endcode
+
+	@subsection CpuWatch
+	
+		This is a variation of the stopwatch for systems with librt. The time measured by the
+		cpu watch is not system time, rather the time spent by the process actually exeucting
+		on the cpu. This is very useful for benchmarking programs. Usage is exactly the same as for
+		the stopwatch. 
+	
+	@subsection Sleep
+
+		Some simple sleep classes. They can be used directly or preconfigured.
+
+		@code
+		Duration duration(1,300000000);
+		Sleep sleep;
+		MilliSleep sleep_ms;
+		MicroSleep sleep_us;
+		NanoSleep sleep_ns;
+
+		// Direct sleep commands
+		sleep(duration);
+		sleep(3);
+		sleep_ms(3500);
+		sleep_us(500000);
+		sleep_ns(500000000);
+
+		// Preconfigured (i.e. use last configured command)
+		MilliSleep pc_sleep_ms(duration);
+		sleep_ms(); // uses the last configuration
+		pc_sleep_ms(); // uses the constructor configuration
+		@endcode
+
+	@subsection Snooze
+
+		Snooze is a periodic sleeper, useful in control loops where you want to exactly control the
+		time taken by each loop. Using a regular sleep function to do this can cause some time
+		drift problems (refer to the snooze class documentation for more detail). The snooze
+		class gets around this by setting its periodic timestamps off the absolute clock time
+		rather than calculating relative time splits.
+
+		@code
+		Snooze snooze(Duration(0,20000000); // 20ms snooze
+		// Some preliminaries
+		snooze.initialise(); // make sure the snoozer is sync'ed with the current time.
+		while (1) {
+		  // do some work
+		  snooze();
+		}
+		@endcode
+
+		Note, this can be problematic if the periodic timestamps get behind the current time. To
+		remedy this, by default the class validates the timestamp at each check and syncs it with
+		the current time if it starts to lag behind (can easily be caused by the system scheduler
+		knocking it out of whack in favour of another process). This can be manually turned
+		off in the constructor if you're confident of the timing processes and this will marginally
+		reduce the snoozer's latency.
+
+	@subsection TimeData
+	
+	    This is a benchmarking utility for storing timings and then analysing them with some statistical
+	    methods.
+	    
+	    @code
+	    CpuWatch cpuwatch;
+	    TimeData timings;
+	    ecl::Duration duration;
+	    for ( unsigned int i = 0; i < 100; ++i ) {
+	        cpuwatch.restart();
+	    	// do some work here
+	    	duration = cpuwatch.split();
+	    	timings.push_back(duration);
+	    }
+	    std::cout << "Average : " << timings.average() << std::endl;
+	    std::cout << "Variance: " << timings.variance() << std::endl;
+	    @endcode
+
+\section unitTests Unit Tests
+
+    - src/test/cpuwatch_rt.cpp
+	- src/test/sleep.cpp
+	- src/test/snooze.cpp
+	- src/test/stopwatch.cpp
+	- src/test/timestamp.cpp
+	- src/test/time_data.cpp
+
+\section Examples
+
+	- src/examples/sleep.cpp
+
+\section utilities Utilities
+
+	- /ecl_core_apps/src/benchmarks/snooze.cpp : benchmarks the latencies for the periodic timer.
+
+\section ChangeLog
+
+	- @ref changelog "ChangeLog"
+
+@section Errata
+
+	The cross-platform support, particularly the macosx absolute timers really needs to be done.
+*/

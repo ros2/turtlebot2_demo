@@ -1,0 +1,20 @@
+/**
+  @page changelog ChangeLog
+
+  @section Changes
+
+    - <b>Mar 13</b> : msvc port.
+	- <b>Feb 11</b> : Moved runtime functions/macros to :: with ecl_ prefix.
+	- <b>Feb 11</b> : Moved exception classes out to ecl_exceptions.
+	- <b>May 10</b> : Cmake win32 framework.
+	- <b>May 09</b> : @ref ecl_compile_time_assert adds a compile time logical check for templatised classes.
+	- <b>Apr 09</b> : Includes several @ref Macros "macros" for throwing in debug mode and/or with conditional checks.
+	- <b>Apr 09</b> : ecl_run_time_assert customises and extends the usual assert() style conditional checks when debugging [Apr 09].
+	- <b>Apr 09</b> : ecl_run_time_abort customises and extends the usual abort() style program exits [Apr 09].
+
+  @section Bugs
+
+    - <b>Nov 09</b> : Fixed an issue which wouldn't permit multiple uses of compile time asserts.
+    - <b>May 09</b> : The standard assert macro kept getting in the way of our asserts, so it's been obliterated.
+
+**/

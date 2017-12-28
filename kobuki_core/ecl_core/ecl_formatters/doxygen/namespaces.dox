@@ -1,0 +1,15 @@
+/**
+ * @namespace ecl
+ *
+ * @brief Embedded control libraries.
+ * 
+ * Various core libraries useful for embedded control systems.
+ **/
+/**
+ * @namespace ecl::interfaces
+ *
+ * @brief Supporting elements and interfaces.
+ *
+ * These provide support for the elements in this package. They are not
+ * intended to be directly visible to the user. 
+ **/
