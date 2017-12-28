@@ -1,0 +1,408 @@
+/**
+ * @file include/ecl/geometry/pose2d_old.hpp
+ *
+ * @brief Representation of the mobile robot pose in 2D (3 DOF).
+ *
+ * @date July 2010
+ **/
+/*****************************************************************************
+** Ifdefs
+*****************************************************************************/
+
+#ifndef ECL_GEOMETRY_POSE2D_ROTATION_ANGLE_HPP_
+#define ECL_GEOMETRY_POSE2D_ROTATION_ANGLE_HPP_
+
+/*****************************************************************************
+** Includes
+*****************************************************************************/
+
+#include <iostream>
+#include <iomanip>
+#include <ecl/linear_algebra.hpp>
+#include <ecl/math/constants.hpp>
+#include <ecl/errors/standard_exception.hpp>
+#include <ecl/mpl/type_traits.hpp>
+#include <ecl/mpl/enable_if.hpp>
+#include <ecl/geometry/angle.hpp>
+
+/*****************************************************************************
+** Namespaces
+*****************************************************************************/
+
+namespace ecl {
+
+/*****************************************************************************
+** Pose2D
+*****************************************************************************/
+/**
+ * @brief Parent template definition for Pose2D.
+ *
+ * Do not use this directly. Use the specialisations instead.
+ */
+template <class Float, typename Enable = void>
+class Pose2D {
+private:
+	/**
+	 * @brief Prevents usage of this template class directly.
+	 */
+	Pose2D() {};
+};
+/**
+ * @brief Representation for a 2D pose (3 degrees of freedom).
+ *
+ * @tparam Float : must be a float type (e.g. float, double, float32, float64)
+ */
+template<typename Float>
+class Pose2D<Float, typename enable_if<is_float<Float> >::type> {
+public:
+	/*********************
+	** Typedefs
+	**********************/
+	typedef ecl::linear_algebra::Matrix<Float,3,1> Elements; /**< @brief Convenience typedef representing the element container. **/
+	typedef ecl::linear_algebra::Matrix<Float,2,2> Rotation; /**< @brief Convenience typedef representing the rotation part. **/
+	typedef ecl::linear_algebra::Matrix<Float,2,1> Translation; /**< @brief Convenience typedef representing the translation part. **/
+
+	/*********************
+	** C&D's
+	**********************/
+	/**
+	 * @brief Default constructor.
+	 *
+	 * Initialises the pose with zero rotation and zero translation.
+	 */
+	Pose2D() : elements(Elements::Zero()) {}
+  
+	/**
+	 * @brief Construct the pose using scalars for position and rotation angle.
+	 * @param  x,y    : position (origin) of the target frame
+	 * @param radian  : rotation angle -- positive when turning-to-the-left (counter-clock-wise)
+	 */
+	Pose2D(const Float &x, const Float &y, const Float &radian) { elements << x, y, radian; }
+  
+	/**
+	 * @brief Construct the pose using using pose vector.
+	 * @param  xyh : 3x1 pose vector
+	 */
+	Pose2D(const Elements &xyh) : elements(xyh) {}
+  
+  //! @brief  Construct the pose using rotation matrix and translation vector.
+  //! @param  R : 2x2 rotation matrix
+  //! @param  T : 2x1 translation vector
+  Pose2D(Float R[4], Float T[2]) { setPose( R, T ); }
+  
+	/**
+	* @brief Construct the pose using a rotation matrix and a translation vector.
+	* @param R : 2x2 rotation matrix
+	* @param T : 2x1 translation vector
+	*/
+	Pose2D(const Rotation& R, const Translation& T) { setPose( R, T ); }
+  
+	/**
+	* @brief Construct the pose using position and coordinate axes.
+	* @param  x,y   : position (origin) of the target frame
+	* @param  ax,ay : coordinate axes (vectors) of the target local frame
+	*/
+	Pose2D( const Float &x, const Float &y,
+			const ecl::linear_algebra::Matrix<Float,2,1> &ax,
+			const ecl::linear_algebra::Matrix<Float,2,1> &ay)
+	{ setPose( x, y, ax, ay ); }
+  
+	virtual ~Pose2D() {}
+
+	/*********************
+	** Assignment
+	**********************/
+	/**
+	 * @brief Assign from another Pose2D instance.
+	 * @param pose : another pose.
+	 * @return Pose2D<Float>& : reference handle to this object.
+	 */
+	Pose2D<Float>& operator=(const Pose2D<Float>& pose) { elements = pose.elements; return *this; }
+
+	/**
+	 * @brief Assign the pose values using pose vector.
+	 * @param xyh : 3x1 pose vector.
+	 * @return Pose2D<Float>& : reference handle to this object.
+	 */
+	Pose2D<Float>& operator=(const Elements& xyh) {
+		elements = xyh;
+	    return *this;
+	}
+  
+	/*********************
+	** Setting
+	**********************/
+	/**
+	 * @brief Initialize the pose using position and rotation angle.
+	 * @param  x,y    : position (origin) of the target frame
+	 * @param  radian : rotation angle -- positive when turning-to-the-left (counter-clock-wise)
+	 */
+	void setPose(const Float &x, const Float &y, const Float &radian) { elements << x, y, radian; }
+  
+	/**
+	 * @brief Construct the pose using pose vector.
+	 * @param xyh : 3x1 pose vector
+	 */
+	void setPose( const Elements& xyh) { elements = xyh; }
+  
+  //! @brief  Assign the pose using rotation matrix and translation vector.
+  //! @param  R : 2x2 rotation matrix
+  //! @param  T : 2x1 translation vector
+  void setPose(Float r[4], Float t[2]) {
+    // Even though Eigen is column-major, CommaInitializer is row-major, just like C.
+    Eigen::Rotation2D<Float> rotation;
+    rotation << r[0], r[1], r[2], r[3];
+    elements << t[0], t[1], rotation.angle();
+  }
+
+    /**
+     * @brief Assign the pose using rotation matrix and translation vector.
+     * @param R : 2x2 rotation matrix
+     * @param T : 2x1 translation vector
+     */
+    void setPose(const Rotation& R, const Translation& T) {
+		ecl::linear_algebra::Rotation2D<Float> rotation;
+		elements[0] = T[0];
+		elements[1] = T[1];
+		elements[2] = rotation.fromRotationMatrix(R).angle();
+    }
+
+    /**
+     * @brief Assign the pose using position and coordinate axes.
+     * @param  x,y   : position (origin) of the target frame
+	 * @param  ax,ay : coordinate axes of the target local frame
+	 */
+    void setPose(const Float &x, const Float &y,
+	       const ecl::linear_algebra::Matrix<Float,2,1> &ax,
+	       const ecl::linear_algebra::Matrix<Float,2,1> &ay) {
+      ecl::linear_algebra::Rotation2D<Float> rotation;
+      rotation << ax[0], ay[0], ax[1], ay[1];
+      elements << x, y, rotation.angle();
+    }
+  
+    void x(const double& value) { elements[0] = value; }	//!< @brief Sets the x-coordinate.
+    void y(const double& value) { elements[1] = value; }	//!< @brief Sets the y-coordinate.
+    void heading(const double& value) { elements[2] = value; } //!< @brief Sets the heading.
+
+    /**
+     * @brief Comma initialisation (eigen style).
+     *
+     * Usage:
+     *
+     * @code
+     * Pose2D p; // At this point it is initialised with default values.
+     * p << 1.0,2.0,1.57;
+     * @endcode
+     *
+     * @param value : first value in the sequence.
+     * @return CommaInitializer : comma initialising object.
+     */
+    Eigen::CommaInitializer< Eigen::Matrix<Float,3,1> > operator<<(const double &value) {
+    	return elements.operator<<(value);
+    }
+  
+    /*********************
+	** Accessors
+	**********************/
+	double x() const { return elements[0]; }		//!< @brief Get the x-coordinate
+	double y() const { return elements[1]; }		//!< @brief Get the y-coordinate
+	double heading() const { return elements[2]; }	//!< @brief Get the heading
+  
+	/**
+	 * @brief Representation of the pose as a (x,y,heading) vector.
+	 *
+	 * @return Elements : reference handle to the 3x1 eigen vector of elements.
+	 */
+	Elements& vector() { return elements; }
+
+	/**
+	 * @brief Access the pose via indices.
+	 *
+	 * @exception : StandardException : throws if index is out of range [debug mode only].
+	 *
+     * @param index : index of the array to index.
+	 * @return double : value of the element indexed.
+	 */
+	Float& operator [](const unsigned int& index) assert_throw_decl(ecl::StandardException) {
+		assert_throw( index<3, ecl::StandardException(LOC,ecl::OutOfRangeError));
+		return elements[index];
+	}
+
+	/**
+	 * @brief Rotation in eigen matrix format.
+	 *
+	 * Since a rotation matrix isn't used in the pose's natural storage, this returns a constructed
+	 * version representing the heading rotation.
+	 *
+	 * @return Rotation : the 2x2 rotation matrix.
+	 */
+    Rotation rotation() {
+		Float cv = (Float) cos(elements[2]);
+		Float sv = (Float) sin(elements[2]);
+		Rotation R( +cv, -sv, +sv, +cv );
+		return R;
+    }
+
+    /**
+     * @brief Translation in eigen vector format.
+     *
+	 * Since a translation vector isn't used in the pose's natural storage,
+	 * this returns a constructed version representing the translation vector.
+	 *
+	 * @return Translation : the 2x1 translation vector.
+     * @return
+     */
+    Translation translation() {
+		ecl::linear_algebra::Matrix<Float,2,1> T( elements[0], elements[1] );
+		return T;
+    }
+  
+  //! @brief  Get C array values for the rotation and translation.
+  void getArrayValues(Float R[4], Float T[2], bool inverse=false) {
+    Float cv = (Float) cos(elements[2]);
+    Float sv = (Float) sin(elements[2]);
+    if (!inverse) {
+      Float cv = (Float) cos(elements[2]);
+      Float sv = (Float) sin(elements[2]);
+      R[0] = +cv;  R[1] = -sv;  R[2] = +sv;  R[3] = +cv;
+      T[0] = elements[0];       T[1] = elements[1];
+    } else {
+      R[0] = +cv;  R[1] = +sv;  R[2] = -sv;  R[3] = +cv;
+      T[0] = -( R[0]*elements[0] + R[1]*elements[1]);
+      T[1] = -( R[2]*elements[0] + R[3]*elements[1]);
+    }
+  }
+  
+    /*********************
+	** Operators/Functions
+	**********************/
+    /**
+     * @brief Calculate the inverse pose.
+     *
+     * This calculates the reverse transformation between frames.
+     *
+     * @return Pose2D : the inverse pose with target and reference frames swapped.
+     */
+    Pose2D<Float> inverse(void) {
+    	ecl::linear_algebra::Rotation2D<Float> rotation( -elements[2] );
+    	Translation T( elements[0], elements[1] );
+    	T = (rotation * T) * -1;
+    	Pose2D<Float> P( T[0], T[1], -elements[0] );
+    	return P;
+    }
+
+    /**
+     * @brief Calculate the difference of two poses
+     *
+     * Transformation between coordinate frames.
+     *
+     * @param Pa : target    pose
+     * @param Pb : reference pose
+     * @return Pose2D<Float> : differential, or relative pose (wrt Pb's frame).
+     */
+    Pose2D<Float> Difference(const Pose2D<Float> &Pa, const Pose2D<Float> &Pb) { return Pa - Pb; }
+
+    /**
+     * @brief Calculate the difference from current pose to the given pose.
+     *
+     * Transformation between coordinate frames - this is the member variant of the
+     * previous static function.
+     *
+     * @param P : target pose (wrt this pose's frame of reference).
+     * @return Pose2D<Float> : differential, or relative pose (wrt this pose's frame).
+     */
+    Pose2D<Float> operator-(const Pose2D<Float> &P) const {
+		ecl::linear_algebra::Rotation2D<Float> rotation(-P.elements[2]);
+		Translation dxy((elements[0] - P.elements[0]), (elements[1] - P.elements[1]));
+		Translation dxy_new = rotation*dxy;
+		Pose2D<Float> Pnew( dxy_new[0], dxy_new[1], elements[2]-P.elements[2] );
+		while (Pnew.elements[2] > +ecl::pi) {
+			Pnew.elements[2] -= 2*ecl::pi;
+		}
+		while (Pnew.elements[2] < - ecl::pi) {
+			Pnew.elements[2] += 2*ecl::pi;
+		}
+		return Pnew;
+    }
+    /**
+     * @brief Adds the differential, or relative pose (wrt this pose).
+     * @param P : differential (wrt this pose's frame).
+     * @return Pose2D<Float> : this pose combined with P (wrt common/global frame).
+     */
+    Pose2D<Float> operator+(const Pose2D<Float> &P) const {
+		ecl::linear_algebra::Rotation2D<double> rotation(elements[2]);
+		Translation dxy( P.elements[0], P.elements[1] );
+		dxy = rotation * dxy;
+		Pose2D<Float> Pnew( elements[0]+dxy[0], elements[1]+dxy[1], elements[2]+P.elements[2] );
+		while (Pnew.elements[2] > +ecl::pi) { Pnew.elements[2] -= 2*ecl::pi; }
+		while (Pnew.elements[2] < -ecl::pi) { Pnew.elements[2] += 2*ecl::pi; }
+		return Pnew;
+    }
+  
+    /**
+     * @brief Adds the differential to the current pose.
+     * @param P : differential (wrt this pose's frame).
+     * @return Pose2D<Float>& : handle to the updated pose (wrt common/global frame).
+     */
+    Pose2D<Float>& operator+=(const Pose2D<Float> &P) {
+    	*this = ( *this + P );
+    	return (*this);
+    }
+  
+    /**
+     * @brief Combine two transformations
+     * @param P : differential (wrt this pose's frame).
+     * @return Pose2D<Float> : handle to the updated pose (wrt common/global frame).
+     */
+    Pose2D<Float> operator*(const Pose2D<Float> &P) { return (*this + P); }
+  
+  // -----------------------------------------------------------------
+  // Coordinate conversion
+  // -----------------------------------------------------------------
+  // is this correct?
+  //! @brief  Convert coordinates from the pose frame to the reference frame.
+  //! @param  x : coordinate values of a point in 2D
+  //! @return Vector2t : new coordinate values converted to the pose's reference frame
+  Eigen::Matrix<Float,2,1> convert(const Eigen::Matrix<Float,2,1> &x) {
+    Eigen::Rotation2D<double> rotation(elements[2]);
+    Eigen::Matrix<Float,2,1> x_old( elements[0], elements[1] );
+    Eigen::Matrix<Float,2,1> x_new = rotation * x + x_old;
+    return x_new;
+  }
+
+    /*********************
+	** Streaming
+	**********************/
+	template <typename OutputStream, typename Float_>
+	friend OutputStream& operator<<(OutputStream &ostream , const Pose2D<Float_> &pose);
+
+private:
+  Elements elements;	// X,Y position, and heading  (meter and radian)
+
+};
+
+/*****************************************************************************
+** Insertion Operators
+*****************************************************************************/
+
+/**
+ * @brief Insertion operator for output streams.
+ *
+ * Note that the output heading angle is formatted in degrees.
+ *
+ * @param ostream : stream satisfying the ecl stream concept.
+ * @param pose : the inserted pose.
+ * @return OutputStream : the returning stream handle.
+ */
+template <typename OutputStream, typename Float_>  // Note that Matrix<> is column-major
+OutputStream& operator<<(OutputStream &ostream , const Pose2D<Float_> &pose) {
+  ostream << "[ " << std::setiosflags(std::ios::fixed) << std::setprecision(3) 
+	  << std::setw(6) << pose.elements[0] << " " << std::setw(6) << pose.elements[1] << " "
+	  << std::setw(6) << pose.elements[2] << "(" << std::setw(3) << std::setprecision(0)
+	  << radians_to_degrees(pose.elements[2]) << std::setprecision(3) << ") ] ";
+  return ostream;
+}
+
+} // namespace ecl
+
+#endif /* ECL_GEOMETRY_POSE2D_ROTATION_ANGLE_HPP_ */

@@ -1,0 +1,254 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Streams provide a standardised c++ interface for connecting to
+	ecl input-output devices.
+
+	- speed : control cannot afford serious slowdowns for convenience.
+	- extensible : must be able to create new devices easily.
+	- streams : all devices should connect in a standardised way to streams.
+
+@section otherStreamLibraries Comparison
+
+	Finding a library with a standard/extensible interface that
+	works across devices and implements streaming operators is
+	like trying to find the pot at the bottom of the rainbow.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/streams.hpp>
+
+	// Templatised all purpose stream
+	using ecl::TextStream;
+
+	// Convenience stream handles
+	using ecl::IConsoleStream;
+	using ecl::OConsoleStream;
+	using ecl::EConsoleStream;
+	using ecl::OFileStream;
+	using ecl::SerialStream;
+	using ecl::SharedFileStream;
+	using ecl::SocketClientStream;
+	using ecl::SocketServerStream;
+	using ecl::StringStream;
+
+	// Special customised streams
+	using ecl::LogStream;
+
+	// Stream manipulators
+	using ecl::endl;
+	using ecl::clrscr;
+
+	@endcode
+
+	You will also need to link to <i>-lecl_streams</i>.
+
+\section usage Usage
+
+	@subsection openClose Initialisation
+
+		Each stream-device pair can be instantiated via the generic TextStream object and the
+		underlying device opened via the device() member method. For example,
+
+		@code
+		TextStream<OFile> stream;
+		stream.device().open("dude.txt",New);
+		@endcode
+
+		The console device is a special case - it is automatically opened.
+
+	@subsection convenienceHandles Convenience Classes
+
+The preferred method of instantiation is via the constructor in the convenience classes. The 
+convenience classes are specialised interfaces that inherit from the appropriate Textstream 
+type (dependant on the template parameter). Examples, SerialStream, OFileStream. Rather than 
+calling stream.device().open(...) directly, you can use their constructors to instantiate 
+the stream. They are also more convenient than typing out template parameters continuously.
+
+
+		@code
+		OFileStream stream("dude.txt",New);
+		@endcode
+
+	@subsection outputStreams Output Streams
+
+		Output streams function similarly to the familiar cout stream. The primary advantage being that
+		they can easily be attached to any standard ecl io device. They can also be used with the
+		ecl_formatter classes.
+
+		@code
+		OFileStream ostream;
+		Format<double> format; format.width(5); format.precision(2);
+		double d = 1.0/3.0;
+		ostream << format(d);  // This will send 0.33 to the stream.
+		ostream.flush();
+		@endcode
+
+	@subsection inputStreams Input Streams
+
+		There are three ways to utilise an input stream:
+
+		- reading element by element (separated by whitespace or newlines).
+		- reading raw characters (you must call enableRawCharReads()).
+		- reading line by line (not yet enabled).
+
+		The first method is similar to the familiar cin, it will take a string and convert it to the requested type.
+
+		@code
+		IConsoleStream istream;
+		double d;
+		istream >> d;
+		@endcode
+
+		The second method is sometimes useful when communicated with raw character devices (e.g. a serial line). In
+		this situation, you must simply make use of the char input operator.
+
+		@code
+		SerialStream serial_stream;
+		char c;
+		if ( serial_stream.device().remaining() ) {
+			serial_stream >> c;
+		}
+		@endcode
+
+		The third method has not yet been implemented.
+
+	@subsection logstreams Logging Streams
+
+		@ref ecl::LogStream "LogStreams" are a convenient, fast means to
+		logging from multiple threads with multiple customisable modes. They can
+		also optionally automatically insert header and timestamp information.
+
+		Multiple modes are most conveniently utilsed via customised enums. For example:
+
+		@code
+		enum LogModes {
+		   Warning,
+		   Error,
+		   Debug,
+		};
+		@endcode
+
+		Note that this is an advantage over alot of other loggers in that it gives you
+		the freedom to define your own error logging levels. Each mode can then be
+		associated inside the log stream with its own customised header.
+
+		@code
+		LogStream log_stream("test.log")
+		log_stream.enableMode(Warning,"WARNING");
+		log_stream.enableMode(Error,"ERROR");
+		log_stream.enableMode(Debug,"DEBUG");
+		@endcode
+
+		This process can be repeated from multiple threads each with its own instance
+		of the log stream attached to the single file. Using the log stream is then
+		done via the macros LOG and FLUSH
+
+		@code
+		LOG(log_stream, Warning) << "This is a log message from main().\n";
+		FLUSH(log_stream)
+		@endcode
+
+		By default this will automatically add header and timestamp information. You
+		can manually disable these if you prefer.
+
+
+@section errorChecking Error Checking
+
+	Output streams can generate errors that are not so easily checked compared with handling devices directly.
+	To check for failure, ecl streams use a mechanism similar to that of the standard cout stream.
+
+	@code
+	ostream << 32.1;
+	if ( ostream.fail() ) {
+		std::cout << ostream.errorStatus().what() << std::endl;
+	}
+	@endcode
+
+@section Manipulators
+
+	ECL manipulators are defined to enable some similar functionality to c++'s cout manipulators.
+	However they extend the concept to use class instantiations rather than functions. This
+	provides one important advantage over the former, these manipulators can retain state. Given
+	that they're also easy to customise, this opens up many possibilities.
+
+	The default manipulators defined in the ecl export a few global instantiations,
+	namely
+
+	- ecl::endl
+	- ecl::clrscr
+
+	Using manipulators follows the same pattern as for standard c++ style cout manipulators.
+
+	@code
+	int main() {
+		ecl::OConsoleStream ostream;
+		ostream << ecl::clrscr;
+		ostream << "Dude" << ecl::endl;
+		return;
+	}
+	@endcode
+
+	<b>Creating your own Manipulators:</b>
+
+	Any manipulator that you wish to define must inherit from this
+	parent class in the following manner:
+
+	@code
+	include <ecl/streams/manipulators.hpp>
+
+	class MyManipulator : public ecl::Manipulator<MyManipulator> {
+		template <typename OutputStream>
+		void action (OutputStream& ostream) {
+			// ...
+		}
+	};
+	@endcode
+
+@section Benchmarking
+
+	The following results are for streaming/flushing a large number of strings/floats
+	to various devices/streams. It was performed on a 32 bit single core intel processor
+	running linux (kernel 2.6.31) (exact values aren't important, rather the relative
+	differences).
+
+	@code
+	Writing Char Strings:
+	   OFile write       : 58806 ns
+	   SharedFile write  : 47562 ns
+	   OFile stream      : 61739 ns
+	   LogStream         : 73753 ns
+	   C++ ofstream      : 83321 ns
+	Streaming Floats:
+	   OFileStream       : 693593 ns
+	   Log stream        : 711753 ns
+	   C++ ofstream      : 862120 ns
+	@endcode
+
+\section unitTests Unit Tests
+
+	- src/test/file_streams.cpp
+	- src/test/string_streams.cpp
+
+\section demos Demos
+
+	- src/examples/console_streams.cpp
+	- src/examples/log_streams.cpp
+
+\section utilities Utilities
+
+	- ecl_core_apps/src/benchmarks/streams.cpp
+	- ecl_core_apps/src/benchmarks/files.cpp
+
+\section ChangeLog
+
+	- @ref changelog "ChangeLog"
+
+*/

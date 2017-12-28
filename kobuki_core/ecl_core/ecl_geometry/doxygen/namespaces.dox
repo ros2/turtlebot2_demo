@@ -1,0 +1,18 @@
+ /**
+ * @namespace ecl
+ *
+ * @brief Embedded control libraries.
+ * 
+ * Various core libraries useful for embedded control systems.
+ **/
+/**
+ * @namespace ecl::blueprints
+ *
+ * @brief Blueprints and factories classes used to generate blueprints.
+ *
+ * The blueprints are used to generate lightweight classes that store the rules to
+ * instantiate or configure classes in this package. These are used automatically with the
+ * factories to develop constructors and assignments with a convenient notation so you
+ * should never need to directly use these classes.
+ **/
+ 

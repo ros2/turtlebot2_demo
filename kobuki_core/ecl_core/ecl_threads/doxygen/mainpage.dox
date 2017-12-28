@@ -1,0 +1,236 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section Package Summary
+
+	Threads are not defined in standard C++ and as a result are operating system
+	and platform dependant. Linux generally uses POSIX threads, which are also
+	available on windows, but the WIN32 API is usually preferred. Because of this, some
+	standard cross-platform interfaces are developed here.
+
+@section Features
+
+	- Mutex - multi-thread variable protection.
+	- Threads - raii style one-shot thread class.
+	- Threadable - an inheritable thread interface.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit that uses
+	these container classes.
+	@code
+	#include <ecl/threads.hpp>
+
+	// The thread classes
+	using ecl::Mutex;
+	using ecl::Thread;
+	using ecl::Threadable;
+	
+	// Priorities
+	using ecl::set_priority;
+	using ecl::get_priority;
+	using ecl::print_priority_diagnostics;
+	using ecl::BackgroundPriority;
+	using ecl::LowPriority;
+	using ecl::NormalPriority;	
+	using ecl::HighPriority;	
+	using ecl::CriticalPriority;
+	using ecl::RealTimePriority1;	
+	using ecl::RealTimePriority2;	
+	using ecl::RealTimePriority3;	
+	using ecl::RealTimePriority4;	
+	@endcode
+
+You will also need to link to <i>-lecl_threads</i>.
+
+@section Usage
+
+	@subsection Mutex
+
+		The mutex is fairly standard, and on some systems can be more complex, but here the wrapper
+		simply acts as a closed door with the usual lock, trylock and unlock features.
+		The behaviour is also somewhat different depending on the platform.
+
+		On posix, the class is set up to run in two modes. When NDEBUG is not defined, it will
+		do exception handling (via ecl's StandardException)
+		for posix errors as well as configuring the mutexes for deadlock
+		checking (see below for example code). Exception handling and deadlock checking are disabled
+		when NDEBUG is defined.
+
+		@code
+		Mutex mutex;
+
+		mutex.lock();     // Locks
+		// do work here
+		mutex.unlock();
+		mutex.trylock();  // Locks
+		mutex.trylock();  // Fails to lock and returns immediately.
+		mutex.unlock();
+
+
+		mutex.lock();
+		// mutex.lock();     // The DEADLOCK! Like this, the program will usually halt forever.
+
+		// If NDEBUG is not defined, then on posix systems, you can catch deadlocks like this.
+		try {
+		  mutex.lock();
+		} catch ( StandardException &e ) {
+		   std::cout << e.what() << std::endl;
+		}
+
+		// Typical output from a caught deadlock:
+		// Location : /mnt/froody/work/code/cpp/projects/ecl/modules/core/src/lib/threads/mutex_pos.cpp:57
+		// Flag     : The object was used incorrectly.
+		// Detail   : DEADLOCK! The mutex has already been locked by this thread, it now has to wait on itself.
+		@endcode
+
+	@subsection Priorities
+	
+		These can be configured via the ecl::set_priority() function using the ecl::Priority 
+		enum values as an abstraction to a platform's implementation (which varies
+		quite significantly from platform to platform). Check the documentation's 
+		api for further details on its usage, particularly for posix which complicates
+		things with both userland priorities and real time priorities. 
+
+	@subsection Thread
+
+		The @ref ecl::Thread "Thread" class is a raii style object which initialises and automatically
+		starts a thread when constructed and manages the thread cleanly when the thread object goes out of scope.
+
+		<b>Construction:</b>
+
+		Construction can be done directly through free and member function handles or via function objects. Refer
+		to the documentation on 'Function Objects' and 'Reference Wrappers' in ecl_utilities
+		for more details about creating and using function objects/reference
+		wrappers (note, use a reference wrapper if you want to pass a 'heavy' function object!).
+
+		@code
+		using ecl::utilities::generateFunctionObject;
+
+		   int f() {}
+		   int g(int i) {}
+		   class A {
+			   void f() {}
+			   void g(int i) {}
+		   };
+		   class FunctionObject {
+		   public:
+			   typedef void result_type;
+			   void operator()() { //
+			   }
+		   };
+		   // ...
+		   A a;
+		   FunctionObject function_object;
+
+		   Thread thread1(f));                                   // Thread a nullary global function.
+		   Thread thread2(generateFunctionObject(g, 3));         // Thread a bound unary global function.
+		   Thread thread3(&A::f, a);     						 // Thread a nullary member function.
+		   Thread thread4(generateFunctionObject(&A::g, a, 2));  // Thread a bound unary member function.
+		   Thread thread5(function_object);                      // Thread a nullary function object.
+		   Thread thread6(ref(function_object));                 // Thread a reference to a nullary function object.
+		@endcode
+
+		<b>Scope:</b>
+
+		Also, this object is permitted to go out of scope without affecting the thread that it started (it may very well still
+		be running!). When it goes out of scope, it simply detaches it and lets it clean itself up. At this point you
+		only lose control of administration of the thread (joining, checking if it is running, cancelling etc).
+
+		@code
+		void g() {
+			for (int i = 0; i < 10; ++i ) {
+				sleep(1);
+				cout << i << endl;
+			}
+		}
+
+		void create_out_of_scope_thread() {
+			Thread thread(g);
+		} // thread will go out of scope here.
+		// ...
+		create_out_of_scope_thread();
+		// Cannot manage the thread from here, but it will continue running.
+		sleep(10); // Note that we have no way of joining with it.
+		@endcode
+
+		<b>Thread Priority:</b>
+
+		Thread priorities can be specified at construction (ecl::Thread) or at the call to 
+		execute a Threadable (Threadable::start()). This will impose the specified 
+		priority for scheduling for the lifetime of the thread.
+		
+		If you wish to configure the thread's priority dynamically, you'll have to 
+		fall back to using the ecl::set_priority() function directly from inside the
+		worker function.
+
+		<b>Stack Size:</b>
+
+		On embedded systems with no swap its important to watch how much stack memory you supply to the thread. This can be
+		manually specified in the thread constructor.
+
+		@code
+		Thread thread(g,1024*1024); // allocates 1M to the thread instead of the system default which is usually 8M.
+		@endcode
+
+		<b>Other:</b>
+
+		Other member functions include
+		- cancel() : instructs a running thread to abort at the next permitted interruption point (read the man pages for pthreads for more info).
+		- join() : wait for the running thread to finish.
+		- isRunning() : check to see if the thread is still running.
+
+		Error handling is done in debug mode (i.e. -DNDEBUG is not set) via exceptions. These will throw and report any information on
+		the resulting posix errors should they occur.
+
+	@subsection Threadable
+
+		The threadable class implements a concept is for worker threads that want to retain state
+		information (possibly for use by other parts of the program) in a class. Think of it as
+		a threaded function object rather than a regular c-style threaded function.
+
+
+		Implementation wise, it provides an inheritable interface for your
+		threading class. All the class needs to do is:
+
+		- inherit the Threadable class.
+		- implement the runnable() method.
+		- call the start() method to begin running in a sepearate thread.
+
+		Note that it will not spawn multiple threads - it has a check that ensures it will
+		only execute one thread at any point in time. It is designed to be something
+		more akin to a thread function object rather than a thread factory.
+
+		@code
+		class A : Threadable {
+			void runnable() {
+			// thread work here
+			}
+		}
+
+		int main() {
+			A a;
+			a.start();
+			return 0;
+		}
+		@endcode
+
+\section unitTests Unit Tests
+
+	- src/test/mutex.cpp
+	- src/test/threads.cpp
+	- src/test/threadable.cpp
+
+@section ChangeLog
+
+	- <b>May 11</b> : Updated exception handling (now optional).
+	- <b>May 10</b> : Mutex win32 implementation.
+	- <b>May 10</b> : Cmake win32 framework.
+	- <b>Jan 10</b> : @ref ecl::Threadable "Threadable" implements the thread by inheritance concept.
+	- <b>Jan 10</b> : Adds a constructor for @ref ecl::Thread "threads" that allows configuration of the stack size allocation.
+	- <b>Jul 09</b> : Incorporates the use of function object loading (refer to ecl_utilities).
+	- <b>Jul 09</b> : Converted @ref ecl::Thread "threads" to raii style.
+	- <b>Jun 09</b> : A locking class, the @ref ecl::Mutex "mutex", for threads.
+
+*/

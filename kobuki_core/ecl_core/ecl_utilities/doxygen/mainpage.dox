@@ -1,0 +1,31 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section Package Summary
+
+  This group includes various supporting tools and utilities useful for c++ programming.
+
+  @section Guides
+
+  - @ref functionobjectsGuide "Function Objects" - c++ object style function callbacks.
+  - @ref parametersGuide "Parameters" - a convenient parameter type for classes.
+  - @ref referencesGuide "Reference Wrappers" - wrappers for referenced objects.
+  - @ref singletonsGuide "Singletons" - unique, once off instantiations.
+
+@section unitTests Unit Tests
+
+	- src/test/function_objects.cpp
+	- src/test/parameters.cpp
+	- src/test/references.cpp
+	- src/test/singleton.cpp
+
+@section Demos
+
+	- src/examples/constructors.cpp : demos' the different ways of constructing an object.
+
+@section ChangeLog
+
+	- @ref changelog "ChangeLog"
+
+*/

@@ -1,0 +1,248 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+
+  @section Introduction
+
+  The converters here provide a fast and type-safe means of doing
+  type conversion, but lack formatting capabilities. If you need
+  formatting capabilities with conversion to text types, use the
+  formatter classes provided in ecl_formatters.
+
+  They're also used to provide generic conversions between
+  types (such as conversions between the various rotational
+  entities in the a robotics math module - quaternion, angle-axis
+  and rotation matrix). While these conversion functions can
+  just as easily be incorporated inside classes themselves,
+  having an external converter functor enables you to
+  decouple the interface and also add converter functionality
+  to fixed libraries incorporated within the ecl (such as
+  eigen).
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/converters.hpp>
+
+	// The error interfaces
+	using ecl::Converter;
+	@endcode
+
+  Since it is a template class, no linking is required if you are only using this class.
+
+  @section History
+
+  Type conversions can be done in a variety of ways, all of which
+  require the user to pay some attention to the performance of the
+  converters. Some examples include:
+
+  - sprintf : not type-safe but reasonably fast.
+  - stringstreams : type-safe but really slow.
+  - stlsoft shims : type-safe and very fast, but awkward to use.
+
+  <i>Sprintf</i> is actually not that fast - it is burdened with formatting
+  functionalities, so if you do not need the formatting, it makes for
+  a poor type converter, especially given that it is also not type-safe.
+
+  <i>Stringstreams</i> are so slow to the point of not being very useful at all
+  for control.
+
+  <i>Shims</i> appear to be a very optimal, high-speed implementation,
+  especially on 8-32 bit systems. 64 bit compilers are still improving though
+  and as a consequence the shims' performance should improve there too.
+  However they are awkward to use and very little documentation on the
+  implementation that is setup by the guys who've heavily developed
+  stlsoft's implementation of these.
+
+  @section ConvertersUsageSection Usage
+
+  @subsection Instantiation
+
+  Converters are functors - functions with state. You instantiate a converter type and
+  then make use of it as if it were a function call.
+
+  @code
+  Converter<char*,float> floatToCharString;
+  Converter<string,int> intToString;
+  @endcode
+
+  For some types, it is possible to instantiate an object which incorporates all
+  of the currently convertable fundamental types together. This is sometimes convenient when
+  converting from many different types or if the converter requires a specific piece of
+  machinery. Character strings are the perfect example, as you will often wish to
+  convert from many different formats and because they require a buffer. If the
+  buffer is shared, it saves either expensive instantiations for each conversion type or
+  complicated buffer passing between the converters.
+
+  @code
+  Converter<char*> toCharString;
+  Converter<string> toString;
+  @endcode
+
+  @subsection ConvertersTypeConversion Type Conversion Fallback
+
+  If no specialisation exists, the primary converter template classes will
+  inspect the output type's class definition for a typedef'd converter (in a similar
+  fashion to iterators).
+
+  @subsection ConvertersBufferedTypeConversion Buffered Type Conversion [char*]
+
+  These are a really really fast means of doing conversions to a text
+  format, but they require particular care with buffering and ensuring
+  you do not read past arrays. The default implementation for character
+  strings abstracts this implementation behind a class wrapper. It will set
+  up a buffer and do the buffer manipulation behind the wrapper for you.
+  
+  The conversion algorithm for integral types is hand-specified, so it 
+  avoids the formatting checks made by the other converters. I'd like to
+  do the same for the float types, but haven't managed to implement
+  this well yet, so it defaults back to c's sprintf function, which is 
+  still as fast or faster than most other implementations.
+
+  @code
+  Converter<char*> convertCharString;
+  char* charString;
+  int i = 255;
+
+  charString = toCharString(i);
+  cout << charString << endl;
+  @endcode
+
+  You might be curious where the character string buffer is stored in the above code. In this
+  case, the buffer is stored in the Converter<char*> object. As the character strings
+  are pointing to this buffer, you must ensure that the Converter hangs around long enough
+  to use the result.
+
+  If you wish to reduce the footprint of the converter, you can also manually
+  instruct it to use a buffer of a certain size:
+
+  @code
+  Converter<char*> toCharString(30);
+  @endcode
+
+  Alternatively you can pass the converter an external buffer to use:
+
+  @code
+  char buffer[30];
+  Converter<char*> toCharString1(buffer,buffer+29);
+
+  char *s1,*s2;
+  s1 = buffer+10;
+  s2 = buffer+20;
+  Converter<char*> toCharString1(s1,s2);
+  @endcode
+  
+  Float to char* converters are the one exception in this family, in that they do
+  have a small formatting capability, namely, the number of decimal places which
+  will get converted.
+  
+  @code
+  ecl::Converter<char*,float> converter;
+  std::cout << converter(2.134) << std::endl;    // defaults to as large as needs be
+  std::cout << converter2(2.134,2) << std::endl; // prints only 2.13
+  @endcode
+  
+  Note that if the precision causes the assigned buffer to be exceeded, the 
+  converter will just lop off any extra decimal places of precision.
+
+  @subsection ByteArrayConverters Byte Array Converters
+  
+  These convert to and from byte arrays (char arrays), which are very useful
+  in reading/writing to and from i/o devices. They'll typically work with
+  any container with the usual c++ style handles, though the obvious is for
+  std::vector containers:
+  
+  @code
+  typedef std::vector<unsigned char> ByteArray;
+  Converter< ByteArray, ecl::int32 > toByteArray;
+  ByteArray byte_array(4); // ensure memory reserved matches integral type size
+  // these require a buffer for speed and practicality (aka char string converters)  
+  toByteArray(byte_array, ecl::int32(363)); // converts to 0x6b 0x01 0x00 0x00
+  toByteArray(byte_array, ecl::int32(-2));  // converts to 0xfe 0xff 0xff 0xff
+  Converter< int, ByteArray > fromByteArray;
+  int i = fromByteArray(byte_array);
+  std::cout << std::dec << "i: " << i << std::endl;
+  @endcode
+  
+  @section ConvertersSpeedSection Performance
+
+  Of particular interest is the conversions from a number type to character
+  string as these are used to build up the formatters for use with ecl_streams. 
+  There is a benchmarking program for string conversions in the ecl_core_apps package.
+  
+  In general, the converters outperform sprintf and iostream (simply because
+  no formatting checks are made in most cases), in some cases they outperform
+  these considerably. The only case which is missing is that of an optimised 
+  algorithm for float to char string conversions - it just falls back to 
+  sprintf for now.
+
+  @section ConverterWriting Writing Your Own Converters
+
+  It is impossible to add to the converter families, but it is simple
+  to add specialisations for individual conversions. A typical
+  specialisation would have the following code structure,
+  @code
+  namespace ecl {
+
+  template <>
+  class Converter<Matrix,Vector> {
+      public:
+          inline Matrix operator()(Vector &input) {
+              // implementation
+              return Matrix(M);
+          }
+  };
+  }; // namespace ecl
+  @endcode
+  Usage would be as follows,
+  @code
+  Converter<Matrix,Vector> toMatrix;
+  Converter<string,Matrix> toString;
+
+  string s;
+  Matrix m;
+  Vector v;
+  m = toMatrix(v);
+  s = toString(m);
+  @endcode
+
+  Another alternative is to make use of the default parent template structure,
+  which, in the absence of a specialisation will look in the input type's
+  class definition for a typedef'd Converter.
+
+  The above example is a little contrived as the same effect could be achieved
+  with member functions in the matrix and vector classes. Shims really become
+  useful only when they requires some additional internal structure such as is
+  the case for character string converters - these require initialisation and
+  continued maintenance of an internal buffer.
+
+  @section ConverterList Current List of Fundamental Converters
+
+  The following are listed with the 'to' type on the left and 'from' types on the right.
+
+  - char       : uint
+  - string     : int
+  - char*      : all integer/float types
+  - int        : char, char*, string
+  - char*      : byte array (i.e. byte array to hex string converter)
+  - byte array : char* (i.e. hex string to byte array converter)
+
+\section unitTests Unit Tests
+
+	- src/test/converters.cpp
+	- src/test/byte_array_converters.cpp
+
+\section utilities Utilities
+
+	- ecl_core_apps/src/benchmarks/string_conversions.cpp : benchmarks the speed of char string conversions.
+
+\section ChangeLog
+
+	- <b>Feb 11</b> : moved out from ecl_utilities.
+
+
+*/

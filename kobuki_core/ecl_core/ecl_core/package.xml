@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ecl_core</name>
+  <version>0.61.18</version>
+  <description>
+    A set of tools and interfaces extending the capabilities of c++ to
+    provide a lightweight, consistent interface with a focus for control
+    programming.
+  </description>
+  <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
+  <license>BSD</license>
+  <url type="website">http://www.ros.org/wiki/ecl_core</url>
+  <url type="repository">https://github.com/stonier/ecl_core</url>
+  <url type="bugtracker">https://github.com/stonier/ecl_core/issues</url>
+  <author email="d.stonier@gmail.com">Daniel Stonier</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>ecl_command_line</exec_depend>
+  <exec_depend>ecl_concepts</exec_depend>
+  <exec_depend>ecl_containers</exec_depend>
+  <exec_depend>ecl_converters</exec_depend>
+  <exec_depend>ecl_core_apps</exec_depend>
+  <exec_depend>ecl_devices</exec_depend>
+  <exec_depend>ecl_eigen</exec_depend>
+  <exec_depend>ecl_exceptions</exec_depend>
+  <exec_depend>ecl_formatters</exec_depend>
+  <exec_depend>ecl_geometry</exec_depend>
+  <exec_depend>ecl_ipc</exec_depend>
+  <exec_depend>ecl_linear_algebra</exec_depend>
+  <exec_depend>ecl_math</exec_depend>
+  <exec_depend>ecl_mpl</exec_depend>
+  <exec_depend>ecl_sigslots</exec_depend>
+  <exec_depend>ecl_statistics</exec_depend>
+  <exec_depend>ecl_streams</exec_depend>
+  <exec_depend>ecl_threads</exec_depend>
+  <exec_depend>ecl_time</exec_depend>
+  <exec_depend>ecl_type_traits</exec_depend>
+  <exec_depend>ecl_utilities</exec_depend>
+
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

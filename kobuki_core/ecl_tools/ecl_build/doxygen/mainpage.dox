@@ -1,0 +1,51 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+
+\section packageSummary Package Summary
+
+This has always been in flux - mostly it is used for internal ecl development, but there are a few cmake modules which might be useful.
+
+@section guides Usage Guides
+
+Refer to the ros wiki for more up to date documentation.
+
+The following notes are from the pre-ros move. Depracated.
+
+- @ref cmakeMacroLibraries "CMake Library" - cmake modules to assist in building.
+- @ref makefileLibraryGuide "Makefile Library" - frontends to the ros build system.
+
+@section ChangeLog
+
+@subsection Changes
+
+   - <b>Oct 10</b> : Removal of toolchain/platform related build utilities to eros.
+   - <b>Jul 10</b> : Cmake api overhaul.
+   - <b>Jul 10</b> : Updated FindEcl.cmake module for the new ros structure.
+   - <b>Jul 10</b> : Toolchain module for a arm-unknown-linux-gnueabi.cmake (gentoo crossdev) toolchain.
+   - <b>Jun 10</b> : Compiler version macro in the @ref ecl_platform_detection.cmake "platform detection" cmake macro library.
+   - <b>Jun 10</b> : Toolchain module for code sourcery's arm-none-linux-gnueabi.cmake toolchain.
+   - <b>May 10</b> : Toolchain module for ubuntu's i586-mingw32msvc.cmake toolchain.
+   - <b>May 10</b> : Toolchain module for the i686-pc-mingw32.cmake toolchain.
+   - <b>May 10</b> : An empty platform,Vanilla.cmake for helping ros configurations.
+   - <b>Apr 10</b> : Ros toolchain and platform setup scripts.
+   - <b>Apr 10</b> : Platform modules for AtomN270.cmake and Atom330.cmake boards.
+   - <b>Mar 10</b> : Detection macros for posix in the @ref ecl_platform_detection.cmake "platform detection" cmake macro library.
+   - <b>Feb 10</b> : CMake FindPeekabot.cmake and SummaryPeekabot.cmake" modules.
+   - <b>Feb 10</b> : CMake FindOpenCV.cmake and SummaryOpenCV.cmake modules.
+   - <b>Jan 10</b> : Toolchain module for the i586-moblin-linux.cmake toolchain.
+   - <b>Jan 10</b> : Uninstall macro in the @ref ecl_build_utilities.cmake "build utilities" cmake macro library.
+   - <b>Jan 10</b> : CMake SummaryBoost.cmake module.
+   - <b>Jan 10</b> : CMake FindEcl.cmake and SummaryEcl.cmake  modules.
+   - <b>Aug 09</b> : Platform and toolchain module for the Arm1176jzf-s.cmake core and arm-samsung-linux-gnueabi.cmake toolchain.
+   - <b>Aug 09</b> : Toolchain module for a arm-generic-linux-gnueabi.cmake toolchain.
+   - <b>May 09</b> : CMake FindEigen.cmake and SummaryEigen.cmake modules.
+   - <b>Apr 09</b> : Platform, toolchain and pkg-config scripts added.
+   - <b>Apr 09</b> : Package configured and basic modules added.
+
+@subsection Bugs
+
+   - <b>Jan 10</b> : Toolchains were forcing the cmake_install_prefix, not allowing users to change them.
+
+*/

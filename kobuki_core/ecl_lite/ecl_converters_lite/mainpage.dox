@@ -1,0 +1,60 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+  @section Introduction
+
+  Lightweight converter functions suitable for control firmware
+  develompent.
+  
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/converters_lite.hpp>
+
+	// The converter functions
+	using ecl::from_byte_array;
+	@endcode
+
+  Since it is solely comprised of inline header functions, no linking is required if you are only using this class.
+
+  @section ConvertersUsageSection Usage
+
+  @subsection byteArray Byte Array Converters
+  
+  These convert between integral types and character arrays. This is quite
+  a common operation for control systems which are reading/writing to and
+  from i/o character devices (e.g. serial port).
+  
+  These functions do need some care as you're passing pointers which must
+  be pointing to memory with at least the required number of bytes
+  to do the conversion
+  
+  @code
+  ecl::int32 value;
+  char three_six_three[4] = { 0x6b, 0x01, 0x00, 0x00 };
+  ecl::from_byte_array(value,three_six_three);
+  std::cout << value << std::endl; // prints 363.
+  // ...also unsigned int/char variants.  
+  @endcode
+  
+  @section ConverterList Current List of Converters
+
+  The following are listed with the 'to' type on the left and 'from' types on the right.
+
+  - int32      : byte array (char*, uchar*)
+  - uint32     : byte array (char*, uchar*)
+
+\section unitTests Unit Tests
+
+	- src/test/byte_array.cpp
+
+\section ChangeLog
+
+	- <b>Nar 11</b> : added from_byte_array functions.
+
+
+*/

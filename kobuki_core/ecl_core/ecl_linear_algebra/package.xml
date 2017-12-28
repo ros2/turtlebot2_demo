@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ecl_linear_algebra</name>
+  <version>0.61.18</version>
+  <description>
+     Ecl frontend to a linear matrix package (currently eigen).
+  </description>
+  <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/ecl_linear_algebra</url>
+  <url type="repository">https://github.com/stonier/ecl_core</url>
+  <url type="bugtracker">https://github.com/stonier/ecl_core/issues</url>
+  <author email="d.stonier@gmail.com">Daniel Stonier</author> -->
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>ecl_build</build_depend>
+  <build_depend>ecl_converters</build_depend>
+  <build_depend>ecl_eigen</build_depend>
+  <build_depend>ecl_exceptions</build_depend>
+  <build_depend>ecl_formatters</build_depend>
+  <build_depend>ecl_license</build_depend>
+  <build_depend>ecl_math</build_depend>
+  <build_depend>sophus</build_depend>
+
+  <exec_depend>ecl_build</exec_depend>
+  <exec_depend>ecl_converters</exec_depend>
+  <exec_depend>ecl_eigen</exec_depend>
+  <exec_depend>ecl_exceptions</exec_depend>
+  <exec_depend>ecl_formatters</exec_depend>
+  <exec_depend>ecl_license</exec_depend>
+  <exec_depend>ecl_math</exec_depend>
+  <exec_depend>sophus</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

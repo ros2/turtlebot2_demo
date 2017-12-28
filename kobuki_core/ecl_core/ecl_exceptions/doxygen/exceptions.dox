@@ -1,0 +1,243 @@
+/**
+@page errorsExceptions Exceptions
+
+This guide focuses on the exception classes and macros made available 
+by the ecl to the user. 
+
+@section Introduction
+
+Exceptions are usually avoided in control programs in favour of c style
+error handling (return values) because the stack winding/unwinding
+is too costly an overhead for control/embedded programs. However there are
+some instances where it is useful.
+
+@subsection RAII
+
+Constructors cannot usually provide a means to return with detailed information
+when something goes wrong - however they can with exceptions. This is especially
+useful for raii (resource acquisition is initialisation) classes where a
+class is completely initialised and enabled in the constructor. Since speed is
+not usually of the essence in program configuration and setup (particularly in
+control programs where only the control loop needs to be fast) many classes can
+take advantage of exception handling in their constructors in this phase of the
+program.
+
+@subsection Debugging
+
+Another is to provide a path back up the program heirarchy to ascertain where
+bugs really occurred. Often a macro-function will only give you the
+point of failure, which is usually in a library object somewhere - it
+doesn't let you retrieve where your program caused the failure
+higher up. Throwing, rethrowing and catching exceptions, in debug
+mode, can do this.
+
+However, again, be careful of using exceptions in areas of your code which need
+to be fast. The stack winding <i>will</i> slow your program down.
+
+@section types Exception Types
+
+@subsection Exceptions
+
+@link ecl::StandardException StandardException@endlink fulfills the general exception type 
+used by the ecl. Anywhere you wish to throw this type of exception, you
+throw it by supplying the exception constructor some important information at the
+point of failure.
+
+- LOC, the code location macro stamp defined in ecl_errors.
+- One of the ErrorFlag enum values defined in ecl_errors.
+- Optionally an extra string customised to provide further detail.
+
+@code
+void f(int i) throw(StandardException) {
+    if ( i > 5 ) {
+        throw StandardException(LOC,InvalidInputError,"The maximum input is 5.");
+    }
+}
+@endcode
+Typical output from this will be of the form:
+@verbatim
+Location : /mnt/froody/work/code/cpp/projects/ecl/modules/core/src/tests/exceptions.cpp:154
+         : /mnt/froody/work/code/cpp/projects/ecl/modules/core/src/tests/exceptions.cpp:151
+Flag     : There was a configuration error.
+Detail   : Intentionally throwing in debug mode.
+@endverbatim
+
+If you wish to manually catch and handle them, then you can implement a handler as follows.
+
+@code
+try {
+    f(6);
+} catch ( StandardException &e) {
+    cout << e.what() << endl;
+    if ( e.flag() == ConfigurationError ) {
+        // handle the error here.
+    }
+}
+@endcode
+
+Note the use of the flag handler within the if statement. 
+
+@subsection DataExceptions
+
+Another variant is the data exception which allows an additional data object to be bundled with
+the exception. This is a templatised class. Note, if you're going to output the error
+message, the data object needs to be streamable to the standard output (if not, you will get
+a compile time error).
+
+@code
+    try {
+        throw DataException<int>(LOC, ConfigurationError,"Throwing a data exception with an int.", 7);
+    } catch ( DataException<int> &e ) {
+        std::cout << "Data: " << e.data() << std::endl;
+        std::cout << e.what() << std::endl;
+    }
+@endcode
+
+@subsection posixErrorHandling Posix Error Handling Exceptions
+
+Usually its tedious tracking down the error number and matching it with a particular 
+function call's errors. There is the generic c strerror() function which can match a 
+generic posix errno value with a string, but this is still generic. To make this more
+convenient, the PosixErrorHandler class provides a primary template for posix error 
+number conversions to custom StandardException types that can be thrown. As a fallback
+this will use by default the strerror() function to generate a posix styled StandardException.
+
+The conversion is done via a static function within the specialisation, GenerateStandardException().
+
+Default case example:
+
+@code
+   throw(ecl::PosixErrorHandler<>::GenerateStandardException(LOC));
+@endcode
+
+This automatically collects the current error value stored in the global errno variable and uses
+strerror() to generate a message for the StandardException.
+
+An example of a specialised instance is that used for TimeStamp where the clock_gettime function
+can generate posix errors:
+
+@code
+
+#include <errno.h>
+
+namespace ecl {
+namespace errors {
+
+template<>
+class PosixErrorHandler<ecl::time::TimeStamp> {
+    public:
+        static StandardException GenerateStandardException(const string& loc) {
+        
+        switch (errno) {
+            case ( EINVAL ) : return StandardException(loc, InvalidInputError, "The requested clock is not supported on this system.");
+            case ( EFAULT ) : return StandardException(loc, InvalidInputError, "The timespec pointer points outside the address space.");
+            default         : return StandardException(loc, UnknownError, "Unknown posix error.");
+        }
+   }       
+};
+}
+}
+@endcode
+
+Use as close as possible to the posix function call:
+
+@code
+
+TimeStamp::TimeStamp() debug_throw_decl(ecl::StandardException) {
+    if ( clock_gettime(CLOCK_REALTIME,&time) )
+    {
+        debug_throw(ecl::PosixErrorHandler<TimeStamp>::GenerateStandardException(LOC));
+    }
+}
+@endcode
+
+@section rethrowingSection Rethrowing Exceptions
+
+You can also rethrow a StandardException, useful if you want to track the
+source of the exception as it goes back up the program heirarchy. This is done
+by passing the old exception to the constructor call of a new throw.
+
+@code
+void f(int i) throw(StandardException) {
+    if ( i > 5 ) {
+        throw StandardException(LOC,InvalidInputError,"The maximum input is 5.");
+    }
+}
+
+int main() {
+    try {
+        f(6);
+    } catch (StandardException &e) {
+        cout << e.what() << endl;
+        throw StandardException(LOC,e);  // Rethrow with a new LOC
+    }
+}
+@endcode
+
+@section disabling Disabling Exceptions
+
+@subsection disableExceptions Disabling All Exceptions
+
+Exceptions in any of the ecl libraries can be compiled out by simply passing the 
+-DECL_DISABLE_EXCEPTIONS to cmake when compiling the ecl libraries (not
+your program!). If building in ros you can set this variable in $ROS_ROOT/rosconfig.cmake.
+Note that this variable is picked up by ecl_config where it sets a macro that is used
+throughout by the ecl libraries.
+
+When you disable ecl exceptions, all ecl classes are designed in such a way so that 
+they can gracefully fall back to a lower form of error handling. 
+
+@subsection debugSection Debug Throws
+
+Exceptions can also be enabled exclusively for debug mode (so long as NDEBUG is not defined)
+with the @ref debug_throw and @ref debug_throw_decl macros. When NDEBUG is defined, the
+throw will automatically disappear from the program code.
+
+@code
+void f(int i) debug_throw_decl(StandardException) {
+    if ( i > 5 ) {
+        debug_throw( StandardException(LOC,InvalidInputError,"The maximum input is 5.") );
+    }
+}
+@endcode
+
+Catching can be done with the usual try-catch blocks, but if you want to pre-process this
+code away as well, you can use the debug_try and debug_catch macros.
+
+@code
+	ecl_try {
+		std::cout << "Try" << std::endl;
+		ecl_throw(ecl::StandardException(LOC,ecl::OpenError));
+	} ecl_catch(ecl::StandardException &e) {
+		std::cout << "Catch" << std::endl;
+	}
+@endcode
+
+@subsection assertSection Assert Throws
+
+In addition, you may use the @ref assert_throw  and @ref assert_throw_decl macros
+(a mechanism similar to the run_time_assert function in ecl_errors) as follows:
+@code
+void f(int i) assert_throw_decl(StandardException) {
+    assert_throw( i <= 5, StandardException(LOC,InvalidInputError,"The maximum input is 5.") );
+}
+@endcode
+
+@section errata Design Notes
+
+	The use of exceptions here doesn't exactly conform to the c++ 'ideal' for exception
+	handling in a library. For that you should derive from the stdexcept classes, particularly
+	runtime_error and logic_error and have a single class for each type of error (we've
+	bundled all the ecl standard errors into two classes here - Standard and Data. 	
+	However I can't seem to find a really good reason at this point in time to circumvent
+	the practicality of ecl_exceptions - it's just effectively simple to use for the ecl. I think 
+	this is because the purpose of this library is to present a standard set of error types
+	across platforms, no need to keep making new exception classes for every new class.
+	package or platform implementation in the ecl.
+	
+	The only reason that might motivate a change in policy is if the ecl is used in very
+	heirarchical programs which require floating different exception types to different
+	levels depending on their type (e.g. you might want to catch an _is_busy_ error early
+	and recover, whilst letting a _configuration_error_ float to the top).
+
+**/

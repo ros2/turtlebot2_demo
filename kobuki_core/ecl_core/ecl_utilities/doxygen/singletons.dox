@@ -1,0 +1,61 @@
+/**
+  @page singletonsGuide Guide: Singletons
+
+  @section Overview
+
+  Singletons are a means of ensuring a single, unique copy of an
+  object can ever exist. There are various ways of implementing
+  singletons, the <a href="http://en.wikipedia.org/wiki/Singleton_pattern">wikipedia</a>
+  has a surprisingly good article on singletons and provides a snippet
+  that utilises the curiously recurring template pattern which is used as
+  the derivation for this form of the singleton.
+
+  @section CompilingLinking Compiling & Linking
+
+  Include the following at the top of any translation unit that requires
+  compilation of a singleton derived class.
+  @code
+  #include <ecl/utilities.hpp>
+
+  using ecl::Singleton;
+  @endcode
+
+  Since it is a template class, no linking is required if you are only using this class.
+
+  @section Usage
+
+  @subsection Inheriting
+
+  This singleton is intended to be inherited by a deriving class - this saves
+  the work of actually reinventing the singleton mechanisms whenever you
+  wish to use a singleton.
+
+  @code
+  class TestObject : public ecl::Singleton<TestObject>
+  {
+     friend class ecl::Singleton<TestObject>;
+
+     public:
+         int value() { return data; }
+
+     protected:
+         TestObject() : data(32) {}
+
+     private:
+         int data;
+  };
+  @endcode
+
+  @subsection Calling
+
+  If you use a macro as shown below, the instance can be conveniently and readably accessed,
+
+  @code
+  #define Test TestObject::instance()
+
+  ...
+
+  cout << Test.value() << endl;
+  @endcode
+
+ **/

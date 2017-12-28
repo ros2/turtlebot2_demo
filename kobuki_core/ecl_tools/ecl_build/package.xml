@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ecl_build</name>
+  <version>0.61.7</version>
+  <description>
+     Collection of cmake/make build tools primarily for ecl development itself, but also
+     contains a few cmake modules useful outside of the ecl.
+  </description>
+  <author email="d.stonier@gmail.com">Daniel Stonier</author>
+  <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/ecl_build</url>
+  <url type="repository">https://github.com/stonier/ecl_tools</url>
+  <url type="bugtracker">https://github.com/stonier/ecl_tools/issues</url>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>ecl_license</build_depend>
+  <exec_depend>ecl_license</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

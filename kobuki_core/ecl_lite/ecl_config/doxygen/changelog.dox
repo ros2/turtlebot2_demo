@@ -1,0 +1,22 @@
+/**
+  @page changelog ChangeLog
+
+
+  @section Changes
+
+    - <b>Mar 13</b> : msvc port.
+	- <b>Nov 12</b> : catkinized.
+	- <b>Mar 11</b> : added compile and runtime checks to detect the platform dependant typedef of char.
+	- <b>Feb 11</b> : added a macro allowing for custom ecl configurations to be hand crafted.
+	- <b>Feb 11</b> : new look, streamlined configuration (removed templates and improved macro detection).
+	- <b>Sep 10</b> : Added macros to prevent inlining and mark deprecated code.
+	- <b>Jul 10</b> : Added a platform class for determining characteristics of the platform (e.g. endianness).
+	- <b>May 10</b> : Cmake win32 framework.
+	- <b>Apr 10</b> : utilities for detecting fundamental type sizes and the level of posix on your system.
+	- <b>Apr 09</b> : Integer and Float classes/typedefs/macros.
+	- <b>Apr 09</b> : SizeOf convenience class (for compile time calculations).
+	- <b>Apr 09</b> : Macros for platform capability definitions (defined in ecl.hpp).
+
+  @section Bugs
+
+**/

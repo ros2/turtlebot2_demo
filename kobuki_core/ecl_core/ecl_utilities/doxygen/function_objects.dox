@@ -1,0 +1,153 @@
+/**
+ * @page functionobjectsGuide Guide: Function Objects
+
+  @section Introduction
+
+  Resolving c++ function passing (as arguments to other functions)
+  is complicated by the differences between global/static and member
+  functions as well as by the awkward syntax. Here we attempt to
+  provide a standardised approach to using them.
+  
+  @subsection Definition
+  
+  One way of standardising the approach is to utilise the idea of a
+  function object (also known as functor). A function object is simply
+  an object that characterises a function. In c++, this has three 
+  advantages:
+  
+  - Function code can be inlined (instead of repeated pointer calls) when used repetitively in a loop.
+  - The function object can maintain state, something which pure function callbacks cannot do.
+  - The syntax is much cleaner and more flexible.
+  
+  An example of a unary function object is given below:
+  
+  @code
+  class Sum {
+	int val;
+  public:
+	Sum(int i) :val(i) { }
+	int operator()(int i) { return val+=i; }	// unary function
+  };
+  @endcode
+  
+  We also make a terminology distinction here when distinguishing between <i>free</i> and <i>member</i> 
+  functions. Free functions are defined to be global or static functions.
+
+  @section CompilingLinking Compiling & Linking
+
+  Include some or all of the following at the top of any translation unit that requires
+  compilation of class that uses parameters.
+  @code
+  #include <ecl/utilities.hpp>
+
+  // The classes
+  using ecl::NullaryFunction;
+  using ecl::UnaryFunction;
+  using ecl::BinaryFunction;
+  using ecl::NullaryFreeFunction;
+  using ecl::UnaryFreeFunction;
+  using ecl::BoundUnaryFreeFunction;
+  using ecl::NullaryMemberFunction;
+  using ecl::BoundNullaryMemberFunction;
+  using ecl::UnaryMemberFunction;
+  using ecl::PartiallyBoundUnaryMemberFunction;
+  using ecl::BoundUnaryMemberFunction;
+  using ecl::NullaryFunctionCopy;
+  using ecl::NullaryFunctionReference;
+  using ecl::UnaryFunctionCopy;
+  using ecl::UnaryFunctionReference;
+  
+  // Overloaded utility functions
+  using ecl::generateFunctionObject;
+  @endcode
+
+  Since it is a template class, no linking is required if you are only using this class.
+
+  @section Usage
+  
+  Many of the higher level classes in the ecl utilise function objects, e.g. threads, signals and
+  slots. These classes expect certain concepts to be fulfilled when accepting
+  function objects as arguments and also make use of some of the convenience classes/tools in the above list.
+  
+  @subsection Concepts
+    
+  Classes that accept function objects generally utilise a template parameter and require the 
+  function object to fulfill the requirements of a concept. For example, threads require
+  function objects to satisfy the nullary function concept. The current list of concepts for
+  function objects include:
+  
+  - NullaryFunction
+
+  Documentation for the concepts can be found in the ecl_concepts package.
+  
+  @subsection manualconsSection Creating Your Own Function Objects
+
+  When constructing your own function object classes to be used with higher level ecl components, they
+  must conform to the requirements of their target concept. For example, a suitable thread class 
+  function object:
+  
+  @code
+  class ThreadFunction {
+  public:
+      typedef void result_type;
+      void operator()() {
+          // thread worker function
+      }
+  };
+  ThreadFunction thread_function;
+  Thread thread(thread_function); // Alternatively Thread thread = Thread(ThreadFunction());
+  @endcode
+  
+  @subsection wrappersSection Wrapping Free/Member Functions
+  
+  Wrapping functions can be done via construction calls to many of the classes listed above, however
+  to make it easier, there is the overloaded  
+  @ref ecl::generateFunctionObject "generateFunctionObject" method.  
+  
+  A good example of its usage is with the ecl Thread class where a
+  nullary function object is required for construction.
+  @code
+  int f(int i) {}
+  class A {
+      void f() {}
+      void g(int i) {}
+  };
+  // ...
+  A a;
+  Thread thread0(generateFunctionObject(f, 3));         // Bind the first argument to a global function
+  Thread thread1(generateFunctionObject(&A::f, a));     // Bind an object instance with the nullary function
+  Thread thread2(generateFunctionObject(&A::g, a, 2));  // Bind object instance, first argument to a unary member function
+  @endcode
+  
+  For member functions, in the above code we bound the instance with the member function. Alternatively, you
+  can leave it free so that the following two lines of code produce the same result:
+  
+  @code 
+  generateFunctionObject(&A::f, a)(); // This case produces and calls a nullary function
+  generateFunctionObject(&A::f)(a);   // This case produces and calls a unary function
+  @endcode
+
+  @subsection usageCase Case Scenario : Threads
+  
+  Threads uses the tools here, an example of thread function loading is shown below.
+  @code
+  A a;                             // Just an ordinary class with nullary member f().
+  NullaryFunction function_object; // Conforms to the concept above.
+  Thread thread_f1(f);
+  Thread thread_f2(&A::f,a);
+  Thread thread_f3(generateFunctionObject(f));
+  Thread thread_f4(generateFunctionObject(g,1));
+  Thread thread_f5(generateFunctionObject(&A::f,a));
+  Thread thread_f6(generateFunctionObject(&A::g,a,2));
+  Thread thread_f7(function_object); 
+  Thread thread_f8 = NullaryFunction();
+  Thread thread_f8(ref(function_object));
+  @endcode
+  
+  @section Limitations
+  
+  We only utilise at most one argument to any free/member function. In practice a limit has to be drawn somewhere
+  and I find you can always bundle however many arguments you wish into an appropriately defined structure, 
+  so either none or one is always sufficient for all purposes.
+
+**/

@@ -1,0 +1,21 @@
+/**
+  @page changelog ChangeLog
+
+  @section Changes
+
+	- <b>Apr 10</b> : Now using ecl error handlers, optional exceptions and public/private compilation.
+	- <b>Jan 10</b> : Convenience handle for @ref ecl::SocketClientStream "socket client" streams (also SocketServerStream).
+	- <b>Dec 09</b> : @ref ecl::StringStream "String streaming" with a virtual device buffer.
+	- <b>Dec 09</b> : @ref ecl::LogStream "LogStream" : multi-threaded, multi-mode log streams.
+	- <b>Dec 09</b> : @ref ecl::SharedFileStream "SharedFileStream" : convenience handle for shared file streams.
+	- <b>Nov 09</b> : Definition for the @ref ecl::ClearScreen "clrscr" manipulator.
+	- <b>Nov 09</b> : Definition for the @ref ecl::EndOfLine "endl" manipulator.
+	- <b>Nov 09</b> : Parent template for stream @ref ecl::Manipulator "manipulators".
+	- <b>Nov 09</b> : Convenience handle for @ref ecl::SerialStream "SerialStream" "serial streams".
+	- <b>Nov 09</b> : Convenience handle for output @ref ecl::OFileStream "file streams".
+	- <b>Nov 09</b> : Convenience handle for a @ref ecl::EConsoleStream "standard error" stream.
+	- <b>Nov 09</b> : Convenience handle for a @ref ecl::IConsoleStream "standard input" stream.
+	- <b>Nov 09</b> : Convenience handle for a @ref ecl::OConsoleStream "standard output" stream.
+	- <b>Nov 09</b> : Generic @ref ecl::TextStream "input-output" streaming from ecl devices.
+
+**/

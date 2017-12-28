@@ -1,0 +1,97 @@
+/**
+ * @page parametersGuide Guide: Parameters
+
+  @section Introduction
+
+  Parameter types substitute the basic types for a more convenient
+  templatised structure when used within a class. Ideally the only
+  way any member variable should be modified is via member functions
+  of the class itself. When you start allowing member variables to
+  be extracted and modified outside a class, you inevitably lose
+  control of the class (and in practice this happens by lazy/tired
+  programmers more often than not) and bugs start creeping in.
+
+  The usual way to implement this is with get and set methods
+  providing access. However, this can get somewhat verbose for
+  simple classes:
+
+  @code
+  class A {
+      public:
+          A() {};
+
+          int getCounter() const { return m_counter; }
+          void setCounter (const int& counter) { m_counter = counter; }
+
+      private:
+          int m_counter;
+  };
+  @endcode
+
+  This can be simplified with the use of templates
+  and the () operator resulting in the Parameter class defined here.
+
+  @section CompilingLinking Compiling & Linking
+
+  Include the following at the top of any translation unit that requires
+  compilation of class that uses parameters.
+  @code
+  #include <ecl/utilities.hpp>
+
+  using ecl::Parameter;
+  @endcode
+
+  Since it is a template class, no linking is required if you are only using this class.
+
+  @section Usage
+
+  @subsection Parameters
+
+  The parameter implementation of a class A (compare with the set/get implementation
+  described earlier) looks like:
+  
+  class A {
+      public:
+          A() {};
+
+          Parameter<int> counter;
+  };
+  @endcode
+  Here access to the variable is done very similarly (but without the
+  verbosity of set/get).
+  @code
+
+  int main() {
+      A a;
+      a.counter(1); // <-- Sets the variable
+      cout << a.counter(); << endl; // <-- Gets the variable
+  }
+  @endcode
+
+  Note that even though Parameter<int> is defined publicly, the contents are
+  still privately allocated, but here they are tucked away in Parameter's internal
+  implementation.
+
+  @subsection Convenience
+
+  There are also convenience methods if the above usage is undesirable.
+
+  @code
+  a.counter = 1;
+  int a_copy = a.counter;
+  @endcode
+
+  The difference between these and public variables is that these can never be
+  set outside of the class. The reason - regualar public variables can be hooked by a
+  pointer/reference and then passed off to another function where the variable can be
+  modified...well outside of the control of the original class. In this case here,
+  the only hooks that can be made to the variable are const pointers or const
+  references. Thus, even though the notation is the same, these parameter variables
+  are protected by their constness.
+
+  @section Examples
+
+  - src/test/parameters.cpp
+
+
+**/

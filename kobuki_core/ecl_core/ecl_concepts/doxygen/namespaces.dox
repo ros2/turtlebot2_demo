@@ -1,0 +1,22 @@
+/**
+ * @namespace ecl
+ *
+ * @brief Embedded control libraries.
+ * 
+ * Various core libraries useful for embedded control systems.
+ **/
+/**
+ * @namespace ecl::concepts
+ *
+ * @brief Supporting elements and interfaces.
+ *
+ * These provide support for the elements in this package. They are not
+ * intended to be directly visible to the user. 
+ **/
+/**
+ * @namespace ecl::concepts::tests
+ *
+ * @brief Frameworks created for the unit tests.
+ *
+ * Includes everything that was also added for compiling the unit tests.
+ **/

@@ -1,0 +1,15 @@
+/**
+  @page changelog ChangeLog
+
+  @section Changes
+
+    - <b>Apr 11</b> : Updated for better exception handling, low level functionality moved to ecl_time_lite.
+	- <b>Sep 10</b> : CpuWatch for systems with rt timers.
+	- <b>May 10</b> : Timestamp win32 implementation.
+	- <b>May 10</b> : Cmake win32 framework.
+	- <b>Feb 10</b> : Improved the @ref ecl::Sleep "sleep" interface to allow for preconfigured sleeps (faster).
+	- <b>Dec 09</b> : Provide absolute timing on periodic loops with the @ref ecl::Snooze "Snooze" class.
+	- <b>May 09</b> : Emulate @ref ecl::StopWatch "stopwatch" functionalities (start, stop, elapsed, split).
+	- <b>May 09</b> : Records system time/express the concept of durations with @ref ecl::TimeStamp "timestamps".
+
+**/

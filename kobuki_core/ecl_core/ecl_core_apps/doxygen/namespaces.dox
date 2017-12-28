@@ -1,0 +1,29 @@
+**
+ * @namespace ecl
+ *
+ * @brief Embedded control libraries.
+ * 
+ * Various core libraries useful for embedded control systems.
+ **/
+/**
+ * @namespace ecl::benchmarks
+ *
+ * @brief Benchmark tests.
+ *
+ * These programs benchmark useful features in the ecl, eigen and the embedded platform.
+ **/
+/**
+ * @namespace ecl::demos
+ *
+ * @brief Demo programs.
+ *
+ * These programs demo usage of various ecl modules/classes.
+ **/
+/**
+ * @namespace ecl::utils
+ *
+ * @brief Utility programs.
+ *
+ * Programs that are useful as tools for devleping on embedded systems.
+ **/
+ 

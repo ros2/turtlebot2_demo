@@ -1,0 +1,19 @@
+/**
+  @page changelogConcepts ChangeLog
+
+  @section Changes
+
+	- <b> Feb 11</b> : Testing class for dynamic containers.
+	- <b> Oct 10</b> : Testing class added for ecl compatible input, output and input-output devices.
+	- <b> Jul 09</b> : Testing class for nullary funciton objects.
+	- <b> Jul 09</b> : Testing class for ecl and std streams.
+	- <b> May 09</b> : Testing class for blueprint instantiation.
+	- <b> May 09</b> : Testing class for simple containers and byte containers.
+	- <b> May 09</b> : Macros : tools for simple concept checking finalised.
+
+  @section Bugs
+
+    - <b> Feb 11</b> : Fixed the byte tests in the container concept to handle platform dependant typedef'ing of char.
+    - <b> Jul 09</b> : Non-uniqueness problem when using the concept check twice in a program. Added a unique macro to fix.
+
+**/

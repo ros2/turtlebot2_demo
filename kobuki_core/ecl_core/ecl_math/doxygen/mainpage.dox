@@ -1,0 +1,62 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	This group includes various mathematical macros, constants and utility
+	functions/functors.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/math.hpp>
+
+	// constants
+	using ecl::pi; // also pi_2, pi_4
+	
+	// simple functions
+	using ecl::EuclideanNorm;
+	using ecl::isApprox;
+	using ecl::isApproxOrLessThan;
+	using ecl::sign; // also psign 
+	using ecl::cube_root; // only for real numbers/solutions
+	@endcode
+
+	Since it is a collection of macros and headers only, no linking
+	is required if you are only utilising this functionality.
+
+\section usage Usage
+
+	@subsection piSection Macros for PI
+
+		Usually there will always be macros for pi defined in <i>math.h</i>, namely
+		M_PI, M_PI_2, etc... (sometimes they're unavailable, e.g. windoze!).
+		For typesafe definitions, the ecl defines a couple of these similarly in
+		the ecl::math namespace.
+
+	@subsection functionsSection Simple Functions
+
+		Various regularly used functions are also present - usually in the form
+		of functors (useful for passing around should it ever be necessary).
+
+		- ecl::EuclideanNorm
+		- ecl::isApprox
+		- ecl::isApproxOrLessThan
+
+\section unitTests Unit Tests
+
+	- /src/test/constants.cpp
+	- /src/test/fuzzy.cpp
+	- /src/test/norms.cpp
+
+\section ChangeLog
+
+    - <b>Dec 10</b> : fuzzy math.
+    - <b>Sep 10</b> : better detection/setting of pi constants on posix/non-posix platforms.
+	- <b>Feb 10</b> : @ref ecl::EuclideanNorm "Euclidean norm" functor (currently only l2 norm).
+	- <b>May 09</b> : Macros for pi undefined and c++ style @ref ecl::pi "pi" constants made available.
+*/

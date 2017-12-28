@@ -1,0 +1,232 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+The containers included here are intended to extend the stl containers
+in a way that provides features not included in the stl
+or to provide alternatives for stl containers that have
+been designed for convenience, not speed. Here the emphasis is on
+speed first, and c++ conveniences second.
+
+@section CompilingLinking Compiling & Linking
+
+Include the following at the top of any translation unit which
+requires this library:
+
+@code
+#include <ecl/containers.hpp>
+
+// The container types
+using ecl::Array;
+using ecl::Stencil;
+using ecl::FiFo
+using ecl::PushAndPop;
+@endcode
+
+These classes are template classes, so no linking is required for these interfaces.
+
+\section usage Usage
+
+@subsection fixedArrays Fixed Arrays
+
+Arrays provide a fixed size container (enabled via a template parameter)
+that can be saved as contiguous memory on the stack. This is in contrast to
+typical stl containers that are dynamic and thus use the heap for storage, which
+is much slower (on my dual-core, often about 10% slower for access methods and
+up to 500% slower for construction).
+
+It provides all the usual stl iterators associated with the object, as well
+as many of the access methods excepting the size-changing ones. There are, however
+a couple of features of arrays that stand out from stl containers.
+
+<b>Comma Initialisation</b>
+
+This concept is brought in (with slightly modified form) from Blitz++ and Eigen.
+It enables initialisation via the comma operator.
+@code
+ecl::Array<int,5> array; // be careful, at this point, the contents are uninitialised.
+array << 1,2,3,4,5;      // comma initialisation
+@endcode
+
+Comman initialisers will throw an exception if the range is exceeded in debug mode 
+(beware release mode!).
+
+<b>BluePrint Instantiations</b>
+
+These provide an efficient means of instantiating array classes without a costly
+copy-on-the-fly slowdown. It uses a blueprint coupled with what is referred to as a
+blueprint factory to do this (refer to ecl_concepts for more details.). 
+However, the construction makes the usage of this transparent.
+
+@code
+Array<int,5> array = Array<int,5>::Constant(3); // construction.
+array = Array<int,5>::Constant(3);              // assignment, no costly copy operation used.
+@endcode
+
+@subsection dynamicArrays Dynamic Arrays
+
+These arrays are almost exactly the same as the former fixed arrays, however they
+are dynamically sizeable (though not as automatically nor flexibly as vectors) with their
+storage on the heap, not the stack. The lack of flexibility isn't a serious disadvantage
+as a control program should generally manage vector memory careful (read, manually!)
+anyway. Their other feature is again, like the fixed arrays, the comma initialiser.
+
+@code
+Array<int> array1;    // Note the similarity to fixed arrays - no storage allocated with this constructor!
+Array<int> array2(4); // Initialise a vector with storage space for four integers.
+Array<int> array3 = Array<int>::Constant(4,3); // Initialise space for four integers filled with a value of 3.
+
+array1.clear();       // Clear - blows away the previous contents and leaves the buffer pointing to NULL.
+array1.resize(10);    // Resize - blows away previous contents and leaves values uninitialised.
+@endcode
+
+@subsection bufferOverflowSection Buffer Overflow Detection
+
+Arrays also provide a feature to allow for buffer overflow checking - for both fixed and dynamic arrays.
+Often programs pull pointers to various elements on the contiguous array (especially
+in really low level routines like vision routines), it is important to know when the stack or heap is
+being under or over run. Such functionality can be enabled by declaring the ECL_MEM_CHECK_ARRAYS
+macro when compiling (maybe later I'll bring this in as a template parameter).
+
+Internally, this entails pre/appending some magic characters to the underlying array and then
+occasionally performing manual checks to ensure that the magic chars haven't been disturbed.
+
+@code
+#define ECL_MEM_CHECK_ARRAYS
+
+Array<int,4> array; array << 1, 2, 3, 4;
+while ( control_loop_running ) {
+
+	int* istart = array[0];
+
+	// send istart off to do some work elsewhere, possibly overrunning or underrunning.
+	// ...
+
+	if ( array.bufferUnderRun() ) { std::cout << "WARNING! We have an underrun problem houston!" << std::endl; }
+	if ( array.bufferOverRun() ) { std::cout << "WARNING! We have an overrun problem houston!" << std::endl; }
+	if ( array.bufferOverFlow() ) { std::cout << "WARNING! We have an unknown problem houston!" << std::endl; }
+}
+@endcode
+
+@subsection Stencils
+
+Often you require a window onto a container (array) and stencils provide a safe way to do this. It
+avoids the use of dangerous pointers which can cause problems if the underlying container
+goes out of scope or is resized. It does this by including the underlying container as a
+reference and also includes similar out of range checks that arrays perform (exception throwing
+in debug mode for [] and always for at()).
+
+@code
+typedef Array<int,5> FixedArray;
+typedef Stencil< FixedArray > FixedStencil;
+
+FixedArray array;
+array << 1,2,3,4,5;
+FixedStencil stencil(array,1,3); // windows from index 1 to 3
+std::cout << stencil[1] << std::endl; // accesses array[2];
+@endcode
+
+@subsection Fifo
+   
+During the construction of fifo, typically length of buffer may be important.
+   
+@code
+FiFo<double> fifo(4);               // reserved only (not filled)
+fifo.push_back( data_incoming );	
+@endcode
+   
+An initialised buffer can be important in variaous situation. For example, if you wish 
+to calculate a moving average, you should wait for N (length of buffer) pieces of
+incoming of data. However, if you initialise the whole buffer as above, you can
+proceed immediately.
+   
+@code
+FiFo<double> fifo_initialised(4, initial_value); // reserved and filled
+fifo.push_back( next_data );		// set next data
+// ... 								// calculate the average here
+@endcode
+	
+@subsection converters Byte Array Converters
+
+Some converters utilising ecl::converters::FromByteArray are enabled for arrays and stencils respectively.
+These allow conversion to integers of any time from a corresponding, little endian filled 
+array/stencil of chars.
+    
+@code
+typedef Array<char, 4> ByteArray;
+ByteArray byte_array;
+byte_array << 0x01, 0x02, 0x03;
+ecl::Converter<int,ByteStencil> toInt;
+std::cout << "Conversion: " << toInt(byte_array) << std::endl; // results in 197121
+std::cout << "Conversion: " << toInt(byte_array.stencil(0,2)) << std::endl; // only first two bytes -> 513
+@endcode
+
+and going the other way, we pass it the byte array for storage when converting (works on both
+arrays and stencils)...
+
+@code
+Array<char,20> byte_array = Array<char,20>::Constant(0x00);
+Stencil< Array<char, 20> > stencil = byte_array.stencil(2,4);
+ecl::Converter< Stencil< Array<char, 20> >, ecl::int32 > fromInt;
+fromInt(stencil, ecl::int32(197121));
+std::cout << byte_array << std::endl;    // 0x00, 0x00, 0x01, 0x02, 0x03, 0x00, 0x00, 0x00, ...
+std::cout << stencil << std::endl;       // 0x01, 0x02, 0x03, 0x00
+@endcode
+    
+@subsection Formatters
+
+Currently there is only formatters for the array and stencil classes classes which do:
+
+- precision/width formatting for float arrays.
+- hex formatting for byte arrays (signed char/char/unsigned char).
+- default formatting for other types of arrays (provided they have the required Format for the element type).
+- formatting extends to stencils operating on the array.
+    
+@code
+#include <ecl/array.hpp>
+
+Array<unsigned char>::Formatter format;
+Array<unsigned char> array;
+array << 0x01, 0x02, 0x03, 0x04;
+std::cout << format(array) << std::endl;
+// OR  
+#include <ecl/array.hpp>
+#include <ecl/format.hpp>
+
+Format< Array<unsigned char> > format;
+Array<unsigned char> array;
+array << 0x01, 0x02, 0x03, 0x04;
+std::cout << format(array) << std::endl;
+@endcode
+	    
+\section utilities Examples
+
+- src/examples/array_formatters.cpp
+
+\section unitTests Unit Tests
+
+- src/test/arrays.cpp
+- src/test/arrays_mem_check.cpp
+- src/test/converters.cpp
+- src/test/stencil.cpp
+- src/test/fifo.cpp
+
+\section utilities Utilities
+
+- /ecl_benchmarks/src/bench_containers.cpp : benchmarks various container latencies.
+
+\section ChangeLog
+
+- <b>Mar 11</b> : finally got the byte array converters working properly.
+- <b>Sep 10</b> : moved the container formatter classes here from ecl_formatters.
+- <b>Aug 10</b> : Converter for a byte array (char) to integral type converter.
+- <b>Aug 10</b> : @ref ecl::FiFo "FiFo" provides a simple rotating array.
+- <b>Mar 10</b> : @ref ecl::Stencil "Stencils" provides a safe means to open a window on top of an underlying container.
+- <b>Jan 10</b> : @ref ecl::Array "Arrays" can do buffer overflow checking using ECL_MEM_CHECK_ARRAYS.
+- <b>May 09</b> : @ref ecl::Array<Type,Dynamic> "Dynamic Arrays" on the heap with a few bells and whistles.
+- <b>May 09</b> : @ref ecl::blueprints::ConstantArray "Constant Array" : blueprints for arrays filled with a single value.
+- <b>May 09</b> : @ref ecl::Array "Fixed Arrays" on the stack with a few bells and whistles.
+
+*/

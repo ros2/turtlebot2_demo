@@ -1,0 +1,23 @@
+/**
+
+@page enFtdiGuide Working with FTDI
+
+@section ftdiOverview Overview
+
+Kobuki provides two different interfaces for communication with host(e.g. Netbook), USB and Serial port however both utilise the
+<a href="http://en.wikipedia.org/wiki/RS-232">RS-232</a> <a href="http://en.wikipedia.org/wiki/Serial_communication">serial communication</a>
+mechanisms.
+
+For the USB connection, Kobuki uses a `USB to serial converter` internally, <a href="http://www.ftdichip.com">FTDI</a>'s
+<a href="http://www.ftdichip.com/Products/ICs/FT232R.htm">FT232R</a>. By using this chip, kobuki and host can communicate over USB interface.
+This will ordinarily make the kobuki device appear on COMN, ttyUSBN where N represents the N'th such device to connect. Since this
+can be non-constant if you are connecting several devices, you can (in linux) apply a udev rule:
+
+\code{.py}
+  cd kobuki_ftdi
+  make udev
+\endcode
+
+This will ensure that the kobuki will always show up on <b>/dev/kobuki</b>.
+
+**/

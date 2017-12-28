@@ -1,0 +1,69 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Various representations and transforms relevant to mobile robot
+	platforms.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/mobile_robot.hpp>
+
+	// The error interfaces
+	using ecl::Pose;
+	using ecl::DifferentialDrive;
+	@endcode
+
+	You will also need to link to <i>-lecl_mobile_robot</i>.
+
+\section usage Usage
+
+	@subsection Pose
+
+		This is the classical definition for a mobile robot's state in
+		a 2D world - [ x, y, heading ].
+
+		This class provides a convenient c++ container style interface
+		as well as a few mathematical operators for calculating
+		relative poses (differentials).
+
+		@code
+		Pose pose1, pose2;
+		pose1 << 0,0,Math::pi/2; // comma initialisation
+		std::cout << pose.x() << pose.y() << pose.heading(); // readable access
+		std::cout << pose[0] << pose[1] << pose[1];          // vector style access
+		Pose pose3 = pose1 + pose2; // pose + relative pose
+		pose1 += pose2;             // pose1 + relative pose
+		pose3 = pose1 - pose2;      // calculates pose2 rel pose1
+		@endcode
+
+
+	@subsection DifferentialDrive
+
+		Currently there is only the diff drive kinematics class. This
+		provides functions for forward and inverse kinematics on a
+		differential drive type robot.
+
+		@code
+		DifferentialDrive::Kinematics kinematics(0.1,0.5,0.05); // fixed axis length, centre offset, wheel radius
+		Pose dpose = kinematics.forward(0.2, 0.1); // left and right wheel angle updates -> differential pose
+		Vector2d wheel_vels = kinematics.inverse(0.1, 0.05); // linear/angular velocites -> left/right wheel angular rates
+		Vector2d vels = Kinematics::Inverse(pose1,pose2); // orig and final pose -> linear/angular platform velocities
+		@endcode
+
+\section unitTests Unit Tests & Sample Code
+
+	- src/sample/pose.cpp
+
+\section ChangeLog
+
+	- <b>May 10</b> : extended and fully road-tested pose and differential drive interfaces.
+	- <b>Jan 10</b> : added transforms used by the iclebo mobile platform (diff drive).
+
+*/
