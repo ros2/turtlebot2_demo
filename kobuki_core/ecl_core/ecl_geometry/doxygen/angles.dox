@@ -1,0 +1,59 @@
+/**
+  @page anglesGuide Angles
+
+  @section Introduction
+
+  Simplifies the calls to angle-related functions such as angle wrapping, degree-radian
+  conversions, rotation matrix representations.
+
+  @section CompilingLinking Compiling & Linking
+
+  Include the following at the top of any translation unit that uses
+  geometry functions or classes.
+  
+  @code
+  #include <ecl/geometry/angle.hpp>
+
+  using ecl::Angle;
+  using ecl::wrap_angle;
+  @endcode
+
+  You will also need to link to <i>-lecl_geometry</i>.
+  
+  @section Usage
+  
+  @subsection Functions
+  
+  For those who prefer to use function based libraries, the ecl::wrap_angle function can
+  be used to operate on simple float types.
+  
+  @code
+  double angle = wrap_angle(3.33);
+  @endcode 
+ 
+  For conversions:
+  
+  @code
+  double rads = radians_to_degrees(1.44);
+  double degrees = degrees_to_radians(rads);
+  @endcode
+  
+  @subsection Classes
+  
+  The angle class is a convenience class that automates storage and angle wrapping for
+  you. It uses by default, radians (which any good engineer/mathematician should default to!).
+  Take this into consideration if using it where speed is of the essence. That is, 
+  don't use Angle and then do all your calculations in degrees - there will be alot of copying!
+  
+  @code
+  Angle<double> a(3.33); // automatically wraps on -pi:pi 
+  double degrees = a.degrees();
+  Angle<double> b = a + 3.24; // again, will automatically wrap the answer.
+  Angle<double>::RotationMatrix matrix = a.rotationMatrix(); // currently using a 2d eigen matrix.
+  @endcode
+  
+@section unitTests Unit Tests
+
+	- src/test/angles.cpp
+
+**/

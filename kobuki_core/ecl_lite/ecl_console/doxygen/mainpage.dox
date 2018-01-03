@@ -1,0 +1,45 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Provides a ansii colour library for the ansii console.
+
+
+@section CompilingLinking Compiling & Linking
+
+	Just include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/console.hpp>
+    
+    // Interface classes
+    using ecl::CmdLine;
+    using ecl::ArgException
+    // Argument classes
+    using ecl::SwitchArg;
+    using ecl::ValueArg;
+    using ecl::MultiArg;
+    using ecl::UnlabeledValueArg; 
+    using ecl::UnlabeledMultiArg; // there are more - see tclap docs
+	@endcode
+
+
+	Since it is a template header library, no linking is required if you are
+	only using these classes.
+
+\section usage Usage
+
+  @section extraHelp Further Help (termcolor)
+
+  Most of termcolor's doxygen is generated automatically inside the ecl. For more detailed
+  documentation, read the <a href="http://termcolor.readthedocs.org/en/latest/">manual</a> at
+  readthedocs home page.
+
+\section ChangeLog
+
+	- <b>Oct 15</b> : initial import of the termcolor headers.
+
+*/

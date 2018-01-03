@@ -1,0 +1,220 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Classes, representations and methods for manipulation of matrices.
+
+	@subsection otherLibraries Other Libraries
+
+		- BLAS : fast, but awkward c library, often used as the backend for other c++ libraries.
+		- BOOST : uses blas, main focus is c++ correctness and versatility of matrix types, not speed.
+		- BLITZ++ : containers only, uses template tricks, but almost discontinued.
+		- MKL : uses blas and focuses on multi-threading and multi-core performance specialised for intel chips.
+		- TVMET : optimised for low-order matrices through heavy use of template tricks.
+
+		The c++ libraries are all hobbled in one way or another. Most can't deal with aliasing intelligently,
+		leaving it up to the user to handle that facet of matrix manipulation. They often use template
+		expressions also, which is great for speeding up operations, but matrix multiplication regularly
+		gets confused and bogged down - another thing that is left to the user to handle.
+
+		Eigen is the new kid on the block and the one that
+		is used here. It handles aliasing and nested matrix multiplication without a problem,
+		includes important linear algebra modules (i.e. not just containers) and prioritises speed first,
+		then c++ conveniences (but still manages to be more convenient than ublas!).
+
+@section Prerequisites
+
+    Using ros eigen now, but you can also opt to use the internal ecl_eigen.
+
+@section CompilingLinking Compiling & Linking
+
+	@code
+	// If you want to use the internal eigen
+	// #define ECL_EIGEN_IS_INTERNAL
+	
+	// This brings in the whole library
+	#include <ecl/linear_algebra.hpp>
+	
+	// These calls bring in the individual modules
+    #include <ecl/linear_algebra/core.hpp>
+	#include <ecl/linear_algebra/cholesky.hpp>
+	#include <ecl/linear_algebra/dense.hpp>
+	#include <ecl/linear_algebra/eigenvalues.hpp>
+	#include <ecl/linear_algebra/geometry.hpp>
+	#include <ecl/linear_algebra/householder.hpp>
+	#include <ecl/linear_algebra/jacobi.hpp>
+	#include <ecl/linear_algebra/lu.hpp>
+	#include <ecl/linear_algebra/qr.hpp>
+    #include <ecl/linear_algebra/qtalignedmalloc.hpp>
+	#include <ecl/linear_algebra/sparse.hpp>
+    #include <ecl/linear_algebra/stddeque.hpp>
+	#include <ecl/linear_algebra/stdlist.hpp>
+	#include <ecl/linear_algebra/stdvector.hpp>
+	#include <ecl/linear_algebra/svd.hpp>
+	
+	// There will also be some unsupported modules in ecl/linear_algebra/unsupported.
+	#include <ecl/linear_algebra/unsupported/nonlinear_optimization.hpp>
+	#include <ecl/linear_algebra/unsupported/numerical_diff.hpp>
+	
+	// Aliasing the Eigen namespace (for convenience)
+	using namespace ecl::linear_algebra
+	@endcode
+
+	Note that the namespace is simply an alias to the Eigen namespace. You can use either
+	namespace, however the ecl namespace is preferred so its clear we're using our 
+	extended interface (via the eigen plugins).
+	
+	Since eigen is a template class, no linking is required if you are only using eigen's classes.
+
+@section usage Usage
+
+@subsection Eigen
+
+    The following are some important links for us back to the eigen documentation:
+
+    - <a href="http://eigen.tuxfamily.org/dox-devel/">Documentation Frontend</a>
+    - <a href="http://eigen.tuxfamily.org/dox-devel/TopicLazyEvaluation.html">Lazy Evaluation</a>
+    - <a href="http://eigen.tuxfamily.org/dox-devel/TopicWritingEfficientProductExpression.html">Writing Optimised Expressions</a>
+    - <a href="http://eigen.tuxfamily.org/dox-devel/TopicLinearAlgebraDecompositions.html">Decompositions Overview</a>
+    - <a href="http://eigen.tuxfamily.org/dox-devel/TopicStructHavingEigenMembers.html">Modifications needed for Classes with Eigen Members</a>
+    - <a href="http://eigen.tuxfamily.org/dox-devel/TopicStlContainers.html">Stl containers and eigen</a>
+
+	Some important points to note (more detailed notes regarding some eigen specific issues further below):
+
+	- Matrices/Vectors of all types are built from the one base class.
+	- Typedefs exist for all common forms of matrices and vectors (important for vectors as there is no Vector class).
+
+	The ecl supplements the eigen library with a few extras features.
+
+@subsection eigenPlugin Eigen Plugin
+
+	The eigen matrixbase class provides a way to extend its api via a macro-based plugin. The trick is enabled
+	by the following code in eigen's MatrixBase class:
+
+	@code
+	class MatrixBase {
+	  // ...
+	  #ifdef EIGEN_MATRIXBASE_PLUGIN
+	  #include EIGEN_MATRIXBASE_PLUGIN
+	  #endif
+	};
+	@endcode
+
+	Here we take advantage of it to add the following api:
+
+	- conservativeResize(int rows, int cols) : matrix resizing, carrying over existing elements
+	- conservativeResize(int rows) : vector resizing, carrying over existing elements
+
+	This will be brought in if you do one of the following <i>before</i> you include any eigen
+	headers:
+
+	@code
+	#define EIGEN_MATRIXBASE_PLUGIN <ecl/linear_algebra/eigen_plugin.hpp>
+	// OR the ecl bundle
+	#include <ecl/linear_algebra.hpp>
+	// OR any one of the ecl-eigen3 modules
+	#include <ecl/linear_algebra/core.hpp>
+	@endcode
+
+	Note that if you wish to customise the eigen plugin differently, simply define the macro,
+	pointing it at your own customisation before including ecl/linear_algebra.hpp. The ecl plugin
+	makes a check and won't override any existing definitions.
+
+@subsection Alignment
+
+    You have to be very careful with eigen to make sure alignment works properly. This is a bit
+    of a pain in the bum, but will result in hardware speedups. If you see the following error
+    message
+    
+    @code
+    /opt/ros/ecl/ecl_core/ecl_linear_algebra/include/ecl/Eigen2/src/Core/MatrixStorage.h:44: 
+    Eigen::ei_matrix_array<T, Size, MatrixOptions, Align>::ei_matrix_array() [with T = double, 
+    int Size = 4, int MatrixOptions = 2, bool Align = true]: Assertion 
+    `(reinterpret_cast<size_t>(array) & 0xf) == 0 && "this assertion is explained here: 
+    http://eigen.tuxfamily.org/dox/UnalignedArrayAssert.html  **** READ THIS WEB PAGE !!! ****"' 
+    failed.
+    @endcode
+    
+    its probably because you need to fix your storage mechanism for classes with eigen 
+    vectors inside them. See that web page for more detail and/or run gdb on your program to see
+    where the compile time assert triggered.
+    
+    Usual scenario - you have used an eigen type of fixed size as a storage container 
+    embeddded inside a class or struct, or inherited a class that does so.
+    
+    - only for fixed size eigen types
+    - fixed size eigen type is inside the class or inside an inherited class
+    
+    In this situation, you need to add the following macro to the public section
+    of the class <i>as well as</i> each class that inherits this class.
+    
+    @code
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    @endcode
+    
+@subsection stdVector Std Vector
+
+    If always calling linear_algebra.hpp to access eigen, it will bring in Eigen's NewStdVector 
+    implementation. This will use it for eigen types and default to the original std vector for
+    other types, but there's one caveat. For eigen to distinguish, you need to specify the 
+    vector allocator.
+    
+	@code
+	#include <ecl/linear_algebra.hpp>
+	
+	int main(int argc, char **argv) {
+	
+		std::vector< Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > vv; // eigen's std vector implementation
+		std::vector<double> vd; // std's vector implementation
+		
+		Eigen::Vector2d v; v << 1,2;
+		vv.push_back(v); vv.push_back(v);
+		std::cout << vv[0] << std::endl;
+		
+		return 0;
+	}
+
+	@endcode
+
+	If you do not include it, you will see the usual compile time alignment warning that Eigen loves.
+
+@subsection Formatters
+
+	Formatters have been included in the plugin for float and double type matrices 
+	(may expand to integral types later if we need them). This is achieved by use of the ecl_formatters
+	framework.
+
+	There are several ways you can call these formatters, the most convenient methods are outlined below:
+
+	@code
+	#include <linear_algebra.hpp>
+	Matrix2d m; m << 1.0, 2.0, 3.0, 4.0;
+	Matrix2d::Formatter formatter(3,6); // prec 3, width 6
+	formatter.precision(2); formatter.width(5);
+	std::cout << formatter(m) << std::cout;     // format using the stored settings
+	std::cout << formatter(m,3,6) << std::cout; // format using one-shot settings
+	@endcode
+
+	@code
+	#include <ecl/formatters.hpp>
+	#include <ecl/linear_algebra.hpp>
+	Matrix2d m; m << 1.0, 2.0, 3.0, 4.0;
+	Format<Matrix2d> format(3,6); // prec 3, width 6
+	format.precision(2); format.width(5);
+	std::cout << format(m) << std::cout;     // format using the stored settings
+	std::cout << format(m,3,6) << std::cout; // format using one-shot settings
+	@endcode
+
+\section ChangeLog
+
+    - <b>Mar 12</b> : depracated Eigen3.
+    - <b>Dec 10</b> : switched the default to eigen3, also brought in unsupported modules for numerical differentiation and nonlinear optimisation.
+    - <b>Sep 10</b> : added a formatter for float type matrices with precision and width control.
+    - <b>Aug 10</b> : incorporated the new std vector implementation explicitly in linear_algebra.hpp.
+    - <b>Jul 10</b> : embedded the eigen3 library in the ecl.
+    - <b>May 10</b> : embedded the eigen2 library in the ecl.
+    - <b>Oct 09</b> : conservative resizing functions added to the eigen plugin.
+    - <b>May 09</b> : namespace alias to eigen set up.
+*/

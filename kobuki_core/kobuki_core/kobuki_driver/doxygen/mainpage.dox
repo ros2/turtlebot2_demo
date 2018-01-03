@@ -1,0 +1,15 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+We are currently only supporting english documentation. If you'd like to translate, feel free
+to modify the
+<a href="https://github.com/yujinrobot/kobuki_core/tree/devel/kobuki_driver/doxygen">source</a>
+and make a pull request.
+
+- @ref enMainPage "English Guides"
+
+If you find any problems with this documentation, please submit issues to the
+<a href="https://github.com/yujinrobot/kobuki_core/issues">kobuki_core issue tracker</a>.
+
+*/

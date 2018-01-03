@@ -1,0 +1,38 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+@section packageSummary Package Summary
+
+This package collects some useful utility programs developed within the ecl_core
+framework. These programs have many different dependencies that otherwise couldn't
+be installed with their respective package, so are collected here. 
+
+\section Benchmarks
+
+- src/benchmarks/exceptions.cpp : evaluates exception handling costs on your system.
+- src/benchmarks/files.cpp : tests the raw read/write speed of various file mechanisms.
+- src/benchmarks/flops.cpp : the classic flops test.
+- src/benchmarks/snooze.cpp : determines the latency of your absolute timer.
+- src/benchmarks/streams.cpp : compares various streaming mechanisms.
+- src/benchmarks/string_conversions.cpp : benchmarks various string converting utilities.
+
+\section Utilities
+
+- src/utils/hex.cpp : utility for testing serial devices with raw hex data.
+- src/utils/serial.cpp : a generic serial connection testing program.
+- src/utils/process.cpp : detects various process statistics.
+
+\section ChangeLog
+
+- <b>May 11</b> : Moved what I could back to their own packages.
+- <b>Apr 10</b> : The famous flops benchmark test.
+- <b>Jan 09</b> : Simple socket client-server interface for posix.
+- <b>Dec 09</b> : Comparison test for various streaming mechanisms.
+- <b>Dec 09</b> : The serial utilities, hex and serial.
+- <b>Dec 09</b> : Latency benchmark for periodic timers working on absolute times.
+- <b>Oct 09</b> : Comparison test for various file io api.
+- <b>Sep 09</b> : A benchmark test for timing the cost of exceptions.
+- <b>May 09</b> : Comparison test for the various container types.
+- <b>May 09</b> : Comparison test for the c/c++/ecl api doing char string conversions.
+*/

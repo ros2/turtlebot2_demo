@@ -1,0 +1,17 @@
+/**
+ * @namespace ecl::streams
+ *
+ * @brief Streaming to and from input-output devices.
+ *
+ * Defines two generic streaming classes, TextStream and DataStream that can be connected to
+ * an input-output device. There is also a default implementation for TextStream which connects
+ * it to the standard output device.
+ **/
+/**
+ * @namespace ecl::streams::Interfaces
+ *
+ * @brief Streaming interfaces.
+ *
+ * These interfaces aren't used directly, but are brought into the streaming classes via
+ * mix-ins chosen by the type of device (input/output/both) they are connected to.
+ **/

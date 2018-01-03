@@ -1,0 +1,62 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	The embedded control libraries provide and internally make
+	use of a variety of error mechanisms tailored to suit
+	different situations. For lean and mean, there are c
+	style error functions and macros in ecl_errors. 
+	At a higher level, there are template based
+	exceptions, these are defined in this library.
+
+	These are further enabled via the use of macros which allow
+	code location (file and line #) reporting as well as
+	debug mode only handling.
+
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit:
+
+	@code
+	#include <ecl/exceptions.hpp>
+
+	// The exception classes
+	using ecl::StandardException;
+	using ecl::DataException;
+
+	// Posix Tools
+	using ecl::PosixErrorHandler;
+
+	// Error flags (from ecl_errors)
+	using ecl::ConfigurationError;
+	using ecl::InvalidInputError;
+	//...
+	@endcode
+
+	You will also need to link to <i>-lecl_exceptions</i>.
+
+@section Guides
+
+	- @ref errorsExceptions "Exceptions" - notes on ecl exception handling.
+
+@section Examples
+
+	- src/examples/exceptions.cpp : coverage style test for exceptions.
+	- src/examples/exception_tracer.cpp : getting a bactrace via exceptions, posix style.
+
+\section Benchmarks
+
+	- ecl_core_apps/src/benchmarks/exceptions.cpp : benchmarks the latencies for exception handling.
+
+@section ChangeLog
+
+  @subsection Changes
+
+	- <b>Feb 11</b> : Moved exception classes here from ecl_errors.
+
+  @subsection Bugs
+
+*/

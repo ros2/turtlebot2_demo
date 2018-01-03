@@ -1,0 +1,154 @@
+/**
+  @page polynomialsGeometry Polynomials
+
+  @section Introduction
+
+  This group includes various structures and tools for polynomials.
+ 
+  @section CompilingLinking Compiling & Linking
+
+  Include the following at the top of any translation unit that uses
+  geometry functions or classes.
+  
+  @code
+  #include <ecl/geometry.hpp>
+
+  // The classes
+  using ecl::Maximum;
+  using ecl::Minimum;
+  using ecl::PascalsTriangle;
+  using ecl::Polynomial;
+  // Typedefs to Polynomial<>
+  using ecl::LinearFunction;
+  using ecl::QuadraticPolynomial;
+  using ecl::CubicPolynomial;
+  using ecl::QuinticPolynomial;
+  @endcode
+
+  You will also need to link to <i>-lecl_geometry</i>.
+ 
+  @section Usage
+
+  @subsection Polynomial
+  
+  Polynomials are embedded in the usual c++ wrapper. Coefficient storage is
+  based on the array class in ecl_containers, so
+  comma initialisation can be used to configure the polynomial appropriately.
+
+  @code
+  // Comma Initialisation
+  Polynomial<5> p;
+  p.coefficients() = 1,2,3,4,5,6;
+  cout << p << endl; // 1.00 + 2.00x + 3.00x^2 + 4.00x^3 + 5.00x^4 + 6.00x^5
+  @endcode
+  
+  There is also a method for shifting the polynomial on the horizontal axis 
+  (later, if there is a need a vertical shift will be added).
+
+  @subsection Typedefs
+  
+  Rather than specifying the degree of the polynomial with a template argument,
+  a few more convenient typedefs are available:
+
+  @code
+  typedef Polynomial<1> LinearFunction;
+  typedef Polynomial<2> QuadraticPolynomial;
+  typedef Polynomial<3> CubicPolynomial;    
+  typedef Polynomial<5> QuinticPolynomial;  
+  @endcode
+  
+  @subsection BluePrints
+    
+  There are also some blueprints for generating polynomials that interpolate
+  between two end points. These can be accessed via static methods that are inherited
+  by the polynomial's class. For example:
+  
+  @code
+  LinearFunction linear = LinearFunction::Interpolation(0.0,0.0,1.0,2.0);                         // x_i, y_i, x_f, y_f  
+  LinearFunction linear = LinearFunction::PointSlopeForm(1.0,2.0,2.0);                            // x_f, y_f, slope  
+  CubicPolynomial cubic;
+  cubic = CubicPolynomial::DerivativeInterpolation(2.0,0.0,0.0,3.0,1.0,0.0);                      // x_i, y_i, y'_i, x_f, y_f, y'_f
+  cubic = CubicPolynomial::SecondDerivativeInterpolation(2.0,0.0,0.0,3.0,1.0,0.0);                // x_i, y_i, y''_i, x_f, y_f, y''_f
+  QuinticPolynomial quintic = QuinticPolynomial::Interpolation(0.0,0.0,0.0,0.0,1.0,2.0,1.0,0.0);  // x_i, y_i, y'_i, y''_i, x_f, y_f, y'_f, y''_f
+  @endcode
+  
+  - ecl::CubicPolynomial::DerivativeInterpolation
+  
+  @subsection ptSection Pascal's Triangle
+ 
+  Pascal's triangle is used to calculate the coefficients for polynomial
+  expansion. The class here accepts a template parameter N and calculates
+  all the coefficients up to order N (i.e. for polynomial expansion up to
+  (x+y)^N).
+ 
+  You can stream the output directly if you just need to view
+  them or you can use an stl style iterator to traverse the rows diagonally.
+  Simply call the usual begin function with an integer argument representing
+  the diagonal you're interested in. The first iterator will traverse
+  from the top of the triangle to the bottom right. As you increase the index
+  the diagonals shift down and to the left.
+ 
+  There may be a future addition to allow horizontal row representations. Also note,
+  specialised (low N) versions of these exist that directly set coefficients so as to 
+  avoid expensive calculations. 
+ 
+  @code
+  PascalsTriangle<5> pascals_triangle;
+  cout << pascals_triangle << endl;
+  cout << "Row iteration [2]: ";
+  PascalsTriangle<5>::const_iterator row_iter;
+  for (row_iter = pascals_triangle.begin(2); row_iter != pascals_triangle.end(2); ++row_iter) {
+      cout << *row_iter << " ";
+  }
+  cout << endl;
+  @endcode
+
+@section geometryFunctions Polynomial Functions
+
+  There also exist various functions that operate on polynomials. These currently include:
+  
+  - ecl::Roots<LinearFunction>
+  - ecl::Intersection<LinearFunction>
+  - ecl::Maximum<LinearFunction>
+  - ecl::Minimum<LinearFunction>
+  - ecl::Division<QuadraticPolynomial>
+  - ecl::Roots<QuadraticPolynomial>
+  - ecl::Division<CubicPolynomial>
+  - ecl::Roots<CubicPolynomial>
+  - ecl::Maximum<CubicPolynomial>
+  - ecl::Minimum<CubicPolynomial>
+  
+  They can also be called from the function classes themselves if it is preferred, e.g.
+  
+  @code
+    double maximum = ecl::Maximum<CubicPolynomial>()(0.0, 0.2, p);
+  @endcode
+  
+  OR
+  
+  @code
+    double maximum = ecl::CubicPolynomial::Maximum(0.0, 0.2, p);
+  @endcode
+  
+
+@section units Unit Tests
+
+  - src/test/polynomials.cpp
+
+@section ChangeLog
+  
+  - <b>Dec 11</b> : ecl::Division<QuadraticPolynomial> also cubics, long division (by synthetic method).
+  - <b>Dec 11</b> : ecl::Root<LinearFunction> root solvers (also quadratic and cubic).
+  - <b>Dec 11</b> : ecl::FunctionMath is a math loader for function classes.
+  - <b>Dec 11</b> : ecl::Intersection<LinearFunction> operator added.
+  - <b>Dec 11</b> : ecl::BluePrintFactory<LinearFunction> added a slope-point form blueprint.
+  - <b>Jul 09</b> : ecl::BluePrintFactory<LinearFunction> is a blueprint factory for linear functions.
+  - <b>Jul 09</b> : ecl::blueprints::LinearInterpolation is a blueprint for linear interpolation between end points.
+  - <b>May 09</b> : ecl::blueprints::QuinticInterpolation is a blueprint for quintic interpolation between end points.
+  - <b>May 09</b> : ecl::BluePrintFactory<QuinticPolynomial> is a blueprint factory for quintic polynomials.
+  - <b>May 09</b> : ecl::blueprints::CubicSecondDerivativeInterpolation is a blueprint for acceleration derived interpolations between two end points.
+  - <b>May 09</b> : ecl::blueprints::CubicDerivativeInterpolation is a blueprint for velocity derived interpolations between two end points.
+  - <b>May 09</b> : ecl::BluePrintFactory<CubicPolynomial> is a blueprint factory for cubic polynomials.
+  - <b>May 09</b> : ecl::Polynomial is a templatised class representing polynomials of arbitrary degree.
+  - <b>May 09</b> : A simple templatisation for @ref ecl::PascalsTriangle "pascals triangle" of arbitrary degree.
+**/

@@ -1,0 +1,128 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+At this point, this package only provides very elementary support to the
+other ecl template classes. Alot of ideas for these elements come from
+both boost and the book "C++ Template Metaprogramming" by D.Abrahams.
+
+@section CompilingLinking Compiling & Linking
+
+Include the following at the top of any translation unit:
+
+@code
+#include <ecl/mpl.hpp>
+
+// The concept definition/validation classes.
+using ecl::Bool;        // compile time logic testing of template parameters
+using ecl::enable_if;   // selective specialisation of classes via the template parameters   
+using ecl::Unsigned;    // type converters  
+@endcode
+
+Since it is a collection of template classes, no linking is required.
+
+\section Usage 
+
+\subsection Bool
+
+Often used in the is_such_and_such_class traits testing classes. For example:
+
+@code
+#include <ecl/mpl/bool.hpp>
+
+// Parent template which defaults to false
+template <typename T>
+class is_foo_bar : public ecl::False {}; 
+
+// Specialisations (in this case, class Tango) for which it is true
+template <>
+class is_foo_bar< Tango > : public ecl::True {}; 
+
+// A class that will use it
+template <bool B = false>
+class Cash {
+    static void says() {
+        std::cout << "Cash is fine." << std::endl;
+    }
+};
+
+// specialisation of that class for true
+template <>
+class Cash <true> {
+    static void says() {
+        std::cout << "Cash is foobar too." << std::endl;
+    }
+};
+
+int main() {
+    Cash<is_foo_bar<Tango>::value>::says(); // Cash is foobar too...
+    return 0;
+}
+@endcode
+
+\subsection enableIf Enable If
+
+These allow you to various compile tricks with SFINAE (Substitution Failure Is Not An Error).
+One usage case is to specialise a template class for a whole group of classes that register
+with a common type trait.
+
+@code
+// This will instantiate if it is anything except float or double.
+template <typename T, typename Enable = void>
+class TestObject {
+public:
+	bool isFloatSpecialisation() { return false; }
+};
+
+// This specialisation will instantiate it T is float or double.
+template <typename T>
+class TestObject< T, typename enable_if< is_float<T> >::type > {
+public:
+	bool isFloatSpecialisation() { return true; }
+};
+@endcode
+
+\subsection failedObject Failed Object
+
+Simple class that guarantees a compile time failure if an attempt to instantiate it is made
+(private constructor). Commonly you would use with the mpl if function.
+
+For example, the parent template definition above could be instead:
+
+@code
+#include <ecl/mpl/failed_object.hpp>
+
+template <typename T, typename Enable = void>
+class TestObject : public ecl::FailedObject {};
+@endcode
+
+
+\subsection converters Compile Time Converters
+
+Convert from one type to another in compile time.
+
+@code
+char c = 0x33;
+Unsigned<char>::type uc = 0x03;
+@endcode
+
+That example is trivial, but is more useful when using it for template arguments in a class.
+
+@code
+template <typename T>
+class Foo {
+private:
+    Unsigned<T>::type my_unsigned_variable;    
+};
+@endcode
+
+@section ChangeLog
+
+- <b>Feb 10</b> : moved out type traits to their own package.
+- <b>Aug 10</b> : @ref ecl::FailedObject "FailedObject" to throw compile time failures when metaprogramming.
+- <b>Jul 10</b> : @ref ecl::enable_if "enable_if" added until c++0x standards become mainstream.
+- <b>Jul 09</b> : @ref ecl::Bool "Bool", @ref ecl::if_c "If" constructs added.
+
+*/

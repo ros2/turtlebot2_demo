@@ -1,0 +1,114 @@
+/**
+ * @page flagsDocumentation Guides: Flags
+ *
+ * @section introduction What are they?
+ *
+ * Flags provide a type-safe way of storing OR-combinations of enum values.
+ * Flags<Enum> is a template class, where Enum is an user defined enum type
+ * that holds a list of the appropriate flag values.
+ *
+ * The traditional C++ approach for storing OR-combinations of enum values is to
+ * use an int or uint variable. The inconvenience with this approach is that there's
+ * no type checking at all; any enum value can be OR'd with any other enum value
+ * and passed on to a function that takes an int.
+ *
+ * The technique here I found in the Qt library. It provides type safe checking of
+ * enum arguments (you cannot mix enum definitions arbitrarily without causing a
+ * compiler error). Usually the flags
+ * are independant - you can have any combination of the enum values
+ * currently configured. However with some masking tricks (see QLabel's
+ * setAlignment method) it is possible to group subsets of the enum so that only
+ * one flag from each subset can be triggered at any one point in time.
+ *
+ * @section Usage
+ *
+ * @subsection CompilingLinking Compiling & Linking
+ *
+ * Include the following at the top of any translation unit that requires
+ * compilation of signals and/or slots.
+ * @code
+ * #include <ycl/utilities.hpp>
+ *
+ * using YCL::Utilities::Flags;
+ * @endcode
+ *
+ * @subsection Enum Enum Declaration
+ *
+ * Some care must be taken when defining the enum for use with this Flags class.
+ * The enum must classify each argument as an independant bit. For example,
+ * @code
+ * enum Setting
+ * {
+ *     Fast   0x0001,
+ *     Slow   0x0002,
+ *     Red    0x0010,
+ *     Blue   0x0020
+ * };
+ * @endcode
+ * Alternatively, the shift operator can also be used.
+ *
+ * @subsection Flag Flag Declaration
+ *
+ * It is easiest to declare the enum with a name corresponding to
+ * the type of flag it represents and then pluralise this with a convenient typedef
+ * when declaring the Flags class associated with it. For example,
+ *
+ * @code
+ * enum Setting
+ * {
+ *      ... as above ....
+ * };
+ *
+ * typedef Flags<Setting> Settings;
+ * @endcode
+ *
+ * @subsection Helper functions
+ *
+ * There immediately exists a helper function that allows you to pipe further flags to the current
+ * flag container.
+ * @code
+ * settings = settings|Fast|Slow;
+ * @endcode
+ * A further convenience can be had if a simple friend piping operator is written alongside the
+ * definition of your enum:
+ * @code
+ * Flags<Setting> operator|(Setting flagOne, Setting flagTwo) { return Flags<Setting>(flagOne) | flagTwo; }
+ * @endcode
+ * This then enables you to configure flags very simply with:
+ * Thanks to the helper (friend) functions, it is very simple to initialise a Flags variable.
+ * @code
+ *     Settings settings(Fast|Slow)
+ *     settings = Fast|Slow;
+ * @endcode
+ 
+ * Note, it would be convenient if a very general template such as the piping operator above could be included with the
+ * library. To date however, the only method I know of is to define a very general template operator function.
+ * This actually works with g++, however msvc9 does not like it, and its probably for good reason. Such a template
+ * operator in the global namespace will inevitably clash with other friend operators and result in ambiguities.
+ *
+ * @subsection Illegal Combinations
+ *
+ * Combinations can be made illegal through customised accessors.
+ * @code
+ * class A
+ * {
+ *     public:
+ *         void configure(Settings s)
+ *         {
+ *             if ( ( s.testFlag(Gold) && s_.testFlag(Dark) ) ||
+ *                  ( s_.testFlag(Gold) && s.testFlag(Dark) ) ||
+ *                  ( s.testFlag(Gold) && s.testFlag(Dark) ) )
+ *             {
+ *                 cout << "This combination is not permitted." << endl;
+ *                 return;
+ *             } else {
+ *                 s_ = s;
+ *             }
+ *         }
+ *         Settings settings() { return s_; }
+
+ *     private:
+ *         Settings s_;
+ * };
+ * @endcode
+ **/

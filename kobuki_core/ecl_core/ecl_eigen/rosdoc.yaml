@@ -1,0 +1,2 @@
+ - builder: doxygen
+   file_patterns: '*.dox'

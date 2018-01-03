@@ -1,0 +1,85 @@
+/**
+ * @file /src/test/pose3d.cpp
+ *
+ * @ingroup UnitTests
+ *
+ * Use this to test the Pose3D class
+ *
+ * @date August 2010
+ **/
+
+/*****************************************************************************
+** Includes
+*****************************************************************************/
+
+#include <gtest/gtest.h>
+#include "../../include/ecl/geometry/pose3d.hpp"
+
+/*****************************************************************************
+** Using
+*****************************************************************************/
+
+using ecl::Pose3D;
+
+/*****************************************************************************
+** Tests
+*****************************************************************************/
+
+TEST(Pose3DTests,construction) {
+	Pose3D<double> pose;
+//    EXPECT_GT(0.786,f); // Allow some roundoff error here
+//    EXPECT_LT(0.785,f);
+//    EXPECT_EQ(0.3,d);
+}
+
+// operator tests
+
+/*****************************************************************************
+** Main program
+*****************************************************************************/
+
+int main(int argc, char **argv) {
+
+    testing::InitGoogleTest(&argc,argv);
+    return RUN_ALL_TESTS();
+}
+
+
+
+//#include <ecl/mobile_robot.hpp>
+//
+//int main(int argc, char**argv)
+//{
+//  ecl::mobile_robot::Pose3D<double> Pwa, Pwb, Pbw, Pba;
+//  Pwa.setPose( 1, 0, 1.2, +M_PI/2, -M_PI/4 );
+//  Pwb.setPose( 0, 1, 1.2, 0, 0, M_PI/4 );
+//  std::cout << Pwa << "Pwa" << std::endl;
+//  std::cout << Pwb << "Pwb" << std::endl;
+//  // std::cout << Pwb.rotation() << " Pwb.R" << std::endl;
+//  std::cout << Pwa - Pwb << "Pwa-Pwb" << std::endl;
+//  Pbw = Pwb.inverse();
+//  std::cout << Pbw << "Pbw" << std::endl;
+//  Pba = Pbw * Pwa;
+//  //Pad = Pab * Pbc * Pcd;
+//  std::cout << Pba << "Pba" << std::endl;
+//  return EXIT_SUCCESS;
+//}
+
+// This program will print out this:
+// 
+// [  0.000 -1.000 -0.000    1.000
+//    0.707  0.000 -0.707    0.000
+//    0.707  0.000  0.707    1.200 ] Pwa
+// [  1.000 -0.000  0.000    0.000
+//    0.000  0.707  0.707    1.000
+//   -0.000 -0.707  0.707    1.200 ] Pwb
+// [  0.000 -1.000 -0.000    1.000
+//   -0.000  0.000 -1.000   -0.707
+//    1.000  0.000  0.000   -0.707 ] Pwa-Pwb
+// [  1.000  0.000 -0.000   -0.000
+//   -0.000  0.707 -0.707    0.141
+//    0.000  0.707  0.707   -1.556 ] Pbw
+// [  0.000 -1.000 -0.000    1.000
+//   -0.000  0.000 -1.000   -0.707
+//    1.000  0.000  0.000   -0.707 ] Pba
+// 

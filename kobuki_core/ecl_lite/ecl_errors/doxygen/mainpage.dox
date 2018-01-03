@@ -1,0 +1,131 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	The usual C++ means is to use exceptions, however in embedded systems, 
+	exceptions are often unavailable or are too resource-heavy.
+	This library provides a simpler alternative, combining error flags,
+	macros and an error handler class to provide convenient disposal of
+	errors across multiple platforms.
+	
+	It also provides simple runtime and compile time asserts 
+	and aborts.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit:
+
+	@code
+	#include <ecl/errors.hpp>
+
+	// The error interfaces
+	using ecl_compile_time_assert;
+	using ecl_run_time_assert;
+	using ecl_run_time_abort;
+
+	// Error type enumerations
+	using ecl::NoError;
+	using ecl::ConfigurationError;
+	using ecl::UnknownError;
+	//...
+	
+	// Error Handler
+	using ecl::Error;
+	@endcode
+
+	You will also need to link to <i>-lecl_errors</i>.
+
+@section Usage
+
+	@subsection locSection LOC
+	
+		The macro, @ref LOC, is a means of picking up the current file and line number of the
+		point at which it is processed. Use with the various error functions and
+		functors defined in ecl::errors;
+		
+	@subsection errorHandlers Error Handling
+	
+		A set of flags is provided through the enumeration 
+		@ref ecl::ErrorFlag "ErrorFlag". These, when coupled with the 
+		@ref ecl::Error "errorhandler" class and @ref LOC macro provide
+		a convenient means of quickly identifying errors produced by the
+		ecl libraries regardless of the platform that is used.
+		
+		@code
+		ecl::Error void f(const int &i) const {
+		    if ( i == 3 ) {
+		        return ecl::Error(ecl::NoError);
+		    } else {
+		        return ecl::Error(ecl::OutOfRangeError);
+		    }
+		int main() {
+		    ecl::Error error = f(5);
+		    if ( error.flag() != NoError() ) {
+		        error.print(loc);  
+		    }
+		    // output is ~ 'my_main.cpp : 31 - Out of range error.'
+		    return 0;
+		}
+		@endcode
+		
+		The @ref ecl::Error "Error" class can be extended to customise the 
+		error messages - refer to the ecl_time_lite package and the ecl::TimeError
+		class for an example.
+
+	@subsection errorFunctions Assert and Abort Functions
+
+		These functions, because they are coupled with fallback 
+		macros are the only functions in the ecl not namespaced 
+		inside the ecl namespace. Rather they are prefixed with ecl_. 
+		
+		The ecl_run_time_assert macro/function is a tool for conditional testing. It is
+		governed by the presence of the NDEBUG macro. If NDEBUG is
+		absent (either in your code or c-flagged by the compiler (-DNDEBUG)
+		then run_time_assert will equate to a macro that defers to a null function pointer.
+		This is the fastest means of bypassing debugged code.
+		
+		If NODEBUG is present, then ecl_run_time_assert will act as a conditional test via an
+		function. If the test fails, it will output some data (that you
+		have passed to the function) before finally aborting.
+		
+		@code
+		int i = 3;
+		int j = 2;
+		ecl_run_time_assert(i < j, LOC, "Illegal context, need i < j");
+		@endcode
+		
+		The abort macro/function works similarly except that it does no conditional test and
+		it is not negated by the presence of NDEBUG.
+
+	@subsection compileSection Compile Time Equivalents
+
+		There is also a macro which works like the compile time equivalent of ecl_run_time_assert().
+		This macro is useful for checking template parameters mostly. When passed a logical
+		condition which fails, an eye-catching COMPILE_TIME_FAILURE is reported in the compile log.
+		
+		@code 
+		ecl_compile_time_assert( 1 > 3 )
+		@endcode
+		
+		Corresponding failure is reported in a format similar to the example output shown below:
+		
+		@code
+		test.cpp:47: error: invalid application of ‘sizeof’ to incomplete type ‘COMPILE_TIME_FAILURE<false>’ 
+		@endcode
+
+@section otherGuides Other Notes
+
+ 	A short ramble on how the ecl handles debugging can be found in this @ref debugging "guide".
+@section unitTests Unit Tests
+
+	Not gtests, but a useful enough coverage style test.
+	
+	- src/examples/errors.cpp
+
+@section ChangeLog
+
+	- @ref changelog "ChangeLog"
+
+*/

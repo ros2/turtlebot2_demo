@@ -1,0 +1,79 @@
+/**
+@page referencesGuide Guide: Reference Wrappers
+
+@section Introduction
+
+There are situations where you may wish to overload a function with both non-referenced and 
+referenced arguments. Unfortunately, this is not directly possible with c++, it usually results
+in an ambiguity. 
+@code
+class A {
+public:
+    template <typename T>
+    void f(T i) { cout << "Not a reference input" << endl; }
+
+    template <typename T>
+    void f(T &i) { cout << "A reference input" << endl; }
+}
+@endcode
+
+One way to resolve this is to create a wrapper with a pointer to the object inside it (we call
+this a reference wrapper) and pass it to the function as you would normally pass a copy. 
+Once accepted, the function can use some metaprogramming logic to determine the fate of the
+accepted copy or reference wrapper.
+
+@section CompilingLinking Compiling & Linking
+
+Include the following at the top of any translation unit that uses
+these container classes.
+@code
+#include <ecl/utilities.hpp>
+
+using ecl::ReferenceWrapper
+using ecl::ref
+using ecl::cref
+using ecl::addressOf
+@endcode
+
+You will also need to link to <i>-lecl_utilities</i>.
+
+@section Usage
+
+@subsection ReferenceWrapper
+
+The easiest way to generate a reference wrapper is via the convenience functions ref/cref. For
+example, below illustrates a referenced function object passed to a thread.
+
+@code
+Thread thread(ref(function_object));
+@endcode
+
+The cref call creates a constant reference, useful when your api will only accept a constant.
+
+Accessing a reference wrapper is straight forward:
+
+@code
+A a;
+ReferenceWrapper<A> wrapper = ref(a);
+
+A &a_ref = wrapper.reference();
+A *a_ptr = wrapper.pointer();
+@endcode
+It can also be directly passed off as the type it wraps.
+
+@subsection Traits
+
+Testing for reference wrapper objects can be done via the is_reference_wrapper trait.
+
+@code
+bool result = is_reference_wrapper<int>::value
+@endcode
+
+This is most useful when used as a template argument metafunction.
+
+@section Examples
+
+- src/test/references.cpp
+
+
+**/

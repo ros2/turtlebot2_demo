@@ -1,0 +1,178 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\section packageSummary Package Summary
+
+	Different platforms have minor differences in their implementations.
+	Apart from the higher level api's such as threads and io devices, there
+	is also the platform's actual implementation of the c++ standard that
+	may differ from one machine to the next. For an instance, an int on a
+	DSP is not the same width as an int on an amd processor. Partly via the
+	cmake build process and partly via header referencing, the
+	config module's elements some checking
+	on the actual implementation for your system and define some
+	cross-platform @link Macros macros@endlink,
+	@link ecl types@endlink and
+	@link ecl classes@endlink that facilitate easy
+	handling of these fundamental properties.
+
+@section issues Cross Platform
+
+	@subsection supportedPlatforms Major Platforms
+
+		At the moment, the major implementations supported:
+
+		- Posix
+		- Apple
+		- Win (partial)
+
+	@subsection customPlatforms Custom Platforms
+	
+		It also has provision to supply details about custom (primarily wierd
+		embedded) platforms via the ECL_IS_CUSTOM macro. More detail below.
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit that utilises the
+	configuration definitions and tools.
+	@code
+	#include <ecl/config.hpp>
+	
+	// Functions
+	using ecl::is_big_endian;
+	using ecl::is_char_signed;
+	
+	// Types  - refer to portable_types.hpp
+	using ecl::int8;
+	using ecl::uint8; 
+	// ...
+	@endcode
+
+@section Usage
+
+	@subsection cmakeConfig CMake Configuration
+	
+		CMake can do the hard yards on most platforms/toolchains and autodetect
+		what variables and headers can be used - this works mostly for the
+		main platforms as outlined above. The result of this guesswork are a 
+		suite of @link Macros macros@endlink stored in the ecl/config/ecl.hpp 
+		header. All macros are prefixed by an ECL, e.g. ECL_IS_POSIX.
+		
+		Note that other packages also do some platform detection to varying
+		degrees, e.g ecl_time_lite. The macros defined here are the most
+		general purpose macros only.
+		
+	@subsection customConfig Custom Configuration
+		
+		Alternatively, a header can be hand customised to tailor for your
+		own schwanky embedded board. To do this simply define the
+		ECL_IS_CUSTOM macro as pointing to a header somewhere on your system
+		before you call any ecl headers in your code. For example:
+		
+	@code
+	#define ECL_IS_CUSTOM <ecl_dsp2812.hpp>
+	@endcode
+
+		This will abort the cmake generated header and use your own hand crafted
+		header in its place.
+		
+	@subsection unknownConfiguration Unknown Configuration
+	
+		If your system is truly unknown, you can define the ECL_IS_UNKNOWN (set to 1)
+		macro before calling any other ecl headers. The ecl will then roughly try and
+		determine your system from whatever macros are defined by your compiler.
+		
+		This hasn't really been tested yet and probably will fall over horribly.
+		 	
+	@subsection MacrosSection Macros
+
+	The following @ref Macros "macros" are the most important of those defined in this section.
+
+    @code 
+    // Platform macros - automatically detected by the build.
+    - ECL_IS_POSIX || ECL_IS_WIN32 || ECL_IS_APPLE || ECL_IS_CUSTOM
+    - ECL_HAS_POSIX_THREADS || ECL_HAS_WIN32_THREADS
+    - ECL_SIZE_OF_CHAR
+    - ECL_SIZE_OF_SHORT
+    - ECL_SIZE_OF_INT
+    - ECL_SIZE_OF_LONG
+    - ECL_SIZE_OF_LONG_LONG
+    - ECL_SIZE_OF_FLOAT
+    - ECL_SIZE_OF_DOUBLE
+    - ECL_SIZE_OF_LONG_DOUBLE
+    - ECL_CHAR_IS_SIGNED || ECL_CHAR_IS_UNSIGNED
+    - ECL_HAS_SHARED_LIBS || ECL_HAS_STATIC_LIBS
+    // ECL Development macros
+    - ECL_DISABLE_EXCEPTIONS
+    - ECL_DONT_INLINE
+    - ECL_DEPRECATED
+    - ECL_PUBLIC || ECL_LOCAL
+    @endcode
+    
+    Note that you may predefine ECL_HAS_SHARED_LIBS or ECL_HAS_STATIC_LIBS for your
+    project if both are available and you want to force appropriate behaviour 
+    for the target set you are linking against. 
+    
+	@subsection TypesSection Types
+
+	When you absolutely need to specify the bit-width type you need to use,
+	the following typedefs are defined by the ECL when the appropriate types
+	are available.
+
+	- @ref ecl::int8 "int8", @ref ecl::uint8 "uint8"
+	- @ref ecl::int16 "int16", @ref ecl::uint16 "uint16"
+	- @ref ecl::int32 "int32", @ref ecl::uint32 "uint32"
+	- @ref ecl::int64 "int64", @ref ecl::uint64 "uint64"
+	- @ref ecl::float32 "float32"
+	- @ref ecl::float64 "float64"
+	
+	The float96 and float128 types may or may not also be defined depending 
+	on your platform.
+
+	@subsection PlatformSniffers Platform Sniffers
+	
+	This is a set of functions that can be used to sniff your platform to determine
+	various characteristics. Checking for endianness:
+	
+	@code
+	// The function operates like a macro, and a good compiler will compile 
+	// out the if mechanism and leave behind the required section of code. 
+	if ( ecl::is_big_endian() {
+	    // ... 
+	else {
+	    // ... 
+	}
+	@endcode
+
+	To check if your default char type is signed, or otherwise, use the following.
+	Note that this only works for runtime checks. To do compile time checks (for 
+	use in template parameters etc), there is the ECL_CHAR_IS_SIGNED
+	and ECL_CHAR_IS_UNSIGNED macros.
+	@code
+	if ( ecl::is_char_signed() {
+	    // ... 
+	else {
+	    // ... 
+	}
+	@endcode
+
+    
+@section unitTests Unit Tests
+
+	- src/test/endianness.cpp
+	- src/test/portable_types.cpp
+
+\section utilities Utilities
+
+	Both utilities detect various properties on your system and send the data to stdout. Useful for
+	quick testing on embedded devices.
+
+	- src/utilities/detect_endian.cpp : detects the endianness of your platform.
+	- src/utilities/detect_posix.cpp : detects the level of posix on your system.
+
+@section ChangeLog
+
+	@ref changelog "ChangeLog"
+
+*/

@@ -1,0 +1,163 @@
+/**
+ * @file /include/ecl/config/ecl.hpp
+ * 
+ * @brief Pre-processed macro definitions that define the target platform.
+ * 
+ * Cmake is used to check/verify your target platform parameters. The results
+ * of the platform check are defined here for use by the ecl in the form of
+ * preprocessed macros. 
+ *
+ * Alternatively, a hand readied configuration file can be setup via the
+ * ECL_IS_CUSTOM macro. The use case for this generally applies when
+ * gathering source files (i.e. make 'source' target) ready to be used
+ * on a custom embedded board with its own toolchain/ide that are not
+ * usable with cmake.
+ * 
+ * @date March 2009
+ **/
+#ifndef ECL_CONFIG_MACROS_HPP_
+#define ECL_CONFIG_MACROS_HPP_
+
+#define ECL_VERSION @ecl_config_VERSION@
+
+/**
+ * @addtogroup Macros
+ * @{
+**/
+#if defined(ECL_IS_CUSTOM)     // requires user to define something like: #define ECL_IS_CUSTOM <ecl/ecl_dsp2812.hpp>
+    #include ECL_IS_CUSTOM 
+#elif defined(ECL_IS_UNKNOWN)  // Ecl will try and guess without cmake's help.
+	#include "ecl_unknown.hpp" 
+#else                          // Let cmake help with the configuration.
+	/**
+	 * @def ECL_IS_APPLE
+	 *
+	 * @brief Platform is an apple mac osx.
+	 *
+	 * Platform utilises the macosx system libraries. Note that
+	 * this one is not exclusive with the others, usually 
+	 * both ECL_IS_POSIX and ECL_IS_APPLE will be set together.
+	 * Other platforms:
+	 *
+	 * - ECL_IS_POSIX
+	 * - ECL_IS_WIN32
+	 **/
+	#cmakedefine ECL_IS_APPLE
+	/** 
+	 * @def ECL_IS_POSIX
+	 *
+	 * @brief Platform is posix-based.
+	 *
+	 * Platform is based on a variant of posix. Other platforms:
+	 * 
+	 * - ECL_IS_WIN32
+	 * - ECL_IS_APPLE
+	 **/
+	#cmakedefine ECL_IS_POSIX
+	/**
+	 * @def ECL_IS_WIN32
+	 *
+	 * @brief Platform is a 32 bit windows OS.
+	 *
+	 * Platform utilises the win32 libraries. Other platforms:
+	 * 
+	 * - ECL_IS_POSIX
+	 * - ECL_IS_APPLE
+	 **/
+	#cmakedefine ECL_IS_WIN32
+	/**
+	 * @def ECL_HAS_POSIX_THREADS
+	 *
+	 * @brief Platform uses posix threads.
+	 *
+	 * Platform is using the posix thread model. Other thread models:
+	 * 
+	 * - ECL_HAS_WIN32_THREADS
+	 **/
+	#cmakedefine ECL_HAS_POSIX_THREADS
+	/**
+	 * @def ECL_HAS_WIN32_THREADS
+	 *
+	 * @brief Platform uses win32 threads.
+	 *
+	 * Platform is using the win32 thread model. Other thread models:
+	 * 
+	 * - ECL_HAS_POSIX_THREADS
+	 **/
+	#cmakedefine ECL_HAS_WIN32_THREADS
+	/**
+	 * @brief Defines the number of bytes for a char type.
+	 */
+	#cmakedefine ECL_SIZE_OF_CHAR @ECL_SIZE_OF_CHAR@
+	/**
+	 * @brief Defines the number of bytes for a short type.
+	 */
+	#cmakedefine ECL_SIZE_OF_SHORT @ECL_SIZE_OF_SHORT@
+	/**
+	 * @brief Defines the number of bytes for a int type.
+	 */
+	#cmakedefine ECL_SIZE_OF_INT @ECL_SIZE_OF_INT@
+	/**
+	 * @brief Defines the number of bytes for a long type.
+	 **/
+	#cmakedefine ECL_SIZE_OF_LONG @ECL_SIZE_OF_LONG@
+	/**
+	 * @brief Defines the number of bytes for a long long type.
+	 **/
+	#cmakedefine ECL_SIZE_OF_LONG_LONG @ECL_SIZE_OF_LONG_LONG@
+	/**
+	 * @brief Defines the number of bytes for a float type.
+	 **/
+	#cmakedefine ECL_SIZE_OF_FLOAT @ECL_SIZE_OF_FLOAT@
+	/**
+	 * @brief Defines the number of bytes for a double type.
+	 **/
+	#cmakedefine ECL_SIZE_OF_DOUBLE @ECL_SIZE_OF_DOUBLE@
+	/**
+	 * @brief Defines the number of bytes for a long double type.
+	 **/
+	#cmakedefine ECL_SIZE_OF_LONG_DOUBLE @ECL_SIZE_OF_LONG_DOUBLE@
+	/**
+	 * @brief Ecl exceptions are disabled.
+	 *
+	 * By default, ecl builds all its libraries with exceptions
+	 * enabled. These can be disabled by passing
+	 * -DECL_DISABLE_EXCEPTIONS:bool=true to cmake, or, if
+	 * building in ros, setting this variable in
+	 * $ROS_ROOT/rosconfig.cmake to be true.
+	 **/
+	#cmakedefine ECL_DISABLE_EXCEPTIONS
+	
+	/**
+	 * @def ECL_HAS_SHARED_LIBS
+	 *
+	 * @brief Defined if ecl was built as shared libraries.
+	 *
+	 * If both shared and static ecl libs are present on the system, 
+	 * the user should predefine this if they wish to use ecl's shared 
+	 * libraries.
+	 **/
+	#if !defined(ECL_HAS_SHARED_LIBS) && !defined(ECL_HAS_STATIC_LIBS)
+	  #cmakedefine ECL_HAS_SHARED_LIBS @ECL_HAS_SHARED_LIBS@
+	#endif
+	/**
+	 * @def ECL_HAS_STATIC_LIBS
+	 *
+	 * @brief Defined if ecl was built as static libraries.
+	 *
+	 * If both shared and static ecl libs are present on the system, 
+	 * the user should predefine this if they wish to use ecl's static 
+	 * libraries.
+	 **/
+	#if !defined(ECL_HAS_SHARED_LIBS) && !defined(ECL_HAS_STATIC_LIBS)
+	  #cmakedefine ECL_HAS_STATIC_LIBS @ECL_HAS_STATIC_LIBS@
+	#endif
+
+#endif
+
+/**
+ * @}
+ **/
+ 
+#endif /* ECL_CONFIG_MACROS_HPP_ */
+ 

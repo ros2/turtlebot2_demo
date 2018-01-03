@@ -1,0 +1,74 @@
+/**
+
+@page enInstallationLinuxGuide Installation - Linux
+
+@section enInstallationLinuxOverview Overview
+
+This section describes the installation process for Linux.
+
+@subsection who Target audience
+
+Linux people who want to compile Kobuki driver, but not use ros
+
+
+@section Procedure
+
+@subsection prereq Prerequirements
+
+We use catkin to build. First of all you need to install some basic dependencies:
+
+- <i>cmake</i>      - A cross-platform, open-source build system.
+- <i>python</i>     - Python is a general-purpose, interpreted high-level programming language.
+- <i>wstool</i>     - Workspace tool for downloading sources.
+- <i>catkin_pkg</i> - A Python runtime library for catkin.
+- <i>empy</i>       - A Python template library.
+- <i>nose</i>       - A Python testing framework.
+
+@code
+  sudo apt-get install python-wstool cmake python-catkin-pkg python-empy python-nose python-setuptools build-essential
+@endcode
+
+If you are <b>not</b> on Ubuntu you can typically find cmake, python in your system repos and at worst, you can install python modules
+from <a href="http://pypi.python.org/pypi">PyPi</a> via pip.
+
+Refer to the <a href="http://ros.org/wiki/catkin">Catkin documentation</a> for more details.
+
+@subsection catkin Catkin workspace
+
+Next we must prepare a catkin workspace.
+
+@code
+  mkdir kobuki_core
+  wstool init -j5 kobuki_core/src https://raw.github.com/yujinrobot/kobuki_core/devel/kobuki_core.rosinstall
+  cd kobuki_core
+  export PATH=`pwd`/src/catkin/bin/:${PATH}
+  catkin_make_isolated --install
+@endcode
+
+The utility catkin_make_isolated is just a wrapper around cmake/make. The catkin_make_isolated utility has a few options
+to allow direct configuration of various cmake variables (CMAKE_INSTALL_PREFIX is a useful one,
+otherwise it defaults to ./install_isolated).
+
+@subsection test Testing your installation
+
+You can test your installation by executing some of the demo and test
+programs provided with Kobuki driver. You must point your <i>LD_LIBRARY_PATH</i> variable to
+the installed libraries. For example, if you type the following commands, the robot should move making squares:
+
+@code
+  cd kobuki_core
+  export LD_LIBRARY_PATH=`pwd`/install_isolated/lib
+  ./install_isolated/lib/kobuki_driver/demo_kobuki_simple_loop
+@endcode
+
+@section crossc Cross compiling
+
+We still have not prepared proper cross-compiling documentation, but have done so and we will be happy to help you. It simply
+requires following the usual cmake specification of toolchain cmake modules.
+
+@section support Additional support
+
+Do not hesitate to ask on <a href="mailto:kobuki-users@yujinrobot.com">Kobuki users list</a> if you need additional
+support.
+
+**/

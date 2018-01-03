@@ -1,0 +1,300 @@
+/**
+ * @file include/ecl/geometry/pose3d.hpp
+ *
+ * @brief Representation of the mobile robot pose in 3D (6 DOF).
+ *
+ * @date July 2010
+ **/
+/*****************************************************************************
+** Ifdefs
+*****************************************************************************/
+
+#ifndef ECL_GEOMETRY_POSE3D_HPP_
+#define ECL_GEOMETRY_POSE3D_HPP_
+
+/*****************************************************************************
+** Includes
+*****************************************************************************/
+
+#include <iostream>
+#include <iomanip>
+#include <ecl/linear_algebra.hpp>
+#include <ecl/mpl/type_traits.hpp>
+#include <ecl/mpl/enable_if.hpp>
+#include "pose2d.hpp"
+
+/*****************************************************************************
+** Namespaces
+*****************************************************************************/
+
+namespace ecl {
+
+/*****************************************************************************
+** Pose3D
+*****************************************************************************/
+/**
+ * @brief Parent template definition for Pose3D.
+ *
+ * Do not use this directly. Use the specialisations instead.
+ */
+template <class Float, typename Enable = void>
+class Pose3D {
+private:
+	/**
+	 * @brief Prevents usage of this template class directly.
+	 */
+	Pose3D() {};
+};
+
+/**
+ * @brief Representation for a 3D pose (with 6 DOF)
+ *
+ * @tparam Float : must be a float type (e.g. float, double, float32, float64)
+ */
+template<typename Float>
+class Pose3D<Float, typename enable_if<is_float<Float> >::type> {
+public:
+	/*********************
+	** Typedefs
+	**********************/
+	typedef ecl::linear_algebra::Matrix<Float,3,3> Rotation; /**< @brief Convenience typedef representing the rotation part. **/
+	typedef ecl::linear_algebra::Matrix<Float,3,1> Translation; /**< @brief Convenience typedef representing the translation part. **/
+
+	/*********************
+	** C&D's
+	**********************/
+	/**
+	 * @brief Default constructor.
+	 *
+	 * Initialises the pose with zero rotation and zero translation.
+	 */
+	Pose3D() : R(Rotation::Identity()), T(Translation::Zero()) {}
+
+	//! @brief  Construct the pose using 2D pose.
+	//! @param  xyh   : 2D pose of the robot
+	Pose3D(Pose2D<Float> &xyh) { setPose( xyh.x(), xyh.y(), 0, xyh.heading(), 0, 0 ); }
+
+	//! @brief  Construct the pose using rotation matrix and translation vector.
+	//! @param  R : 3x3 rotation matrix
+	//! @param  T : 3x1 translation vector
+	Pose3D(Float R[9], Float T[3]) { setPose( R, T ); }
+
+	//! @brief  Construct the pose using rotation matrix and translation vector.
+	//! @param  R : 3x3 rotation matrix
+	//! @param  T : 3x1 translation vector
+	Pose3D(ecl::linear_algebra::Matrix<Float,3,3>& R,
+	 ecl::linear_algebra::Matrix<Float,3,1>& T) { setPose( R, T ); }
+
+	//! @brief  Construct the pose using position and rotation angles.
+	//! @param  x,y,z : position (origin) of the target frame
+	//! @param  yaw   : rotation angle on horizontal plane (Z axis) -- positive when turning-to-the-left
+	//! @param  pitch : rotation angle on vertical plane (Y axis) -- positive when looking-downward
+	//! @param  roll  : rotation angle on frontal plane (X axis) -- positive when tilting-to-the-right
+	Pose3D(Float x, Float y, Float z, Float yaw, Float pitch, Float roll) {
+	setPose( x, y, z, yaw, pitch, roll );
+	}
+
+	//! @brief  Construct the pose using position and coordinate axes.
+	//! @param  x,y,z  : position (origin) of the target frame
+	//! @param  ax,ay,az : coordinate axes of the target local frame
+	Pose3D(Float x, Float y, Float z,
+	 ecl::linear_algebra::Matrix<Float,3,1> &ax,
+	 ecl::linear_algebra::Matrix<Float,3,1> &ay,
+	 ecl::linear_algebra::Matrix<Float,3,1> &az) {
+	setPose( x, y, z, ax, ay, az );
+	}
+
+	//! @brief  Construct the pose using position and X and Z coordinate axes.
+	//! @param  x,y,z  : position (origin) of the target frame
+	//! @param  x_axis : X axis of the target frame
+	//! @param  z_approx : rough direction of Z axis of the target frame (non X, any vector orthogonal to Y)
+	Pose3D(Float x, Float y, Float z,
+	 ecl::linear_algebra::Matrix<Float,3,1> &x_axis,
+	 ecl::linear_algebra::Matrix<Float,3,1> &z_approx) {
+	setPose( x, y, z, x_axis, z_approx );
+	}
+  
+  virtual ~Pose3D() {}
+
+  // -----------------------------------------------------------------
+  // Setters
+  // -----------------------------------------------------------------
+  
+  //! @brief Assignment operators from another Pose3D<> instance.
+  void operator=(const Pose3D<Float>& P) { R = P.R; T = P.T; }
+  
+  //! @brief  Construct the pose using 2D pose.
+  //! @param  xyh   : 2D pose of the robot
+  void setPose(Pose2D<Float> &xyh) { setPose( xyh.x(), xyh.y(), 0, xyh.heading(), 0, 0 ); }
+  
+  //! @brief  Initialize the pose using rotation matrix and translation vector.
+  //! @param  R : 3x3 rotation matrix
+  //! @param  T : 3x1 translation vector
+  void setPose(Float r[9], Float t[3]) {
+    // Even though Eigen is column-major, CommaInitializer is row-major, just like C.
+    R << r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8];
+    T << t[0], t[1], t[2];
+  }
+  
+  //! @brief  Initialize the pose using rotation matrix and translation vector.
+  //! @param  R : 3x3 rotation matrix
+  //! @param  T : 3x1 translation vector
+  void setPose(ecl::linear_algebra::Matrix<Float,3,3>& R,
+	       ecl::linear_algebra::Matrix<Float,3,1>& T) {
+    this->R = R; this->T = T; 
+  }
+  
+  //! @brief  Initialize the pose using position and rotation angles.
+  //! @param  x,y,z : position (origin) of the target frame
+  //! @param  yaw   : rotation angle on horizontal plane (Z axis) -- positive when turning-to-the-left
+  //! @param  pitch : rotation angle on vertical plane (Y axis) -- positive when looking-downward
+  //! @param  roll  : rotation angle on frontal plane (X axis) -- positive when tilting-to-the-right
+  void setPose(Float x, Float y, Float z, Float yaw, Float pitch, Float roll) {
+    T << x, y, z;
+    R = ( Eigen::AngleAxis<Float>( yaw,   Eigen::Matrix<Float,3,1>::UnitZ() ) *
+	  Eigen::AngleAxis<Float>( pitch, Eigen::Matrix<Float,3,1>::UnitY() ) *
+	  Eigen::AngleAxis<Float>( roll,  Eigen::Matrix<Float,3,1>::UnitX() ) );
+  }
+  
+  //! @brief  Initialize the pose using position and coordinate axes.
+  //! @param  x,y,z  : position (origin) of the target frame
+  //! @param  ax,ay,az : coordinate axes of the target local frame
+  void setPose(Float x, Float y, Float z,
+	       ecl::linear_algebra::Matrix<Float,3,1> &ax,
+	       ecl::linear_algebra::Matrix<Float,3,1> &ay,
+	       ecl::linear_algebra::Matrix<Float,3,1> &az) {
+    R << ax[0], ay[0], az[0], ax[1], ay[1], az[1], ax[2], ay[2], az[2];
+    T << x, y, z;
+  }
+  
+  //! @brief  Initialize the pose using position and X and Z coordinate axes.
+  //! @param  x,y,z  : position (origin) of the target frame
+  //! @param  x_axis : X axis of the target frame
+  //! @param  z_approx : rough direction of Z axis of the target frame (non-X, orthogonal to Y)
+  void setPose(Float x, Float y, Float z,
+	       ecl::linear_algebra::Matrix<Float,3,1> &x_axis,
+	       ecl::linear_algebra::Matrix<Float,3,1> &z_approx) {
+    ecl::linear_algebra::Matrix<Float,3,1>  ax, ay, az = z_approx;
+    ax = x_axis.normalized();
+    ay = az.cross( ax );    ay.normalize();
+    az = ax.cross( ay );    az.normalize();
+    R << ax[0], ay[0], az[0], ax[1], ay[1], az[1], ax[2], ay[2], az[2];
+    T << x, y, z;
+  }
+  
+  // -----------------------------------------------------------------
+  // Accessors
+  // -----------------------------------------------------------------
+  
+  double x() const { return T[0]; }	//!< @brief Get the x-coordinate
+  double y() const { return T[1]; }	//!< @brief Get the y-coordinate
+  double z() const { return T[2]; }	//!< @brief Get the z-coordinate
+  
+  //! @brief  Representation in eigen vector format.
+  //! @return Matrix3t : a reference to the underlying rotation matrix.
+  Eigen::Matrix<Float,3,3>& rotation() { return R; }
+
+  //! @brief  Representation in const eigen vector format.
+  //! @return Vector3t : a reference to the underlying translation vector.
+  Eigen::Matrix<Float,3,1>& translation() { return T; }
+  
+  //! @brief  Get C array values for the rotation and translation.
+  void getArrayValues(Float r[9], Float t[3], bool inverse=false) {
+    if (!inverse) {
+      r[0] = R(0,0);  r[1] = R(0,1);  r[2] = R(0,2);  t[0] = T[0];
+      r[3] = R(1,0);  r[4] = R(1,1);  r[5] = R(1,2);  t[1] = T[1];
+      r[6] = R(2,0);  r[7] = R(2,1);  r[8] = R(2,2);  t[2] = T[2];
+    } else {
+      Pose3D<double> Pi = this->inverse();
+      r[0] = Pi.R(0,0);  r[1] = Pi.R(0,1);  r[2] = Pi.R(0,2);  t[0] = Pi.T[0];
+      r[3] = Pi.R(1,0);  r[4] = Pi.R(1,1);  r[5] = Pi.R(1,2);  t[1] = Pi.T[1];
+      r[6] = Pi.R(2,0);  r[7] = Pi.R(2,1);  r[8] = Pi.R(2,2);  t[2] = Pi.T[2];
+    }
+  }
+  
+  // -----------------------------------------------------------------
+  // Mathematical operators / functions
+  // -----------------------------------------------------------------
+  
+  //! @brief  Calculate the inverse of the pose (transformation between coordinate frames)
+  //! @return Pose3D<Float> : transformation with target and reference frames swapped.
+  Pose3D<Float> inverse(void) {
+    Pose3D<Float> P;
+    P.R = this->R.transpose();
+    P.T = P.R * this->T * -1;
+    return P; 
+  }
+
+  //! @brief Calculate the difference of two poses (transformation between coordinate frames)
+  //! @param Pa : target    pose
+  //! @param Pb : reference pose
+  //! @return Pose3D<Float> : differential, or relative pose (wrt Pb's frame).
+  Pose3D<Float> Difference(const Pose3D<Float> &Pa, const Pose3D<Float> &Pb) { return Pa - Pb; }
+
+  //! @brief Calculate the difference from current pose to the given pose (transformation between coordinate frames)
+  //! @param P : target pose (wrt common frame).
+  //! @return Pose3D<Float> : differential, or relative pose (wrt this pose's frame).
+  Pose3D<Float> operator-(Pose3D<Float> &P) const {
+    return (P.inverse() + *this);  // Pwa - Pwb = Pba = Pbw * Pwa;
+  }
+  
+  //! @brief Adds the differential, or relative pose (wrt this pose).
+  //! @param rel_pose : differential (wrt this pose's frame).
+  //! @return Pose3D<Float> : this pose combined with rel_pose (wrt common/global frame).
+  Pose3D<Float> operator+(const Pose3D<Float> &rel_pose) const {
+    const Pose3D<Float> &Pwa = *this, &Pab = rel_pose;
+    Pose3D<Float> Pwb;
+    Pwb.R = Pwa.R * Pab.R;
+    Pwb.T = Pwa.R * Pab.T + Pwa.T;
+    return Pwb;
+  }
+  
+  //! @brief Adds the differential to the current pose.
+  //! @param rel_pose : differential (wrt this pose's frame).
+  //! @return Pose3D<Float>& : handle to the updated pose (wrt common/global frame).
+  Pose3D<Float>& operator+=(const Pose3D<Float> &rel_pose) {
+    *this = ( *this + rel_pose );
+    return (*this);
+  }
+  
+  //! @brief Combine two transformations
+  //! @param  P : differential (wrt this pose's frame).
+  //! @return Pose3D<Float> : this pose combined with P (wrt common/global frame).
+  Pose3D<Float> operator*(const Pose3D<Float> &P) const { return (*this + P); }
+  
+  // -----------------------------------------------------------------
+  // Coordinate conversion
+  // -----------------------------------------------------------------
+  
+  //! @brief  Convert coordinates from the target frame to the reference frame of the pose.
+  //! @param  x : coordinate values of a point in 3D
+  //! @return Vector3t : new coordinate values converted to the pose's reference frame
+  ecl::linear_algebra::Matrix<Float,3,1> convert(const ecl::linear_algebra::Matrix<Float,3,1> &x) {
+    ecl::linear_algebra::Matrix<Float,3,1> x_new = R * x + T;
+    return x_new;
+  }
+  
+  // Insertion operator for sending the pose to an output stream.
+  template <typename OutputStream, typename Float_>
+  friend OutputStream& operator<<(OutputStream &ostream , const Pose3D<Float_> &P);
+
+private:
+  Rotation R;
+  Translation T;
+
+};
+  
+//! Insertion operator for sending the pose to an output stream. 
+template <typename OutputStream, typename Float_>  // Note that Matrix<> is column-major
+OutputStream& operator<<(OutputStream &ostream , const Pose3D<Float_> &P) {
+  ostream << "[ " << std::setiosflags(std::ios::fixed) << std::setprecision(3) 
+	  << std::setw(6) << P.R[0] << " " << std::setw(6) << P.R[3] << " " << std::setw(6) << P.R[6] << " " << std::setw(8) << P.T[0] << std::endl << "  "
+	  << std::setw(6) << P.R[1] << " " << std::setw(6) << P.R[4] << " " << std::setw(6) << P.R[7] << " " << std::setw(8) << P.T[1] << std::endl << "  " 
+	  << std::setw(6) << P.R[2] << " " << std::setw(6) << P.R[5] << " " << std::setw(6) << P.R[8] << " " << std::setw(8) << P.T[2] << " ] ";
+  return ostream;
+}
+
+
+} // namespace ecl
+
+#endif /* ECL_GEOMETRY_POSE3D_HPP_ */

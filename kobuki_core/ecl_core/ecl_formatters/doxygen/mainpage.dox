@@ -1,0 +1,233 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+@section packageSummary Package Summary
+
+The formatters here simply format various input types to a specified
+text format. If you wish to just do fast type to text conversion
+without formatting, use the converters supplied in ecl_utilities.
+
+@section History
+
+	Type to text formatting is usually bundled with both streaming and
+	device manipulation. Although this makes it very simple to do the
+	most basic of type formatting, it also has the unfortunate consequence
+	in that the formatter types (printf, sprintf, iostreams) are very
+	heavyweight and subsequently slow. Especially for a simple task, they
+	bring a sledge hammer when all that is needed is a gentle push.
+
+	What the formatters attempt to do is to split the functionality
+	of formatting from the concepts of device manipulation,
+	streaming. This ensures that any simple task is not overdone with a
+	heavyweight object (really important for logging) and it greatly enhances
+	the efficiency and speed. The classes here also bring in type safety,
+	something which is not guaranteed by either printf or sprintf.
+
+
+@section CompilingLinking Compiling & Linking
+
+	Include the following at the top of any translation unit which
+	requires this library:
+
+	@code
+	#include <ecl/formatters.hpp>
+
+	// The formatter template family
+	using ecl::Format;
+
+	// Common formatter parameters
+	using ecl::NoAlign;
+	using ecl::LeftAlign;
+	using ecl::CentreAlign;
+	using ecl::RightAlign;
+
+	// Integral formatter parameters
+	using ecl::Bin;
+	using ecl::Dec;
+	using ecl::Hex;
+
+	// Float formatter parameters
+	using ecl::Fixed;
+	using ecl::Sci;
+
+	@endcode
+
+	You will also need to link to <i>-lecl_formatters</i>.
+
+\section usage Usage
+
+	@subsection Instantiation
+
+		Formatters are functors - functions with state. You instantiate a formatter
+		type and then make use of it as if it were a function call.
+
+		@code
+		Format<int> format(); // Default format initialisation
+		Format<int> format(8,RightAlign,Hex); // Custom format initialisation
+		@endcode
+
+	@subsection FormatChange Changing the Format Parameters
+
+		The format parameters can be changed singly with appropriately named
+		setters, or collectively via:: a bundled operator () call. Sometimes
+		common combinations are also provided with a convenient setter via the operator ().
+
+		@code
+		format.base(Hex)
+		format(8,RightAlign,Dec)
+		@endcode
+
+		Changing the format parameters in this way will set the default formatting
+		for any input values given to the formatter in the future.
+
+	@subsection FormattersStreaming Streaming
+
+		The formatters are primarily intended to be used with streams. For convenience
+		they have been designed to be used with any stream that implemenents the
+		<< operator. Subsequently they are useful with either TextStreams (ECL-IO) or
+		the usual c++ streams. When used in conjunction with TextStreams they provide
+		a very fast streaming interface.
+
+	@subsection PermanentFormatting Permanent Formatting
+
+		To format with the parameters stored in the formatter, you simply
+		provide the formatter with the input value. Note that the formatter will
+		only accept a value of the type specified in the formatter's template
+		argument.
+
+		@code
+		ostream << format(i) << " " << format(9);
+		@endcode
+
+		For convenience, you can also change the format parameter on the fly (this is
+		recorded permanently).
+		@code
+		ostream << format.base(Hex)(i) << " " << format(10,LeftAlign,Dec)(9);
+		@endcode
+
+	@subsection TemporaryFormatting Temporary Formatting
+
+		Occasionally you will only need to change the format for one instance.
+		To effect a temporary change in this way, supply the input value
+		along with the specified formatting options.
+
+		@code
+		ostream << format(i,6,CentreAlign,Hex);
+		@endcode
+
+	@subsection FormatterFunctionality Functionality
+
+		Always check the formatter's interface to see what setters are
+		available to the type you wish to format. Although there are common
+		formatting parameters, they are few and these will usually vary from type
+		to type.
+
+	@subsection FormattersSpeedSection Performance
+
+		Some results from tests on a 64 bit gentoo installed on a dual core II computer
+		while formatting both integer and float types indicate that when used in conjunction
+		with TextStream, the formatters are 7-30x faster than their printf and
+		iostream equivalents (which perform roughly as well as each other).
+		Run the test program for evaluation on your machine.
+
+@section healthHazards Health Hazards
+
+		There are some awkward aspects of streaming that make it difficult for the formatters to
+		function perfectly. Without going into the details, there are various issues with
+		the unspecifiedness of function arguments that mean its impossible to format several
+		objects on the same line differently, and expect the result to come back in the
+		correct order. I haven't currently got a solution for this, so there are two
+		options:
+		- 1) Leave the formatters as they are and ensure that only one
+		formatter is used on each line (abort/throw if this occurs), or
+		- 2) Push the formatters back into TextStream.
+
+		The second option is no good - it just turns TextStream into a heavyweight iostream.
+		A priority for us is fast logging, so we must keep TextStream lightweight and since
+		1) is merely a coding style issue, that's easy to handle so long as we are aware of
+		it.
+
+	@subsection okUsage Permitted Usage
+
+		@code
+		ostream << "[" << format(q.x());
+		ostream << ", " << format(q.y());
+		ostream << ", " << format(q.z()) << "]";
+		@endcode
+
+	@subsection bannedUsage Not permitted Usage
+
+		@code
+		ostream << "[" << format(q.x()) << ", " << format(q.y()) ostream << ", " << format(q.z()) << "]";
+		@endcode
+
+		In debug mode, formatters use an exception throwing assert to check that multiple formatters aren't
+		used in the one line when streaming.
+
+	@section FormattingTypes Types
+
+		Formatters cover all the basic fundamental types (char, float, double, int...). They
+		also cover a few special types, including arrays - refer to the documentation for ecl_containers
+		for more information.
+
+	@section FormattersWriting Writing Your Own Formatters
+
+		Formatters must implement
+		- Formatting setters
+		- Input value operator
+		- Temporary formatting operators
+		- Streaming friend function
+
+		@code
+		class MatrixFormatter {
+		  public:
+			  MatrixFormatter& precision(int p);     // Setter
+			  MatrixFormatter& operator()(Matrix M); // Input Operator
+			  MatrixFormatter& operator(int p, int w ... ); // Combination setter
+			  MatrixFormatter& operator(Matrix M, int p, int w ...); //Temporary formatting operator
+			  template <typename OutputStream, typename N> friend OutputStream& operator << (OutputStream& ostream, MatrixFormatter& formatter);
+		}
+		@endcode
+		Note that the setters and operators must return the formatter so that the friend function can implement the formatting.
+		
+		For the Format<Type> class to automagically find this formatter, you can implement one of two methods.
+		If you have access to the class's internals, simply typedef it as "Formatter" inside the class, otherwise
+		simply specialise the Format<> class for your type and inherit the formatter.
+		
+		@code
+		// Method one, if you have access to the classes internals
+		class Matrix {
+		public:
+		    typedef MatrixFormatter Formatter;
+		};
+		// Method two
+		template <>
+		class Format<Matrix> : public MatrixFormatter {};
+		@endcode
+		
+
+@section ConverterList Current List of Formatters
+
+		Each standard formatter is a template specialisation of the form Format<inputType> where the available input types are:
+
+		- integral types (char, short, int, long, long long and their unsigned equivalents)
+		- float types (float, double)
+		- string
+		- fixed size arrays/stencils
+
+		Note, as with any string based object, avoid it if you need speed with your streaming.
+
+\section unitTests Unit Tests
+
+	- src/examples/formatters.cpp : not a google unit test, but does coverage.
+
+\section ChangeLog
+
+    - <b>Sep 10</b> : Moved container arrays to the ecl_containers class.
+    - <b>Mar 10</b> : Char stencils can now use the same formatter as their underlying array.
+    - <b>May 09</b> : Added width formatting capabilities to float containers.
+    - <b>May 09</b> : Added formatters for fixed size char, float and double arrays.
+    - <b>May 09</b> : Fixed speed issues by converting to an underlying snprintf implementation (temp. hack).
+    - <b>May 09</b> : Added formatters for fundamental number types and strings.
+*/

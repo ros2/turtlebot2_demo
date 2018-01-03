@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ecl_concepts</name>
+  <version>0.61.18</version>
+  <description>
+     Introduces a compile time concept checking mechanism that can be used
+     most commonly to check for required functionality when passing
+     template arguments.
+  </description>
+  <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/ecl_concepts</url>
+  <url type="repository">https://github.com/stonier/ecl_core</url>
+  <url type="bugtracker">https://github.com/stonier/ecl_core/issues</url>
+  <author email="d.stonier@gmail.com">Daniel Stonier</author> -->
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>ecl_license</build_depend>
+  <build_depend>ecl_config</build_depend>
+  <build_depend>ecl_type_traits</build_depend>
+  <exec_depend>ecl_license</exec_depend>
+  <exec_depend>ecl_config</exec_depend>
+  <exec_depend>ecl_type_traits</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

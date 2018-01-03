@@ -1,0 +1,34 @@
+/**
+ * @namespace ecl
+ *
+ * @brief Embedded control libraries.
+ * 
+ * Various core libraries useful for embedded control systems.
+ **/
+/**
+ * @namespace ecl::blueprints
+ *
+ * @brief Blueprints and factories classes used to generate blueprints (do not use directly).
+ *
+ * The blueprints are used to generate lightweight classes that store the rules to
+ * instantiate or configure classes in this package. These are used internally by 
+ * container classes via inheritance and typedef'd notation for convenience, so you
+ * should never need to directly use these classes.
+ **/
+/**
+ * @namespace ecl::containers
+ *
+ * @brief Supporting elements and interfaces for ecl containers.
+ *
+ * These provide support for the elements in this package. They are not
+ * intended to be directly visible to the user. 
+ **/
+/**
+ * @namespace ecl::formatters
+ *
+ * @brief Supporting classes for container formatters (do not use directly).
+ *
+ * Do not use these directly, they are better accessed via the Container::Formatter
+ * or Format< Container > mechanisms. 
+ **/
+ 

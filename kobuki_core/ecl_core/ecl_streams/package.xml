@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ecl_streams</name>
+  <version>0.61.18</version>
+  <description>
+     These are lightweight text streaming classes that connect to standardised
+     ecl type devices.
+  </description>
+  <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/ecl_streams</url>
+  <url type="repository">https://github.com/stonier/ecl_core</url>
+  <url type="bugtracker">https://github.com/stonier/ecl_core/issues</url>
+  <author email="d.stonier@gmail.com">Daniel Stonier</author> -->
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>ecl_license</build_depend>
+  <build_depend>ecl_errors</build_depend>
+  <build_depend>ecl_concepts</build_depend>
+  <build_depend>ecl_devices</build_depend>
+  <build_depend>ecl_time</build_depend>
+  <build_depend>ecl_converters</build_depend>
+  <build_depend>ecl_type_traits</build_depend>
+
+  <exec_depend>ecl_license</exec_depend>
+  <exec_depend>ecl_errors</exec_depend>
+  <exec_depend>ecl_concepts</exec_depend>
+  <exec_depend>ecl_devices</exec_depend>
+  <exec_depend>ecl_time</exec_depend>
+  <exec_depend>ecl_converters</exec_depend>
+  <exec_depend>ecl_type_traits</exec_depend>
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>
