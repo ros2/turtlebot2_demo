@@ -8,7 +8,6 @@ add_subdirectory(command_line)
 # FILES
 ###############################################################################
 
-file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
-  
-install(FILES ${HEADERS} DESTINATION include/ecl)
+#file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.hpp")

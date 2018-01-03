@@ -20,6 +20,7 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(kobuki_driver REQUIRED)
 
 add_executable(kobuki_node src/kobuki_node.cpp)
 ament_target_dependencies(kobuki_node

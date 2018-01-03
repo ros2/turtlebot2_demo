@@ -13,7 +13,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.hpp.in ${CMAKE_CURRENT_SOURCE_
 # Files
 ##############################################################################
 
-file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
-
-install(FILES ${HEADERS} DESTINATION include/ecl/filesystem)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/config.hpp DESTINATION include/ecl/filesystem)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.hpp")

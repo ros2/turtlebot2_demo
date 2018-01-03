@@ -68,8 +68,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ecl.hpp.in ${CMAKE_CURRENT_SOURCE_DIR
 
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ecl.hpp DESTINATION include/ecl/config)
-install(FILES ${HEADERS} DESTINATION include/ecl/config)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 
 
 # If we want to supply the version number in major/minor/patch

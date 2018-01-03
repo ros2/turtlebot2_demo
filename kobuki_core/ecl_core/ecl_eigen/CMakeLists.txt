@@ -19,7 +19,7 @@ find_package(ament_cmake REQUIRED)
 
 #if(DEFINED ECL_EIGEN_IS_INTERNAL_3_2_1)
     message(STATUS "Using ecl's internal eigen 3.2.1.")
-		ament_export_include_directories(include include/eigen3.2.1 include/eigen3.2.1/Eigen)
+		ament_export_include_directories(include)
 
 #elseif(DEFINED ECL_EIGEN_IS_INTERNAL_3_1_2)
 #    set(ECL_EIGEN_IS_INTERNAL_3_1_2 1)
@@ -53,7 +53,7 @@ find_package(ament_cmake REQUIRED)
 ##############################################################################
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/ecl/eigen.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/eigen.hpp)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/eigen.hpp DESTINATION include/ecl)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 
 ##############################################################################
 # Actual project configuration

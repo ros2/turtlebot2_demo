@@ -2,6 +2,4 @@
 # FILES
 ###############################################################################
 
-set(LICENSES COPYING.LESSER)
-
-install(FILES ${LICENSES} DESTINATION share/licenses/eigen)
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION share/licenses/eigen)

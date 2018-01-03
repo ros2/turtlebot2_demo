@@ -31,7 +31,7 @@ include_directories(include )
 ##############################################################################
 
 add_library(kobuki_dock_drive SHARED src/dock_drive.cpp src/dock_drive_states.cpp src/dock_drive_debug.cpp)
-ament_target_dependencies(kobuki_dock_drive ecl_errors ecl_config)
+ament_target_dependencies(kobuki_dock_drive ecl_errors ecl_config ecl_geometry)
 
 ##############################################################################
 # Installs
