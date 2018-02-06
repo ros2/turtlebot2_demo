@@ -89,7 +89,14 @@ int main(int argc, char * argv[])
   tf2_ros::TransformBroadcaster br(node);
 
   kobuki::Parameters parameters;
+#ifndef _WIN32
   parameters.device_port = "/dev/kobuki";
+#else
+  // 
+  // \\?\FTDIBUS#VID_0403+PID_6001+kobuki_AH02B8WIA#0000#{86e0d1e0-8089-11d0-9ce4-08003e301f73}
+  //
+  parameters.device_port = "\\\\.\\COM1";
+#endif
   node->get_parameter("device_port", parameters.device_port);
   std::string odom_frame = "odom";
   node->get_parameter("odom_frame", odom_frame);
