@@ -34,12 +34,12 @@
 #ifndef DEPTH_IMAGE_PROC_DEPTH_TRAITS
 #define DEPTH_IMAGE_PROC_DEPTH_TRAITS
 
-#include <limits>
+#include <stdint.h>
+
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <vector>
-
-#include <stdint.h>
 
 namespace depth_image_proc {
 
