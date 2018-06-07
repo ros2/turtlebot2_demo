@@ -36,7 +36,10 @@
 #ifndef DEPTHIMAGE_TO_POINTCLOUD2__DEPTH_TRAITS_HPP_
 #define DEPTHIMAGE_TO_POINTCLOUD2__DEPTH_TRAITS_HPP_
 
+#include <stdint.h>
+
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <vector>
 
