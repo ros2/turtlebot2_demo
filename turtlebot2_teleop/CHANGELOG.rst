@@ -1,0 +1,13 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package turtlebot2_teleop
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+
+0.4.0 (2017-12-08)
+------------------
+* 0.0.3
+* 0.0.2
+* Tb2 repos refactor (`#46 <https://github.com/ros2/turtlebot2_demo/issues/46>`_)
+* Contributors: Dirk Thomas, Mikael Arguedas, dhood
