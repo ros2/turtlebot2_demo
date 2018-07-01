@@ -1,5 +1,7 @@
 This repository contains the code and supporting files to run TurtleBot 2 demos using ROS 2. Due to reliance on existing Linux-only code and dependencies, these demos are intended for use only on Linux (that could change in the future).
 
+The followwing instructions ar for ROS Bouncy, if you are using ROS Ardent please refer to [these instructions](https://github.com/ros2/turtlebot2_demo/blob/ardent/README.md).
+
 <!-- Here's a video of the very first successful run of ROS 2 follower: https://www.youtube.com/watch?v=YTlls9yHZog.
 
 This is very much a work in progress and there's plenty of functionality present in the ROS 1 equivalent system that's currently missing or disabled, but it's an important step. -->
@@ -15,7 +17,8 @@ First, install ROS2 from binaries following [these instructions](https://github.
 
 Then install the turtlebo2 demo specific packages:
 ```
-sudo apt install ros-ardent-turtlebot2* ros-kinetic-kobuki-ftdi
+export ROS1_DISTRO=melodic
+sudo apt install ros-bouncy-turtlebot2* ros-$ROS1_DISTRO-kobuki-ftdi
 ```
 
 ## Installation from source
@@ -26,32 +29,32 @@ First, install ROS2 from source following [these instructions](https://github.co
 Then get the turtlebo2 demos specific code:
 ```
 cd <YOUR_ROS2_WORKSPACE>
-wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/ardent/turtlebot2_demo.repos
+wget https://raw.githubusercontent.com/ros2/turtlebot2_demo/bouncy/turtlebot2_demo.repos
 vcs import src < turtlebot2_demo.repos
 ```
 
 ### Install some dependencies:
 ```bash
-sudo apt-get install --no-install-recommends -y libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libceres-dev libgoogle-glog-dev liblua5.2-dev libpcl-dev libprotobuf-dev libsdl1.2-dev libsdl-image1.2-dev libsuitesparse-dev libudev-dev libusb-1.0-0-dev libyaml-cpp-dev protobuf-compiler python-sphinx ros-kinetic-kobuki-driver ros-kinetic-kobuki-ftdi
+export ROS1_DISTRO=melodic # or kinetic if using Ubuntu Xenial
+sudo apt-get install --no-install-recommends -y libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libceres-dev libgoogle-glog-dev liblua5.2-dev libpcl-dev libprotobuf-dev libsdl1.2-dev libsdl-image1.2-dev libsuitesparse-dev libudev-dev libusb-1.0-0-dev libyaml-cpp-dev protobuf-compiler python-sphinx ros-$ROS1_DISTRO-catkin ros-$ROS1_DISTRO-kobuki-driver ros-$ROS1_DISTRO-kobuki-ftdi
 ```
 
 Reason for each dependency:
-* `ros-kinetic-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
-* `ros-kinetic-kobuki-ftdi` : we use a `udev` rule from this package
-* `ros-kinetic-common-msgs` : to support use of the `ros1_bridge`, we need the ROS 1 messages available (TODO: document use of the bridge to view depth images and other stuff)
-* `ros-kinetic-astra-camera` : we're compiling our own ROS 2 fork of this package, so we don't actually need the ROS 1 version; we're installing it as a convenient way to ensure that all of its dependencies are installed
+* `ros-$ROS1_DISTRO-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
+* `ros-$ROS1_DISTRO-kobuki-ftdi` : we use a `udev` rule from this package
+* `ros-$ROS1_DISTRO-common-msgs` : to support use of the `ros1_bridge`, we need the ROS 1 messages available (TODO: document use of the bridge to view depth images and other stuff)
 
 ### Build the ros2 code
 
 For resource constrained platforms we will split the build into 2 steps to make sure not to overflow the memory
 ```bash
-src/ament/ament_tools/scripts/ament.py build --isolated --symlink-install --parallel --skip-packages cartographer cartographer_ros ros1_bridge turtlebot2_amcl turtlebot2_drivers turtlebot2_follower turtlebot2_cartographer turtlebot2_teleop
+colcon build --symlink-install --packages-skip cartographer cartographer_ros cv_bridge opencv_tests ros1_bridge turtlebot2_amcl turtlebot2_drivers turtlebot2_follower turtlebot2_cartographer turtlebot2_teleop vision_opencv
 ```
 
 Now the resource intensive packages and the ones depending on ROS1 packages:
 ```bash
-source /opt/ros/kinetic/setup.bash
-src/ament/ament_tools/scripts/ament.py build --isolated --symlink-install --parallel --only cartographer cartographer_ros turtlebot2_amcl turtlebot2_cartographer turtlebot2_drivers turtlebot2_follower turtlebot2_teleop --make-flags -j2 -l2
+source /opt/ros/$ROS1_DISTRO/setup.bash
+colcon build --symlink-install --packages-select cartographer cartographer_ros turtlebot2_amcl turtlebot2_cartographer turtlebot2_drivers turtlebot2_follower turtlebot2_teleop
 ```
 Go grab a coffee (or a meal if you compile on ARM)
 
@@ -93,13 +96,13 @@ sudo service udev restart
 
 If installed from Debian packages
 ```bash
-source /opt/ros/kinetic/setup.bash
-source /opt/ros/ardent/setup.bash
+source /opt/ros/$ROS1_DISTRO/setup.bash
+source /opt/ros/bouncy/setup.bash
 ```
 
 If installed from source
 ```bash
-source /opt/ros/kinetic/setup.bash
+source /opt/ros/$ROS1_DISTRO/setup.bash
 source ~/ros2_ws/install/local_setup.bash
 ```
 
@@ -160,7 +163,7 @@ This assumes that you have a ROS2 dynamic bridge on your system.
 ##### From binaries:
 Setup your sources as explained on the [setup sources section](https://github.com/ros2/ros2/wiki/Linux-Install-Debians#setup-sources) and then run
 ```bash
-sudo apt update && sudo apt install ros-ardent-ros1-bridge
+sudo apt update && sudo apt install ros-bouncy-ros1-bridge
 ```
 
 ##### From source:
@@ -170,20 +173,20 @@ Build your ROS2 workspace as explained in [these instructions](https://github.co
 
 Terminal A:
 ```bash
-. /opt/ros/kinetic/setup.bash
+. /opt/ros/$ROS1_DISTRO/setup.bash
 roscore
 ```
 
 Terminal B:
 ```bash
-. /opt/ros/kinetic/setup.bash
+. /opt/ros/$ROS1_DISTRO/setup.bash
 . <YOUR_ROS2_WORKSPACE>
 ros2 run ros1_bridge dynamic_bridge
 ```
 
 Terminal C:
 ```bash
-. /opt/ros/kinetic/setup.bash
+. /opt/ros/$ROS1_DISTRO/setup.bash
 rosrun rviz rviz
 ```
 Topics you can visualize in Rviz:
