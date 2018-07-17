@@ -2,8 +2,8 @@
 Changelog for package turtlebot2_demo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.5.1 (2018-07-17)
+------------------
 * add a turtlebot2_demo metapackage (`#88 <https://github.com/ros2/turtlebot2_demo/issues/88>`_) (`#89 <https://github.com/ros2/turtlebot2_demo/issues/89>`_)
 * Contributors: Mikael Arguedas
 

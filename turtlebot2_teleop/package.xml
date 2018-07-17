@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>turtlebot2_teleop</name>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
   <description>Launch files for turtlebot2 teleop demo</description>
   <maintainer email="clalancette@openrobotics.org">Chris Lalancette</maintainer>
   <license>Apache License 2.0</license>
