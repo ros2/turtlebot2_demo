@@ -34,7 +34,7 @@ repositories:
   ros2/turtlebot2_demo:
     type: git
     url: https://github.com/ros2/turtlebot2_demo.git
-    version: 0.5.0
+    version: 0.5.1
   ros-perception/vision_opencv:
     type: git
     url: https://github.com/ros-perception/vision_opencv.git
