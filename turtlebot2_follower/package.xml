@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>turtlebot2_follower</name>
-  <version>0.4.0</version>
+  <version>0.4.1</version>
   <description>A simple follower using centroid in depth images.</description>
   <maintainer email="mikael@osrfoundation.org">Mikael Arguedas</maintainer>
   <license>Apache License 2.0</license>
