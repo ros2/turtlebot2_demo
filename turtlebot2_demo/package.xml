@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-model
+  href="http://download.ros.org/schema/package_format2.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>turtlebot2_demo</name>
+  <version>0.4.1</version>
+  <description>Metapackage aggregating the turtlebot2 demo packages</description>
+  <maintainer email="mikael@osrfoundation.org">Mikael Arguedas</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>depthimage_to_pointcloud2</exec_depend>
+  <exec_depend>turtlebot2_amcl</exec_depend>
+  <exec_depend>turtlebot2_cartographer</exec_depend>
+  <exec_depend>turtlebot2_drivers</exec_depend>
+  <exec_depend>turtlebot2_follower</exec_depend>
+  <exec_depend>turtlebot2_teleop</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
