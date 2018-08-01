@@ -195,6 +195,8 @@ Topics you can visualize in Rviz:
 - the depth images on the topic `/depth`
 - the laserscans on the topic `/scans`
 
+Note: ROS Bouncy uses cartographer 0.3.0 that doesn't publish an occupancy grid on the `/map` topic anymore.
+
 ## AMCL (localization)
 See the [AMCL demo README](https://github.com/ros2/turtlebot2_demo/blob/master/turtlebot2_amcl/README.md)
 
