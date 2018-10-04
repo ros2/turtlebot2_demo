@@ -38,7 +38,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
 
   if (nullptr == g_cam_info) {
     // we haven't gotten the camera info yet, so just drop until we do
-    RCUTILS_LOG_WARN("No camera info, skipping point cloud conversion")
+    RCUTILS_LOG_WARN("No camera info, skipping point cloud conversion");
     return;
   }
 
@@ -66,7 +66,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
     depthimage_to_pointcloud2::convert<float>(image, cloud_msg, model);
   } else {
     RCUTILS_LOG_WARN_THROTTLE(RCUTILS_STEADY_TIME, 5000,
-      "Depth image has unsupported encoding [%s]", image->encoding.c_str())
+      "Depth image has unsupported encoding [%s]", image->encoding.c_str());
     return;
   }
 
