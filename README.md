@@ -1,6 +1,6 @@
 This repository contains the code and supporting files to run TurtleBot 2 demos using ROS 2. Due to reliance on existing Linux-only code and dependencies, these demos are intended for use only on Linux (that could change in the future).
 
-The followwing instructions ar for ROS Bouncy, if you are using ROS Ardent please refer to [these instructions](https://github.com/ros2/turtlebot2_demo/blob/ardent/README.md).
+The following instructions are for ROS Bouncy, if you are using ROS Ardent please refer to [these instructions](https://github.com/ros2/turtlebot2_demo/blob/ardent/README.md).
 
 <!-- Here's a video of the very first successful run of ROS 2 follower: https://www.youtube.com/watch?v=YTlls9yHZog.
 
