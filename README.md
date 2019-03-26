@@ -1,6 +1,6 @@
 This repository contains the code and supporting files to run TurtleBot 2 demos using ROS 2. Due to reliance on existing Linux-only code and dependencies, these demos are intended for use only on Linux (that could change in the future).
 
-The followwing instructions ar for ROS Bouncy, if you are using ROS Ardent please refer to [these instructions](https://github.com/ros2/turtlebot2_demo/blob/ardent/README.md).
+The following instructions are for ROS Bouncy, if you are using ROS Ardent please refer to [these instructions](https://github.com/ros2/turtlebot2_demo/blob/ardent/README.md).
 
 <!-- Here's a video of the very first successful run of ROS 2 follower: https://www.youtube.com/watch?v=YTlls9yHZog.
 
@@ -111,7 +111,7 @@ You'll need to do this step for every terminal you use for these demos
 # Run the demos
 
 ## Joystick teleop
-This is a classic teleoperation demo where the robot can be driven around using a gamepad controller. Thie demo has been tested with logitech controllers and uses `RB` as a deadman, the left joystick for driving forward/backward and the right joystick for rotation.
+This is a classic teleoperation demo where the robot can be driven around using a gamepad controller. This demo has been tested with logitech controllers and uses `RB` as a deadman, the left joystick for driving forward/backward and the right joystick for rotation.
 Try the launch file:
 ```
 launch `ros2 pkg prefix turtlebot2_teleop`/share/turtlebot2_teleop/launch/turtlebot_joy.py
