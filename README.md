@@ -1,6 +1,6 @@
 This repository contains the code and supporting files to run TurtleBot 2 demos using ROS 2. Due to reliance on existing Linux-only code and dependencies, these demos are intended for use only on Linux (that could change in the future).
 
-The following instructions are for ROS Bouncy, if you are using ROS Ardent please refer to [these instructions](https://github.com/ros2/turtlebot2_demo/blob/ardent/README.md).
+The following instructions are for ROS Crystal.
 
 <!-- Here's a video of the very first successful run of ROS 2 follower: https://www.youtube.com/watch?v=YTlls9yHZog.
 
@@ -13,18 +13,15 @@ For instructions on how to setup your turtlebot please see [Setup your turtlebot
 
 ## Installation from binaries
 
-First, install ROS2 from binaries following [these instructions](https://github.com/ros2/ros2/wiki/Linux-Install-Debians)
+First, install ROS2 from binaries following [these instructions](https://index.ros.org/doc/ros2/Installation/Crystal/Linux-Install-Debians/)
 
 Then install the turtlebo2 demo specific packages:
 ```
-export ROS1_DISTRO=melodic
-sudo apt install ros-bouncy-turtlebot2* ros-$ROS1_DISTRO-kobuki-ftdi
+sudo apt install ros-crystal-turtlebot2*
 ```
 
 ## Installation from source
-This assumes that you have ROS Kinetic installed (or at lease have the ros apt repository in your sources)
-
-First, install ROS2 from source following [these instructions](https://github.com/ros2/ros2/wiki/Linux-Development-Setup)
+First, install ROS2 from source following [these instructions](https://index.ros.org/doc/ros2/Installation/Crystal/Linux-Development-Setup/)
 
 Then get the turtlebo2 demos specific code:
 ```
@@ -35,28 +32,19 @@ vcs import src < turtlebot2_demo.repos
 
 ### Install some dependencies:
 ```bash
-export ROS1_DISTRO=melodic # or kinetic if using Ubuntu Xenial
-sudo apt-get install --no-install-recommends -y libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libceres-dev libgoogle-glog-dev liblua5.2-dev libpcl-dev libprotobuf-dev libsdl1.2-dev libsdl-image1.2-dev libsuitesparse-dev libudev-dev libusb-1.0-0-dev libyaml-cpp-dev protobuf-compiler python-sphinx ros-$ROS1_DISTRO-catkin ros-$ROS1_DISTRO-kobuki-driver ros-$ROS1_DISTRO-kobuki-ftdi
+sudo apt-get install --no-install-recommends -y libboost-iostreams-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libceres-dev libgoogle-glog-dev liblua5.2-dev libpcl-dev libprotobuf-dev libsdl1.2-dev libsdl-image1.2-dev libsuitesparse-dev libudev-dev libusb-1.0-0-dev libyaml-cpp-dev protobuf-compiler python-sphinx ros-$ROS_DISTRO-catkin ros-$ROS_DISTRO-kobuki-driver ros-$ROS_DISTRO-kobuki-ftdi ros-$ROS_DISTRO-cartographer-ros
 ```
 
 Reason for each dependency:
-* `ros-$ROS1_DISTRO-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
-* `ros-$ROS1_DISTRO-kobuki-ftdi` : we use a `udev` rule from this package
-* `ros-$ROS1_DISTRO-common-msgs` : to support use of the `ros1_bridge`, we need the ROS 1 messages available (TODO: document use of the bridge to view depth images and other stuff)
+* `ros-$ROS_DISTRO-kobuki-driver` : our ROS 2 kobuki driver builds on top of this package (and its dependencies)
+* `ros-$ROS_DISTRO-kobuki-ftdi` : we use a `udev` rule from this package
 
 ### Build the ros2 code
 
-For resource constrained platforms we will split the build into 2 steps to make sure not to overflow the memory
-```bash
-colcon build --symlink-install --packages-skip cartographer cartographer_ros cv_bridge opencv_tests ros1_bridge turtlebot2_amcl turtlebot2_drivers turtlebot2_follower turtlebot2_cartographer turtlebot2_teleop vision_opencv
-```
-
 Now the resource intensive packages and the ones depending on ROS1 packages:
 ```bash
-source /opt/ros/$ROS1_DISTRO/setup.bash
-colcon build --symlink-install --packages-select cartographer cartographer_ros turtlebot2_amcl turtlebot2_cartographer turtlebot2_drivers turtlebot2_follower turtlebot2_teleop
+colcon build --symlink-install
 ```
-Go grab a coffee (or a meal if you compile on ARM)
 
 # Configure a couple of things
 

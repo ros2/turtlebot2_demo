@@ -12,30 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from launch.exit_handler import default_exit_handler, restart_exit_handler
-from ros2run.api import get_executable_path
+import launch
+import launch_ros.actions
 
+def generate_launch_description():
+    kobuki_node = launch_ros.actions.Node(package='turtlebot2_drivers',
+                                          node_executable='kobuki_node',
+                                          output='screen')
 
-def launch(launch_descriptor, argv):
-    ld = launch_descriptor
-    package = 'turtlebot2_drivers'
-    ld.add_process(
-        cmd=[get_executable_path(package_name=package, executable_name='kobuki_node')],
-        name='kobuki_node',
-        exit_handler=restart_exit_handler,
-    )
-    package = 'teleop_twist_joy'
-    ld.add_process(
-        cmd=[get_executable_path(package_name=package, executable_name='teleop_node')],
-        name='teleop_node',
-        exit_handler=restart_exit_handler,
-    )
-    package = 'joy'
-    ld.add_process(
-        cmd=[get_executable_path(package_name=package, executable_name='joy_node')],
-        name='joy_node',
-        # The joy node is required, die if it dies
-        exit_handler=default_exit_handler,
-    )
+    teleop_twist_node = launch_ros.actions.Node(package='teleop_twist_joy',
+                                                node_executable='teleop_node',
+                                                output='screen')
 
-    return ld
+    joy_node = launch_ros.actions.Node(package='joy',
+                                       node_executable='joy_node',
+                                       output='screen')
+
+    return launch.LaunchDescription([joy_node,
+                                     kobuki_node,
+                                     teleop_twist_node,
+
+                                     launch.actions.RegisterEventHandler(
+                                         event_handler=launch.event_handlers.OnProcessExit(
+                                             target_action=kobuki_node,
+                                             on_exit=[launch.actions.EmitEvent(
+                                                 event=launch.events.Shutdown())],
+                                         )),
+                                     ])
