@@ -31,6 +31,7 @@
 # pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #include "kobuki_driver/kobuki.hpp"
+#include "kobuki_msgs/msg/bumper_event.hpp"
 #ifndef _WIN32
 # pragma GCC diagnostic pop
 #endif
@@ -87,11 +88,13 @@ int main(int argc, char * argv[])
     "cmd_vel", cmdVelCallback, cmd_vel_qos_profile);
   auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", odom_and_imu_qos_profile);
   auto imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu", odom_and_imu_qos_profile);
+  auto bumper_pub = node->create_publisher<kobuki_msgs::msg::BumperEvent>("bumper_event", rmw_qos_profile_default);
   tf2_ros::TransformBroadcaster br(node);
 
   kobuki::Parameters parameters;
 #ifndef _WIN32
-  parameters.device_port = "/dev/kobuki";
+  // parameters.device_port = "/dev/kobuki";
+  parameters.device_port = "/dev/ttyUSB0";
 #else
   //
   // \\?\FTDIBUS#VID_0403+PID_6001+kobuki_AH02B8WIA#0000#{86e0d1e0-8089-11d0-9ce4-08003e301f73}
@@ -110,9 +113,9 @@ int main(int argc, char * argv[])
   g_max_vyaw = 1.0;
   node->get_parameter("max_vyaw", g_max_vyaw);
 
-  RCLCPP_DEBUG(node->get_logger(), "device_port: %s", parameters.device_port.c_str());
-  RCLCPP_DEBUG(node->get_logger(), "max_vx: %f", g_max_vx);
-  RCLCPP_DEBUG(node->get_logger(), "max_vyaw: %f", g_max_vyaw);
+  RCLCPP_INFO(node->get_logger(), "device_port: %s", parameters.device_port.c_str());
+  RCLCPP_INFO(node->get_logger(), "max_vx: %f", g_max_vx);
+  RCLCPP_INFO(node->get_logger(), "max_vyaw: %f", g_max_vyaw);
 
   parameters.sigslots_namespace = "/kobuki";
   parameters.enable_acceleration_limiter = true;
@@ -135,8 +138,16 @@ int main(int argc, char * argv[])
   auto imu_tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
   imu_tf_msg->header.frame_id = base_link_frame;
   imu_tf_msg->child_frame_id = gyro_link_frame;
+  
+  auto bumper_msg = std::make_shared<kobuki_msgs::msg::BumperEvent>();
+  bumper_msg->bumper = 0;
 
   while (rclcpp::ok()) {
+
+    auto data = g_kobuki->getCoreSensorData();
+    bumper_msg->bumper = data.bumper;
+    bumper_pub->publish(bumper_msg);
+
     rcutils_time_point_value_t now;
     double gyro_yaw, gyro_vyaw;
     ecl::LegacyPose2D<double> pose_update;
