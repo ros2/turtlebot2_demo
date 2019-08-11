@@ -70,7 +70,7 @@ static void depthCb(const sensor_msgs::msg::Image::SharedPtr image)
     return;
   }
 
-  g_pub_point_cloud->publish(cloud_msg);
+  g_pub_point_cloud->publish(*cloud_msg);
 }
 
 static void infoCb(sensor_msgs::msg::CameraInfo::SharedPtr info)
@@ -84,19 +84,16 @@ int main(int argc, char ** argv)
 
   rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("depthimage_to_pointcloud2");
 
-  rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
-
-  custom_qos_profile.depth = 1;
-  custom_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
-  custom_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
+  auto custom_qos_profile =
+    rclcpp::QoS(1).reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT).history(RMW_QOS_POLICY_HISTORY_KEEP_LAST);
 
   g_pub_point_cloud = node->create_publisher<sensor_msgs::msg::PointCloud2>(
     "points2", custom_qos_profile);
 
   auto image_sub = node->create_subscription<sensor_msgs::msg::Image>(
-    "depth", depthCb, custom_qos_profile);
+    "depth", custom_qos_profile, depthCb);
   auto cam_info_sub = node->create_subscription<sensor_msgs::msg::CameraInfo>(
-    "depth_camera_info", infoCb, custom_qos_profile);
+    "depth_camera_info", custom_qos_profile, infoCb);
 
   rclcpp::spin(node);
 

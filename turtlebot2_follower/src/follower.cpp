@@ -122,15 +122,14 @@ private:
     private_nh.getParam("enabled", enabled_);
 */
 
-    rmw_qos_profile_t cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
-    cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
-    cmd_vel_qos_profile.depth = 50;
-    cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
-    cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
+    rclcpp::QoS cmd_vel_qos_profile = rclcpp::SensorDataQoS();
+    cmd_vel_qos_profile.keep_last(50).best_effort().durability_volatile();
     cmdpub_ = n_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", cmd_vel_qos_profile);
     //markerpub_ = private_nh.advertise<visualization_msgs::Marker>("marker",1);
     //bboxpub_ = private_nh.advertise<visualization_msgs::Marker>("bbox",1);
-    sub_= n_->create_subscription<sensor_msgs::msg::Image>("depth", std::bind(&TurtlebotFollower::imagecb, this, std::placeholders::_1), rmw_qos_profile_sensor_data);
+    sub_= n_->create_subscription<sensor_msgs::msg::Image>(
+        "depth", rclcpp::SensorDataQoS(),
+        std::bind(&TurtlebotFollower::imagecb, this, std::placeholders::_1));
 
     //switch_srv_ = private_nh.advertiseService("change_state", &TurtlebotFollower::changeModeSrvCb, this);
 
@@ -217,15 +216,15 @@ private:
      }
     }
 
-    auto cmd_vel_msg = std::make_shared<geometry_msgs::msg::Twist>();
+    geometry_msgs::msg::Twist cmd_vel_msg;
 
-    cmd_vel_msg->linear.x = 0.0;
-    cmd_vel_msg->linear.y = 0.0;
-    cmd_vel_msg->linear.z = 0.0;
+    cmd_vel_msg.linear.x = 0.0;
+    cmd_vel_msg.linear.y = 0.0;
+    cmd_vel_msg.linear.z = 0.0;
 
-    cmd_vel_msg->angular.x = 0.0;
-    cmd_vel_msg->angular.y = 0.0;
-    cmd_vel_msg->angular.z = 0.0;
+    cmd_vel_msg.angular.x = 0.0;
+    cmd_vel_msg.angular.y = 0.0;
+    cmd_vel_msg.angular.z = 0.0;
 
     //If there are points, find the centroid and calculate the command goal.
     //If there are no points, simply publish a stop goal.
@@ -247,8 +246,8 @@ private:
 
       if (enabled_)
       {
-        cmd_vel_msg->linear.x = (z - goal_z_) * z_scale_;
-        cmd_vel_msg->angular.z = -x * x_scale_;
+        cmd_vel_msg.linear.x = (z - goal_z_) * z_scale_;
+        cmd_vel_msg.angular.z = -x * x_scale_;
         cmdpub_->publish(cmd_vel_msg);
       }
     }

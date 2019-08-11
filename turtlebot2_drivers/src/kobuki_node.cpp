@@ -28,9 +28,9 @@
 # pragma GCC diagnostic ignored "-Wstrict-aliasing"
 # pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 # pragma GCC diagnostic ignored "-Wunused-parameter"
-# pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #include "kobuki_driver/kobuki.hpp"
+#include "kobuki_msgs/msg/bumper_event.hpp"
 #ifndef _WIN32
 # pragma GCC diagnostic pop
 #endif
@@ -68,30 +68,24 @@ int main(int argc, char * argv[])
   // TODO(clalancette): we set the depth to 50 here since it seems to help workaround
   // a bug where rclcpp::spin_some() can go into an infinite loop sometimes.  We should
   // find and fix the root cause instead of this workaround.
-  rmw_qos_profile_t cmd_vel_qos_profile = rmw_qos_profile_sensor_data;
-  cmd_vel_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
-  cmd_vel_qos_profile.depth = 50;
-  cmd_vel_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
-  cmd_vel_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
+  rclcpp::QoS cmd_vel_qos_profile = rclcpp::SensorDataQoS();
+  cmd_vel_qos_profile.keep_last(50).best_effort().durability_volatile();
 
-  rmw_qos_profile_t odom_and_imu_qos_profile = rmw_qos_profile_sensor_data;
-  odom_and_imu_qos_profile.history = RMW_QOS_POLICY_HISTORY_KEEP_LAST;
-  odom_and_imu_qos_profile.depth = 50;
-  odom_and_imu_qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
-  odom_and_imu_qos_profile.durability = RMW_QOS_POLICY_DURABILITY_VOLATILE;
-
+  rclcpp::QoS odom_and_imu_qos_profile = cmd_vel_qos_profile;
 
   auto node = rclcpp::Node::make_shared("kobuki_node");
   g_logger = node->get_logger();
   auto cmd_vel_sub = node->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel", cmdVelCallback, cmd_vel_qos_profile);
+    "cmd_vel", cmd_vel_qos_profile, cmdVelCallback);
   auto odom_pub = node->create_publisher<nav_msgs::msg::Odometry>("odom", odom_and_imu_qos_profile);
   auto imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu", odom_and_imu_qos_profile);
+  auto bumper_pub = node->create_publisher<kobuki_msgs::msg::BumperEvent>("bumper_event", rclcpp::SystemDefaultsQoS());
   tf2_ros::TransformBroadcaster br(node);
 
   kobuki::Parameters parameters;
 #ifndef _WIN32
-  parameters.device_port = "/dev/kobuki";
+  // parameters.device_port = "/dev/kobuki";
+  parameters.device_port = "/dev/ttyUSB0";
 #else
   //
   // \\?\FTDIBUS#VID_0403+PID_6001+kobuki_AH02B8WIA#0000#{86e0d1e0-8089-11d0-9ce4-08003e301f73}
@@ -110,9 +104,9 @@ int main(int argc, char * argv[])
   g_max_vyaw = 1.0;
   node->get_parameter("max_vyaw", g_max_vyaw);
 
-  RCLCPP_DEBUG(node->get_logger(), "device_port: %s", parameters.device_port.c_str());
-  RCLCPP_DEBUG(node->get_logger(), "max_vx: %f", g_max_vx);
-  RCLCPP_DEBUG(node->get_logger(), "max_vyaw: %f", g_max_vyaw);
+  RCLCPP_INFO(node->get_logger(), "device_port: %s", parameters.device_port.c_str());
+  RCLCPP_INFO(node->get_logger(), "max_vx: %f", g_max_vx);
+  RCLCPP_INFO(node->get_logger(), "max_vyaw: %f", g_max_vyaw);
 
   parameters.sigslots_namespace = "/kobuki";
   parameters.enable_acceleration_limiter = true;
@@ -122,21 +116,29 @@ int main(int argc, char * argv[])
 
   rclcpp::WallRate loop_rate(20);
 
-  auto odom_msg = std::make_shared<nav_msgs::msg::Odometry>();
-  odom_msg->header.frame_id = odom_frame;
-  odom_msg->child_frame_id = base_link_frame;
-  auto imu_msg = std::make_shared<sensor_msgs::msg::Imu>();
-  imu_msg->header.frame_id = gyro_link_frame;
-  auto odom_tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
-  odom_tf_msg->header.frame_id = odom_frame;
-  odom_tf_msg->child_frame_id = base_link_frame;
+  nav_msgs::msg::Odometry odom_msg;
+  odom_msg.header.frame_id = odom_frame;
+  odom_msg.child_frame_id = base_link_frame;
+  sensor_msgs::msg::Imu imu_msg;
+  imu_msg.header.frame_id = gyro_link_frame;
+  geometry_msgs::msg::TransformStamped odom_tf_msg;
+  odom_tf_msg.header.frame_id = odom_frame;
+  odom_tf_msg.child_frame_id = base_link_frame;
   ecl::LegacyPose2D<double> pose;
 
-  auto imu_tf_msg = std::make_shared<geometry_msgs::msg::TransformStamped>();
-  imu_tf_msg->header.frame_id = base_link_frame;
-  imu_tf_msg->child_frame_id = gyro_link_frame;
+  geometry_msgs::msg::TransformStamped imu_tf_msg;
+  imu_tf_msg.header.frame_id = base_link_frame;
+  imu_tf_msg.child_frame_id = gyro_link_frame;
+
+  kobuki_msgs::msg::BumperEvent bumper_msg;
+  bumper_msg.bumper = 0;
 
   while (rclcpp::ok()) {
+
+    auto data = g_kobuki->getCoreSensorData();
+    bumper_msg.bumper = data.bumper;
+    bumper_pub->publish(bumper_msg);
+
     rcutils_time_point_value_t now;
     double gyro_yaw, gyro_vyaw;
     ecl::LegacyPose2D<double> pose_update;
@@ -157,88 +159,88 @@ int main(int argc, char * argv[])
     pose *= pose_update;
 
     // Stuff and publish /odom
-    odom_msg->header.stamp.sec = RCL_NS_TO_S(now);
-    odom_msg->header.stamp.nanosec = now - RCL_S_TO_NS(odom_msg->header.stamp.sec);
-    odom_msg->pose.pose.position.x = pose.x();
-    odom_msg->pose.pose.position.y = pose.y();
-    odom_msg->pose.pose.position.z = 0.0;
+    odom_msg.header.stamp.sec = RCL_NS_TO_S(now);
+    odom_msg.header.stamp.nanosec = now - RCL_S_TO_NS(odom_msg.header.stamp.sec);
+    odom_msg.pose.pose.position.x = pose.x();
+    odom_msg.pose.pose.position.y = pose.y();
+    odom_msg.pose.pose.position.z = 0.0;
 
     tf2::Quaternion q;
     q.setRPY(0.0, 0.0, pose.heading());
-    odom_msg->pose.pose.orientation.x = q.x();
-    odom_msg->pose.pose.orientation.y = q.y();
-    odom_msg->pose.pose.orientation.z = q.z();
-    odom_msg->pose.pose.orientation.w = q.w();
+    odom_msg.pose.pose.orientation.x = q.x();
+    odom_msg.pose.pose.orientation.y = q.y();
+    odom_msg.pose.pose.orientation.z = q.z();
+    odom_msg.pose.pose.orientation.w = q.w();
 
-    for (unsigned int i = 0; i < odom_msg->pose.covariance.size(); ++i) {
-      odom_msg->pose.covariance[i] = 0.0;
+    for (auto i = 0u; i < odom_msg.pose.covariance.size(); ++i) {
+      odom_msg.pose.covariance[i] = 0.0;
     }
     // Pose covariance (required by robot_pose_ekf) TODO: publish realistic values
     // Odometry yaw covariance must be much bigger than the covariance provided
     // by the imu, as the later takes much better measures
-    odom_msg->pose.covariance[0] = 0.1;
-    odom_msg->pose.covariance[7] = 0.1;
+    odom_msg.pose.covariance[0] = 0.1;
+    odom_msg.pose.covariance[7] = 0.1;
     // odom_msg->pose.covariance[35] = use_imu_heading ? 0.05 : 0.2;
-    odom_msg->pose.covariance[35] = 0.2;
+    odom_msg.pose.covariance[35] = 0.2;
 
-    odom_msg->pose.covariance[14] = DBL_MAX;  // set a non-zero covariance on unused
-    odom_msg->pose.covariance[21] = DBL_MAX;  // dimensions (z, pitch and roll); this
-    odom_msg->pose.covariance[28] = DBL_MAX;  // is a requirement of robot_pose_ekf
+    odom_msg.pose.covariance[14] = DBL_MAX;  // set a non-zero covariance on unused
+    odom_msg.pose.covariance[21] = DBL_MAX;  // dimensions (z, pitch and roll); this
+    odom_msg.pose.covariance[28] = DBL_MAX;  // is a requirement of robot_pose_ekf
 
-    odom_msg->twist.twist.linear.x = pose_update_rates[0];
-    odom_msg->twist.twist.linear.y = pose_update_rates[1];
-    odom_msg->twist.twist.linear.z = 0.0;
-    odom_msg->twist.twist.angular.x = 0.0;
-    odom_msg->twist.twist.angular.y = 0.0;
-    odom_msg->twist.twist.angular.z = pose_update_rates[2];
+    odom_msg.twist.twist.linear.x = pose_update_rates[0];
+    odom_msg.twist.twist.linear.y = pose_update_rates[1];
+    odom_msg.twist.twist.linear.z = 0.0;
+    odom_msg.twist.twist.angular.x = 0.0;
+    odom_msg.twist.twist.angular.y = 0.0;
+    odom_msg.twist.twist.angular.z = pose_update_rates[2];
 
     odom_pub->publish(odom_msg);
 
     // Stuff and publish /imu_data
-    imu_msg->header.stamp = odom_msg->header.stamp;
+    imu_msg.header.stamp = odom_msg.header.stamp;
 
     tf2::Quaternion q_imu;
     q_imu.setRPY(0.0, 0.0, gyro_yaw);
-    imu_msg->orientation.x = q_imu.x();
-    imu_msg->orientation.y = q_imu.y();
-    imu_msg->orientation.z = q_imu.z();
-    imu_msg->orientation.w = q_imu.w();
+    imu_msg.orientation.x = q_imu.x();
+    imu_msg.orientation.y = q_imu.y();
+    imu_msg.orientation.z = q_imu.z();
+    imu_msg.orientation.w = q_imu.w();
 
     // set a non-zero covariance on unused dimensions (pitch and roll); this is
     // a requirement of robot_pose_ekf set yaw covariance as very low, to make
     // it dominate over the odometry heading when combined 1: fill once, as its
     // always the same;  2: using an invented value; cannot we get a realistic
     // estimation?
-    imu_msg->orientation_covariance[0] = DBL_MAX;
-    imu_msg->orientation_covariance[4] = DBL_MAX;
-    imu_msg->orientation_covariance[8] = 0.05;
+    imu_msg.orientation_covariance[0] = DBL_MAX;
+    imu_msg.orientation_covariance[4] = DBL_MAX;
+    imu_msg.orientation_covariance[8] = 0.05;
 
     // fill angular velocity; we ignore acceleration for now
-    imu_msg->angular_velocity.z = gyro_vyaw;
+    imu_msg.angular_velocity.z = gyro_vyaw;
 
     // angular velocity covariance; useless by now, but robot_pose_ekf's
     // roadmap claims that it will compute velocities in the future
-    imu_msg->angular_velocity_covariance[0] = DBL_MAX;
-    imu_msg->angular_velocity_covariance[4] = DBL_MAX;
-    imu_msg->angular_velocity_covariance[8] = 0.05;
+    imu_msg.angular_velocity_covariance[0] = DBL_MAX;
+    imu_msg.angular_velocity_covariance[4] = DBL_MAX;
+    imu_msg.angular_velocity_covariance[8] = 0.05;
 
-    imu_msg->linear_acceleration.x = 0.0;
-    imu_msg->linear_acceleration.y = 0.0;
-    imu_msg->linear_acceleration.z = 9.8;
+    imu_msg.linear_acceleration.x = 0.0;
+    imu_msg.linear_acceleration.y = 0.0;
+    imu_msg.linear_acceleration.z = 9.8;
 
     imu_pub->publish(imu_msg);
 
     // Stuff and publish /tf
-    odom_tf_msg->header.stamp = odom_msg->header.stamp;
-    odom_tf_msg->transform.translation.x = pose.x();
-    odom_tf_msg->transform.translation.y = pose.y();
-    odom_tf_msg->transform.translation.z = 0.0;
-    odom_tf_msg->transform.rotation.x = q.x();
-    odom_tf_msg->transform.rotation.y = q.y();
-    odom_tf_msg->transform.rotation.z = q.z();
-    odom_tf_msg->transform.rotation.w = q.w();
+    odom_tf_msg.header.stamp = odom_msg.header.stamp;
+    odom_tf_msg.transform.translation.x = pose.x();
+    odom_tf_msg.transform.translation.y = pose.y();
+    odom_tf_msg.transform.translation.z = 0.0;
+    odom_tf_msg.transform.rotation.x = q.x();
+    odom_tf_msg.transform.rotation.y = q.y();
+    odom_tf_msg.transform.rotation.z = q.z();
+    odom_tf_msg.transform.rotation.w = q.w();
 
-    br.sendTransform(*odom_tf_msg);
+    br.sendTransform(odom_tf_msg);
 
     // Stuff and publish tf for the IMU; the values for XYZ come from:
     // https://github.com/yujinrobot/kobuki/blob/554e541/kobuki_description/urdf/kobuki.urdf.xacro
@@ -246,16 +248,16 @@ int main(int argc, char * argv[])
     // because it is an intrinsic part of the robot, and thus it seems to
     // make sense to put it in the kobuki node.  Eventually this should
     // probably move out into the URDF.
-    imu_tf_msg->header.stamp = imu_msg->header.stamp;
-    imu_tf_msg->transform.translation.x = 0.056;
-    imu_tf_msg->transform.translation.y = 0.062;
-    imu_tf_msg->transform.translation.z = 0.0202;
-    imu_tf_msg->transform.rotation.x = 0.0;
-    imu_tf_msg->transform.rotation.y = 0.0;
-    imu_tf_msg->transform.rotation.z = 0.0;
-    imu_tf_msg->transform.rotation.w = 1.0;
+    imu_tf_msg.header.stamp = imu_msg.header.stamp;
+    imu_tf_msg.transform.translation.x = 0.056;
+    imu_tf_msg.transform.translation.y = 0.062;
+    imu_tf_msg.transform.translation.z = 0.0202;
+    imu_tf_msg.transform.rotation.x = 0.0;
+    imu_tf_msg.transform.rotation.y = 0.0;
+    imu_tf_msg.transform.rotation.z = 0.0;
+    imu_tf_msg.transform.rotation.w = 1.0;
 
-    br.sendTransform(*imu_tf_msg);
+    br.sendTransform(imu_tf_msg);
 
     rclcpp::spin_some(node);
     loop_rate.sleep();
